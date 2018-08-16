@@ -38,7 +38,10 @@ import {
     Serializer,
 } from "../../src/packer";
 
+import * as Zlib from "zlib";
+
 import * as Chai from "chai";
+import * as JsYaml from "js-yaml";
 import * as Mocha from "mocha";
 
 Mocha.describe("Celery.Packer.Packer", () => {
@@ -52,12 +55,9 @@ Mocha.describe("Celery.Packer.Packer", () => {
         str: "foo",
     };
 
-    const concatenate = (strings: Array<string>): string =>
-        strings.map((s) => `${s}\n`).reduce((lhs, rhs) => lhs + rhs);
-
     Mocha.it("should be created by default with JSON/Base64", () => {
-        // tslint:disable:max-line-length
-        const expected = "eyJhcnIiOlswLDUsMTBdLCJudW0iOjE1LCJvYmoiOnsiYmFyIjoxMCwiZm9vIjo1fSwic3RyIjoiZm9vIn0=";
+        const expected = Buffer.from(JSON.stringify(data), "utf8")
+            .toString("base64");
 
         const packer: Packer = createDefaultPacker();
 
@@ -69,8 +69,7 @@ Mocha.describe("Celery.Packer.Packer", () => {
     });
 
     Mocha.it("should work as expected with JSON", () => {
-        // tslint:disable:max-line-length
-        const expected = "{\"arr\":[0,5,10],\"num\":15,\"obj\":{\"bar\":10,\"foo\":5},\"str\":\"foo\"}";
+        const expected = JSON.stringify(data);
 
         const packer: Packer = createPacker({
             compressor: Compressor.Identity,
@@ -86,17 +85,7 @@ Mocha.describe("Celery.Packer.Packer", () => {
     });
 
     Mocha.it("should work as expected with YAML", () => {
-        const expected = concatenate([
-            "arr:",
-            "  - 0",
-            "  - 5",
-            "  - 10",
-            "num: 15",
-            "obj:",
-            "  bar: 10",
-            "  foo: 5",
-            "str: foo",
-        ]);
+        const expected = JsYaml.safeDump(data);
 
         const packer: Packer = createPacker({
             compressor: Compressor.Identity,
@@ -112,8 +101,8 @@ Mocha.describe("Celery.Packer.Packer", () => {
     });
 
     Mocha.it("should work as expected with JSON/Base64", () => {
-        // tslint:disable:max-line-length
-        const expected = "eyJhcnIiOlswLDUsMTBdLCJudW0iOjE1LCJvYmoiOnsiYmFyIjoxMCwiZm9vIjo1fSwic3RyIjoiZm9vIn0=";
+        const expected = Buffer.from(JSON.stringify(data), "utf8")
+            .toString("base64");
 
         const packer: Packer = createPacker({
             compressor: Compressor.Identity,
@@ -129,8 +118,8 @@ Mocha.describe("Celery.Packer.Packer", () => {
     });
 
     Mocha.it("should work as expected with YAML/Base64", () => {
-        // tslint:disable:max-line-length
-        const expected = "YXJyOgogIC0gMAogIC0gNQogIC0gMTAKbnVtOiAxNQpvYmo6CiAgYmFyOiAxMAogIGZvbzogNQpzdHI6IGZvbwo=";
+        const expected = Buffer.from(JsYaml.safeDump(data), "utf8")
+            .toString("base64");
 
         const packer: Packer = createPacker({
             compressor: Compressor.Identity,
@@ -146,8 +135,9 @@ Mocha.describe("Celery.Packer.Packer", () => {
     });
 
     Mocha.it("should work as expected with JSON/zlib", () => {
-        // tslint:disable:max-line-length
-        const expected = "eJyrVkosKlKyijbQMdUxNIjVUcorzVWyMjTVUcpPylKyqlZKSgRKGxroKKXl5ytZmdbqKBWXAEXA3FoAHCMRkQ==";
+        const expected = Zlib.deflateSync(
+            Buffer.from(JSON.stringify(data), "utf8")
+        ).toString("base64");
 
         const packer: Packer = createPacker({
             compressor: Compressor.Zlib,
@@ -163,8 +153,9 @@ Mocha.describe("Celery.Packer.Packer", () => {
     });
 
     Mocha.it("should work as expected with JSON/gzip", () => {
-        // tslint:disable:max-line-length
-        const expected = "H4sIAAAAAAAAE6tWSiwqUrKKNtAx1TE0iNVRyivNVbIyNNVRyk/KUrKqVkpKBEobGugopeXnK1mZ1uooFZcARcDcWgB6hKEdPgAAAA==";
+        const expected = Zlib.gzipSync(
+            Buffer.from(JSON.stringify(data), "utf8")
+        ).toString("base64");
 
         const packer: Packer = createPacker({
             compressor: Compressor.Gzip,
@@ -180,8 +171,9 @@ Mocha.describe("Celery.Packer.Packer", () => {
     });
 
     Mocha.it("should work as expected with YAML/zlib", () => {
-        // tslint:disable:max-line-length
-        const expected = "eJxLLCqy4lJQ0FUwAJOmYNLQgCuvNNdKwdCUKz8pCySflFhkBRJWUEjLz7cCKisuAQoA2VwAyKIPBg==";
+        const expected = Zlib.deflateSync(
+            Buffer.from(JsYaml.safeDump(data), "utf8")
+        ).toString("base64");
 
         const packer: Packer = createPacker({
             compressor: Compressor.Zlib,
@@ -197,8 +189,9 @@ Mocha.describe("Celery.Packer.Packer", () => {
     });
 
     Mocha.it("should work as expected with YAML/gzip", () => {
-        // tslint:disable:max-line-length
-        const expected = "H4sIAAAAAAAAE0ssKrLiUlDQVTAAk6Zg0tCAK68010rB0JQrPykLJJ+UWGQFElZQSMvPtwIqKy4BCgDZXACqR7x7QQAAAA==";
+        const expected = Zlib.gzipSync(
+            Buffer.from(JsYaml.safeDump(data), "utf8")
+        ).toString("base64");
 
         const packer: Packer = createPacker({
             compressor: Compressor.Gzip,
