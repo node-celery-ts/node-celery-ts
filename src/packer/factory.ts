@@ -98,9 +98,7 @@ export enum SerializerType {
 const createCompressor = (type: CompressorType): Compressor.Compressor => {
     switch (type) {
     case CompressorType.Gzip:
-        // this is wrong because i lied to you, but this is what
-        // the Python Celery client does
-        return Compressor.createZlibCompressor();
+        return Compressor.createGzipCompressor();
     case CompressorType.Identity:
         return Compressor.createIdentityCompressor();
     case CompressorType.Zlib:

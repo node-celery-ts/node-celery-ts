@@ -185,8 +185,21 @@ export class Task<T> {
     ): [Packer.Packer, Packer.Encoder] {
         const encoder = Task.selectEncoder(compressor);
 
+        const realCompressor = (() => {
+            // this is the behavior of the Python client
+            if (compressor === Packer.Compressor.Gzip) {
+                return Packer.Compressor.Zlib;
+            }
+
+            return compressor;
+        })();
+
         return [
-            Packer.createPacker({ compressor, encoder, serializer }),
+            Packer.createPacker({
+                compressor: realCompressor,
+                encoder,
+                serializer,
+            }),
             encoder
         ];
     }
@@ -245,7 +258,7 @@ export class Task<T> {
             return base;
         }
 
-         // yes, even if it's zlib -- this is the behavior of the Python client
+        // both zlib and gzip map to using zlib with application/x-gzip MIME
         return {
             ...base,
             compression: CompressionMime.Zlib,
