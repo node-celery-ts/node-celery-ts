@@ -41,6 +41,16 @@ import { isNullOrUndefined } from "./utility";
 
 import * as Uuid from "uuid";
 
+/**
+ * Internally uses `createBackend` and `createBroker`.
+ *
+ * @param brokerUrl The URI(s) where message broker(s) to be used can be found.
+ * @param resultBackend The optional URI where a result backend can be found.
+ *                      If none is provided, `NullBackend` will be used.
+ * @returns A newly constructed Client which will use the provided message
+ *          broker(s) and result backend.
+ * @throws Error If any of the URIs could not be parsed.
+ */
 export const createClient = ({ brokerUrl, resultBackend }: {
     brokerUrl: string | Array<string>;
     resultBackend?: string;
