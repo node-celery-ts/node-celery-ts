@@ -33,21 +33,49 @@ import * as Amqp from "./amqp";
 import { Client } from "./client";
 import { UnimplementedError } from "./errors";
 import { MessageBroker } from "./message_broker";
+import { NullBackend } from "./null_backend";
 import * as Redis from "./redis";
 import { ResultBackend } from "./result_backend";
 import { getScheme, Scheme } from "./uri";
+import { isNullOrUndefined } from "./utility";
 
 import * as Uuid from "uuid";
 
+/**
+ * Internally uses `createBackend` and `createBroker`.
+ *
+ * @param brokerUrl The URI(s) where message broker(s) to be used can be found.
+ * @param resultBackend The optional URI where a result backend can be found.
+ *                      If none is provided, `NullBackend` will be used.
+ * @returns A newly constructed Client which will use the provided message
+ *          broker(s) and result backend.
+ * @throws Error If any of the URIs could not be parsed.
+ */
 export const createClient = ({ brokerUrl, resultBackend }: {
-    brokerUrl: string;
-    resultBackend: string;
-}) => {
+    brokerUrl: string | Array<string>;
+    resultBackend?: string;
+}): Client => {
     const id = Uuid.v4();
 
+    const backend = (() => {
+        if (isNullOrUndefined(resultBackend)) {
+            return new NullBackend();
+        }
+
+        return createBackend(id, resultBackend);
+    })();
+
+    const brokers = (() => {
+        if (typeof brokerUrl === "string") {
+            return [createBroker(brokerUrl)];
+        }
+
+        return brokerUrl.map(createBroker);
+    })();
+
     return new Client({
-        backend: createBackend(id, resultBackend),
-        brokers: [createBroker(brokerUrl)],
+        backend,
+        brokers,
         id,
     });
 };
