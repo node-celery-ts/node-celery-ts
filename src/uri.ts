@@ -36,7 +36,7 @@ import * as _ from "underscore";
 import * as UriJs from "urijs";
 
 /**
- * immutable destructuring of a URI
+ * Object representation of a URI.
  */
 export interface Uri {
     readonly authority?: Authority;
@@ -47,7 +47,7 @@ export interface Uri {
 }
 
 /**
- * supported scheme types for backend and broker selection
+ * Supported URI schemes for Celery message brokers and result backends.
  */
 export enum Scheme {
     Amqp = "amqp",
@@ -62,27 +62,40 @@ export enum Scheme {
     RpcSecure = "rpcs",
 }
 
+/**
+ * For convenience.
+ */
 const SCHEMES = new Set<string>(_.values(Scheme));
 
+/**
+ * URI authority.
+ */
 export interface Authority {
     readonly userInfo?: UserInfo;
     readonly host: string;
     readonly port?: number;
 }
 
+/**
+ * Parsed URI query - can be not present or present one or more times.
+ */
 export interface Queries {
     readonly [key: string]: string | Array<string> | undefined;
 }
 
+/**
+ * URI username and password.
+ */
 export interface UserInfo {
     readonly user: string;
     readonly pass?: string;
 }
 
 /**
- * @param toParse a URI of the format:
- * scheme:[//[user[:pass]@]host[:port]]path[?query=value[&query=value]...]
- * @returns a Uri object with all fields validated and normalized
+ * @param toParse A valid URI.
+ * @returns A normalized object representation of a URI.
+ *
+ * @throws ParseError If `toParse` is not a valid URI.
  */
 export const parseUri = (toParse: string): Uri => {
     const parsed = (() => {
@@ -112,10 +125,11 @@ export const parseUri = (toParse: string): Uri => {
 };
 
 /**
- * @param rawUri A raw URI string.
- * @returns A Scheme enum parsed from `rawUri`.
- * @throws ParseError If `rawUri` is not a valid URI or if its scheme is
- *                    unrecognized.
+ * Only looks at the beginning of the string to match a scheme.
+ *
+ * @param rawUri A valid URI.
+ * @returns An enum corresponding to the scheme of `rawUri`.
+ * @throws ParseError If `rawUri` has an unrecognized scheme.
  */
 export const getScheme = (rawUri: string): Scheme => {
     const SCHEME_REGEX: RegExp = /^([A-Za-z][A-Za-z\d+.-]*):/;
@@ -137,6 +151,9 @@ export const getScheme = (rawUri: string): Scheme => {
     return scheme as Scheme;
 };
 
+/**
+ * A URI as parsed by `urijs`.
+ */
 interface RawUri {
     readonly fragment?: string;
     readonly hostname?: string;
@@ -148,6 +165,12 @@ interface RawUri {
     readonly username?: string;
 }
 
+/**
+ * @param uri The output of `require("urijs").parse`.
+ * @param parsing The object to add a hostname to.
+ * @returns A copy of `parsing` with `authority.host` added if `uri.hostname` is
+ *          defined.
+ */
 const addHost = (uri: RawUri, parsing: Uri): Uri => {
     if (isNullOrUndefined(uri.hostname)) {
         return parsing;
@@ -161,6 +184,11 @@ const addHost = (uri: RawUri, parsing: Uri): Uri => {
     };
 };
 
+/**
+ * @param uri The output of `require("urijs").parse`.
+ * @param parsing The object to add a hostname and username to.
+ * @returns A copy of `parsing` with the fields added.
+ */
 const addHostAndUser = (uri: RawUri, parsing: Uri): Uri => {
     const withHost = addHost(uri, parsing);
 
@@ -180,6 +208,11 @@ const addHostAndUser = (uri: RawUri, parsing: Uri): Uri => {
     };
 };
 
+/**
+ * @param uri The output of `require("urijs").parse`.
+ * @param parsing The object to add a hostname, username, and password to.
+ * @returns A copy of `parsing` with the fields added.
+ */
 const addHostUserAndPass = (uri: RawUri, parsing: Uri): Uri => {
     const withUser = addHostAndUser(uri, parsing);
 
@@ -218,6 +251,11 @@ const addHostUserAndPass = (uri: RawUri, parsing: Uri): Uri => {
     };
 };
 
+/**
+ * @param uri The output of `require("urijs").parse`.
+ * @param parsing The object to add a hostname, username, password, and port to.
+ * @returns A copy of `parsing` with the fields added.
+ */
 const addHostUserPassAndPort = (uri: RawUri, parsing: Uri): Uri => {
     const withPass = addHostUserAndPass(uri, parsing);
 
@@ -235,6 +273,11 @@ const addHostUserPassAndPort = (uri: RawUri, parsing: Uri): Uri => {
     };
 };
 
+/**
+ * @param uri The output of `require("urijs").parse`.
+ * @param parsing The object to append queries to.
+ * @returns A copy of `parsing` with the parsed query appended.
+ */
 const addQuery = (uri: RawUri, parsing: Uri): Uri => {
     const REGEX: RegExp = // tslint:disable:max-line-length
         /^[A-Za-z\d*-._+%]+=[A-Za-z\d*-._+%]*(?:&[A-Za-z\d*-._+%]+=[A-Za-z\d*-._+%+]*)*$/;
@@ -273,6 +316,14 @@ const addQuery = (uri: RawUri, parsing: Uri): Uri => {
     };
 };
 
+/**
+ * Uses `Number.parseInt` with a base of 10.
+ *
+ * @param maybePort A valid base-10 representation of a number.
+ * @returns The parsed port number.
+ *
+ * @throws ParseError If `maybePort` is not a number.
+ */
 const parsePort = (maybePort: string): number => {
     const maybeMatches = /^\d+$/.exec(maybePort);
 
@@ -285,6 +336,12 @@ const parsePort = (maybePort: string): number => {
     return parsed;
 };
 
+/**
+ * @param maybeHost A string to validate as URI authority hostname.
+ * @returns `maybeHost` if it is a valid hostname.
+ *
+ * @throws ParseError If `maybeHost` is not a valid URI authority hostname.
+ */
 const validateHost = (maybeHost: string): string => {
     if (HOST_REGEX.test(maybeHost) === false) {
         throw new ParseError(`invalid host "${maybeHost}"`);
@@ -293,6 +350,5 @@ const validateHost = (maybeHost: string): string => {
     return maybeHost;
 };
 
-/** @ignore */
-const HOST_REGEX: RegExp = // tslint:disable:max-line-length
-    /^(?:[A-Za-z\d]|[A-Za-z\d][A-Za-z\d-]{0,61}?[A-Za-z\d])(?:\.(?:[A-Za-z\d]|[A-Za-z\d][A-Za-z\d-]{0,61}?[A-Za-z\d]))*$/;
+// tslint:disable:max-line-length
+const HOST_REGEX: RegExp = /^(?:[A-Za-z\d]|[A-Za-z\d][A-Za-z\d-]{0,61}?[A-Za-z\d])(?:\.(?:[A-Za-z\d]|[A-Za-z\d][A-Za-z\d-]{0,61}?[A-Za-z\d]))*$/;
