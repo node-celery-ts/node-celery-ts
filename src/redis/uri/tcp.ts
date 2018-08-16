@@ -43,9 +43,15 @@ import {
 import * as _ from "underscore";
 
 /**
- * @param uri the URI to parse, should be of the format:
+ * `uri` should be of the format:
  * redis[s]://[user[:pass]@]host[:port][/db][?query=value[&query=value]...]
- * @returns The options parsed from `uri`.
+ * snake_case query keys will be converted to camelCase. Supported queries are
+ * `"noDelay"` and `"password"`,
+ *
+ * @param rawUri The URI to parse.
+ * @returns The `Options` parsed from `uri`.
+ *
+ * @throws ParseError If `uri` is not a valid Redis Socket URI.
  */
 export const parse = (rawUri: string): Options => {
     const protocol = getScheme(rawUri);
@@ -66,7 +72,9 @@ export const parse = (rawUri: string): Options => {
     return withQueries;
 };
 
-/** @ignore */
+/**
+ * Accepted options for TCP URIs.
+ */
 enum Option {
     Database = "db",
     Hostname = "host",
@@ -74,19 +82,32 @@ enum Option {
     Port = "port",
 }
 
-/** @ignore */
+/**
+ * Accepted query keys-value types for TCP URIs.
+ */
 interface TcpQueries {
     readonly noDelay?: boolean;
     readonly password?: string;
 }
 
-/** @ignore */
+/**
+ * Set of valid query keys.
+ */
 enum Query {
     NoDelay = "noDelay",
     Password = "password",
 }
 
-/** @ignore */
+/**
+ * TODO: restructure this to be less verbose and less duplicated.
+ *
+ * @param uri The URI to extract authority and path information from.
+ * @param options The `Options` to fill non-query components to.
+ * @returns `options` with database, hostname, password, and port filled in.
+ *
+ * @throws ParseError If the URI's path is not parsable as a non-negative base
+ *                    10 number.
+ */
 const addOptions = (uri: Uri, options: Options): Options =>
     _.reduce(
         _.values(Option),
@@ -105,7 +126,13 @@ const addOptions = (uri: Uri, options: Options): Options =>
         options
     );
 
-/** @ignore */
+/**
+ * @param uri The object representation of a TCP URI.
+ * @param options The object to append queries to.
+ * @returns An `Options` object with present in `uri` appended.
+ *
+ * @throws ParseError If the queries could not be parsed.
+ */
 const addQueries = (uri: Uri, options: Options): Options => {
     if (isNullOrUndefined(uri.query)) {
         return options;
@@ -132,7 +159,12 @@ const addQueries = (uri: Uri, options: Options): Options => {
     );
 };
 
-/** @ignore */
+/**
+ * @param queries The raw URI queries to convert into TCP-specific queries.
+ * @returns The parsed and converted queries.
+ *
+ * @throws ParseError If `"noDelay"` could not be parsed as a boolean.
+ */
 const intoQueries = (queries: Queries): TcpQueries =>
     _.reduce(
         _.pairs(queries) as Array<[string, any]>,
@@ -155,7 +187,14 @@ const intoQueries = (queries: Queries): TcpQueries =>
         { }
     );
 
-/** @ignore */
+/**
+ * @param uri The URI to parse from.
+ * @param iterating The `Options` object to draw defaults from.
+ * @returns An `Options` object with database appended and all other members
+ *          copied from `iterating`.
+ *
+ * @throws ParseError If `uri`'s path cannot be parsed as a database number.'
+ */
 const addDatabase = (uri: Uri, iterating: Options): Options => {
     if (uri.path === "/") {
         return iterating;
@@ -167,7 +206,12 @@ const addDatabase = (uri: Uri, iterating: Options): Options => {
     };
 };
 
-/** @ignore */
+/**
+ * @param uri The URI to parse from.
+ * @param iterating The `Options` object to draw defaults from.
+ * @returns An `Options` object with hostname appended and all other members
+ *          copied from `iterating`.
+ */
 const addHostname = (uri: Uri, iterating: Options): Options => {
     const authority = uri.authority!;
 
@@ -177,7 +221,12 @@ const addHostname = (uri: Uri, iterating: Options): Options => {
     };
 };
 
-/** @ignore */
+/**
+ * @param uri The URI to parse from.
+ * @param iterating The `Options` object to draw defaults from.
+ * @returns An `Options` object with password appended and all other members
+ *          copied from `iterating`.
+ */
 const addPassword = (uri: Uri, iterating: Options): Options => {
     const authority = uri.authority!;
 
@@ -192,7 +241,12 @@ const addPassword = (uri: Uri, iterating: Options): Options => {
     };
 };
 
-/** @ignore */
+/**
+ * @param uri The URI to parse from.
+ * @param iterating The `Options` object to draw defaults from.
+ * @returns An `Options` object with port appended and all other members
+ *          copied from `iterating`.
+ */
 const addPort = (uri: Uri, iterating: Options): Options => {
     const authority = uri.authority!;
 
@@ -206,7 +260,12 @@ const addPort = (uri: Uri, iterating: Options): Options => {
     };
 };
 
-/** @ignore */
+/**
+ * Uses `Utility.parseInteger` internally.
+ *
+ * @param maybeDb A datab
+ * @returns A database index.
+ */
 const parseDb = (maybeDb: string): number => {
     const DB_INDEX: number = 1;
 
