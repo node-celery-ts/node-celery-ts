@@ -33,21 +33,39 @@ import * as Amqp from "./amqp";
 import { Client } from "./client";
 import { UnimplementedError } from "./errors";
 import { MessageBroker } from "./message_broker";
+import { NullBackend } from "./null_backend";
 import * as Redis from "./redis";
 import { ResultBackend } from "./result_backend";
 import { getScheme, Scheme } from "./uri";
+import { isNullOrUndefined } from "./utility";
 
 import * as Uuid from "uuid";
 
 export const createClient = ({ brokerUrl, resultBackend }: {
-    brokerUrl: string;
-    resultBackend: string;
-}) => {
+    brokerUrl: string | Array<string>;
+    resultBackend?: string;
+}): Client => {
     const id = Uuid.v4();
 
+    const backend = (() => {
+        if (isNullOrUndefined(resultBackend)) {
+            return new NullBackend();
+        }
+
+        return createBackend(id, resultBackend);
+    })();
+
+    const brokers = (() => {
+        if (typeof brokerUrl === "string") {
+            return [createBroker(brokerUrl)];
+        }
+
+        return brokerUrl.map(createBroker);
+    })();
+
     return new Client({
-        backend: createBackend(id, resultBackend),
-        brokers: [createBroker(brokerUrl)],
+        backend,
+        brokers,
         id,
     });
 };
