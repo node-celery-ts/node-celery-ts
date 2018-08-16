@@ -1,0 +1,48 @@
+{
+    "extends": ["tslint:all", "tslint-eslint-rules",
+                "tslint-clean-code", "tslint-sonarts"],
+    "jsRules": {},
+    "rules": {
+        // tslint
+        "interface-name": [true, "never-prefix"],
+        "array-type": [true, "generic"],
+        "typedef": [true, "call-signature", "parameter",
+                    "property-declaration",
+                    "member-variable-declaration"],
+        "comment-format": [true, "check-space" ],
+        "trailing-comma": false,
+        "no-implicit-dependencies": [true, "dev"],
+        "newline-per-chained-call": false,
+        "no-inferrable-types": false,
+        "max-classes-per-file": false,
+        "no-any": false,
+        "member-ordering": false,
+        "switch-default": false,
+        "max-line-length": [true, 80],
+        "no-magic-numbers": false,
+        "no-null-keyword": false,
+        "no-non-null-assertion": false,
+        "no-empty": false,
+        "object-literal-key-quotes": [true, "as-needed"],
+        "variable-name": [
+            true,
+            "ban-keywords",
+            "check-format",
+            "allow-leading-underscore"
+        ],
+        "binary-expression-operand-order": false,
+
+        // tslint-clean-code
+        "try-catch-first": true,
+        "max-func-args": 3,
+        "newspaper-order": true,
+        "no-flag-args": true,
+        "no-for-each-push": true,
+        "no-feature-envy": true,
+        "no-map-without-usage": true,
+        "no-complex-conditionals": true,
+        "prefer-dry-conditionals": true,
+        "no-commented-out-code": true
+    },
+    "rulesDirectory": []
+}

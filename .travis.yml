@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+    - "lts/*"
+
+before_script:
+    - npm run setup
+
+script:
+    - npm test
+
+after_success:
+    - rm -rf ./node_modules/typedoc/node_modules/typescript/*
+    - cp -r ./node_modules/typescript/* ./node_modules/typedoc/node_modules/typescript/*
+    - npm run build
+    - npm run typedoc
+    - npm pack

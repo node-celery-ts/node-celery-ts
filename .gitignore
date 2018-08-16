@@ -1,0 +1,7 @@
+dist/
+node_modules/
+celery-ts-*.tgz
+/docs/
+*.DS_Store
+/.nyc_output/
+/coverage/
