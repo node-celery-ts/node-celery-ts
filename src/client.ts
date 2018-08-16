@@ -47,13 +47,16 @@ export class Client {
     private readonly failoverStrategy: FailoverStrategy;
 
     /**
-     * @param backendUri The URI of the result backend to connect to. Passed to
-     *                   `Factories.createBackend`. If undefined, will use
-     *                   a NullBackend.
-     * @param brokerUri The URI of the message broker to connect to. Passed to
-     *                  `Factories.createBroker`.
+     * @param backend The result backend to store the results of task invocation
+     *                on. If `undefined`, `NullBackend` will be used by default
+     *                and results will be ignored.
+     * @param brokers A list of message brokers to use for task message
+     *                transport.
+     * @param failoverStrategy The strategy to follow in case of a message
+     *                         broker failover event.
+     * @param id The UUID of this app.
+     * @param taskDefaults Default options to be passed to `new Task`.
      * @returns A `Client` ready to begin creating tasks.
-     * @throws ParseError If the URIs passed are invalid.
      */
     public constructor({
         backend = new NullBackend(),
@@ -71,7 +74,7 @@ export class Client {
 
     /**
      * @param name The name of the task to execute.
-     * @returns A newly created `Task` ready for application.
+     * @returns A `Task` ready to be invoked.
      */
     public createTask<T>(name: string): Task<T> {
         return new Task({
@@ -85,6 +88,9 @@ export class Client {
     }
 }
 
+/**
+ * Creational options for `Client`'s constructor.
+ */
 export interface ClientOptions {
     backend?: ResultBackend;
     brokers: Array<MessageBroker>;
@@ -93,6 +99,9 @@ export interface ClientOptions {
     taskDefaults?: TaskDefaults;
 }
 
+/**
+ * Default options passed to `Task`'s constructor.'
+ */
 export interface TaskDefaults {
     deliveryMode?: "persistent" | "transient";
     hardTimeLimit?: number;
@@ -100,6 +109,11 @@ export interface TaskDefaults {
     softTimeLimit?: number;
 }
 
+/**
+ * @param size The number of brokers to cycle through.
+ * @returns A `FailoverStrategy` that will cycle through each result broker
+ *          sequentially with modulo arithmetic.
+ */
 export const getRoundRobinStrategy = (size: number): FailoverStrategy => {
     let index = 0;
 
