@@ -72,6 +72,29 @@ export class ResourcePool<T> {
     }
 
     /**
+     * @returns The number of resources owned by this pool.
+     */
+    public numOwned(): number {
+        return this.resourceCount;
+    }
+
+    /**
+     * Resources that are pending are counted here.
+     *
+     * @returns The number of in-use resources owned by this pool.
+     */
+    public numInUse(): number {
+        return this.resourceCount - this.unused.length;
+    }
+
+    /**
+     * @returns The number of unused resources owned by this pool.
+     */
+    public numUnused(): number {
+        return this.unused.length;
+    }
+
+    /**
      * Gets a resource, invokes `f` with it, then returns it to the pool.
      *
      * @param f A function that accepts a resource and returns some value.
