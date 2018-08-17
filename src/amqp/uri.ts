@@ -38,15 +38,20 @@ import { isNullOrUndefined, parseInteger, toCamelCase } from "../utility";
 import * as _ from "underscore";
 
 /**
- * parses a URI formatted according to the rules set forth by RabbitMQ
+ * Parses a URI formatted according to the rules set forth by RabbitMQ.
  * https://www.rabbitmq.com/uri-spec.html
  * https://www.rabbitmq.com/uri-query-parameters.html
- * potential queries are authMechanism, channelMax, connectionTimeout,
+ * Potential queries are authMechanism, channelMax, connectionTimeout,
  * frameMax, heartbeat, and locale. snake_case and camelCase are accepted.
+ * Should be formatted roughly as follows:
+ * amqp[s]://[user[:pass]@]host[:port][/vhost][?key0=value0[&key1=value1]...]
+ * Or as:
+ * rpc[s]://[user[:pass]@]host[:port][/vhost][?key0=value0[&key1=value1]...]
  *
- * @param uri a uri string formatted as follows:
- * amqp://[user[:pass]@]host[:port][/vhost][?key0=value0[&key1=value1]...]
- * @returns an Options object containing the information from the URI
+ * @param rawUri A RabbitMQ URI.
+ * @returns An object representation of `uri`.
+ *
+ * @throws ParseError If `rawUri` is not a RabbitMQ URI.
  */
 export const parseAmqpUri = (rawUri: string): AmqpOptions => {
     const scheme = getScheme(rawUri);
@@ -65,7 +70,7 @@ export const parseAmqpUri = (rawUri: string): AmqpOptions => {
     const protocol = (() => {
         switch (scheme) {
         case Scheme.Rpc: return Scheme.Amqp;
-        case Scheme.RpcSecure: return Scheme.RpcSecure;
+        case Scheme.RpcSecure: return Scheme.AmqpSecure;
         }
 
         return scheme;
@@ -82,7 +87,9 @@ export const parseAmqpUri = (rawUri: string): AmqpOptions => {
     return withQueries;
 };
 
-/** @ignore */
+/**
+ * All the options that will be parsed from a URI query.
+ */
 interface AmqpQueries {
     readonly channelMax?: number;
     readonly frameMax?: number;
@@ -90,7 +97,11 @@ interface AmqpQueries {
     readonly locale?: string;
 }
 
-/** @ignore */
+/**
+ * @param uri The URI to extract a password, port, and username from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with options added.
+ */
 const appendOptions = (uri: Uri, appending: AmqpOptions): AmqpOptions => {
     type FunctionList = Array<(options: AmqpOptions) => AmqpOptions>;
 
@@ -103,7 +114,11 @@ const appendOptions = (uri: Uri, appending: AmqpOptions): AmqpOptions => {
     );
 };
 
-/** @ignore */
+/**
+ * @param uri The URI to extract queries from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with query options added.
+ */
 const appendQueries = (uri: Uri, appending: AmqpOptions): AmqpOptions => {
     if (isNullOrUndefined(uri.query)) {
         return appending;
@@ -114,7 +129,14 @@ const appendQueries = (uri: Uri, appending: AmqpOptions): AmqpOptions => {
     return _.defaults(queries, appending);
 };
 
-/** @ignore */
+/**
+ * vhost is parsed from the URI's path. amqp://localhost uses the default
+ * vhost, while amqp://localhost/ uses the vhost "". Strange.
+ *
+ * @param uri The URI to extract a vhost from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with options added.
+ */
 const appendVhost = (rawUri: string, appending: AmqpOptions): AmqpOptions => {
     const maybeMatches = /^.+:\/\/[^/]*\/([\w\d-.~%]*)$/.exec(rawUri);
 
@@ -130,7 +152,11 @@ const appendVhost = (rawUri: string, appending: AmqpOptions): AmqpOptions => {
     };
 };
 
-/** @ignore */
+/**
+ * @param uri The URI to extract a password from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with password added.
+ */
 const appendPass = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
     if (isNullOrUndefined(uri.authority)
         || isNullOrUndefined(uri.authority.userInfo)
@@ -144,7 +170,11 @@ const appendPass = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
     };
 };
 
-/** @ignore */
+/**
+ * @param uri The URI to extract a port number from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with port number added.
+ */
 const appendPort = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
     if (isNullOrUndefined(uri.authority)
         || isNullOrUndefined(uri.authority.port)) {
@@ -157,7 +187,11 @@ const appendPort = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
     };
 };
 
-/** @ignore */
+/**
+ * @param uri The URI to extract a username from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with username added.
+ */
 const appendUser = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
     if (isNullOrUndefined(uri.authority)
         || isNullOrUndefined(uri.authority.userInfo)) {
@@ -170,7 +204,12 @@ const appendUser = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
     };
 };
 
-/** @ignore */
+/**
+ * @param toTransform The raw URI queries to parse from.
+ * @returns The converted queries.
+ *
+ * @throws ParseError If the queries to be extracted are ill-formed.
+ */
 const asQueries = (toTransform: Queries): AmqpQueries => {
     const cased = camelCaseQueries(toTransform);
 
@@ -189,7 +228,10 @@ const asQueries = (toTransform: Queries): AmqpQueries => {
     return append({ });
 };
 
-/** @ignore */
+/**
+ * @param raw The queries to extract channelMax from.
+ * @returns A function that will append channelMax to an input.
+ */
 const appendChannelMax = (raw: Queries): QueryAppender => {
     const maybeChannelMax = raw.channelMax;
 
@@ -203,7 +245,10 @@ const appendChannelMax = (raw: Queries): QueryAppender => {
     });
 };
 
-/** @ignore */
+/**
+ * @param raw The queries to extract frameMax from.
+ * @returns A function that will append frameMax to an input.
+ */
 const appendFrameMax = (raw: Queries): QueryAppender => {
     const maybeFrameMax = raw.frameMax;
 
@@ -217,7 +262,10 @@ const appendFrameMax = (raw: Queries): QueryAppender => {
     });
 };
 
-/** @ignore */
+/**
+ * @param raw The queries to extract heartbeat from.
+ * @returns A function that will append heartbeat to an input.
+ */
 const appendHeartbeat = (raw: Queries): QueryAppender => {
     const maybeHeartbeat = raw.heartbeat;
 
@@ -231,7 +279,10 @@ const appendHeartbeat = (raw: Queries): QueryAppender => {
     });
 };
 
-/** @ignore */
+/**
+ * @param raw The queries to extract a locale from.
+ * @returns A function that will append the locale to an input.
+ */
 const appendLocale = (raw: Queries): QueryAppender => {
     const maybeLocale = raw.locale;
 
@@ -245,7 +296,10 @@ const appendLocale = (raw: Queries): QueryAppender => {
     });
 };
 
-/** @ignore */
+/**
+ * @param queries The queries to convert from snake_case to camelCase.
+ * @returns Queries with all that were in snake_case as camelCase.
+ */
 const camelCaseQueries = (queries: Queries): Queries =>
     _.reduce(
         _.keys(queries) as Array<string>,
@@ -256,12 +310,22 @@ const camelCaseQueries = (queries: Queries): Queries =>
         { },
     );
 
+/**
+ * A function that makes a copy of an `AmqpQueries` object and appends a new
+ * parameter to it.
+ */
 type QueryAppender = (queries: AmqpQueries) => AmqpQueries;
 
-/** @ignore */
+/**
+ * @param queries The object to forward.
+ * @returns `queries`.
+ */
 const identity = (queries: AmqpQueries): AmqpQueries => queries;
 
-/** @ignore */
+/**
+ * @param value A scalar or an array to convert into a scalar.
+ * @returns A scalar; either the value itself, or the last element of an array.
+ */
 const narrowArray = <T>(value: T | Array<T>): T => {
     if (value instanceof Array) {
         return value[value.length - 1];
