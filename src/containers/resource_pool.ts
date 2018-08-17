@@ -72,6 +72,17 @@ export class ResourcePool<T> {
     }
 
     /**
+     * Gets a resource, invokes `f` with it, then returns it to the pool.
+     *
+     * @param f A function that accepts a resource and returns some value.
+     * @returns A `Promise` that follows the result of invoking `f`.
+     */
+    public use<U>(f: (resource: T) => U | PromiseLike<U>): Promise<U> {
+        return this.get()
+            .then((resource) => this.returnAfter(f(resource), resource));
+    }
+
+    /**
      * @returns An unused resource from the pool. If none are available, one
      *          will be created.
      */
@@ -82,6 +93,25 @@ export class ResourcePool<T> {
             this.inUse.add(r);
 
             return r;
+        });
+    }
+
+    /**
+     * @param promise The `Promise` to settle before returning the resource.
+     * @param resource The resource to return after `promise` settles.
+     */
+    public returnAfter<U>(
+        promise: U | PromiseLike<U>,
+        resource: T
+    ): Promise<U> {
+        return Promise.resolve(promise).catch((reason) => {
+            this.return(resource);
+
+            return Promise.reject(reason);
+        }).then((value) => {
+            this.return(resource);
+
+            return value;
         });
     }
 
@@ -108,25 +138,6 @@ export class ResourcePool<T> {
         }
 
         this.unused.push(resource);
-    }
-
-    /**
-     * @param promise The `Promise` to settle before returning the resource.
-     * @param resource The resource to return after `promise` settles.
-     */
-    public returnAfter<U>(
-        promise: U | PromiseLike<U>,
-        resource: T
-    ): Promise<U> {
-        return Promise.resolve(promise).catch((reason) => {
-            this.return(resource);
-
-            return Promise.reject(reason);
-        }).then((value) => {
-            this.return(resource);
-
-            return value;
-        });
     }
 
     /**
