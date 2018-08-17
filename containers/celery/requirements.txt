@@ -1,0 +1,4 @@
+-e git+https://github.com/celery/kombu.git#egg=kombu
+-e git+https://github.com/celery/celery.git#egg=celery
+amqp
+redis
