@@ -102,16 +102,12 @@ export class RedisBackend implements ResultBackend {
         const key = RedisBackend.getKey(message.task_id);
         const toPut = JSON.stringify(message);
 
-        return this.pool.get().then((client) => {
-            const response = Promise.resolve<string>(
-                client.multi()
-                    .setex(key, RedisBackend.TIMEOUT / 1000, toPut)
-                    .publish(key, toPut)
-                    .exec()
-            );
-
-            return this.pool.returnAfter(response, client);
-        });
+        return this.pool.use((client) =>
+            client.multi()
+                .setex(key, RedisBackend.TIMEOUT / 1000, toPut)
+                .publish(key, toPut)
+                .exec()
+        );
     }
 
     /**
@@ -137,7 +133,7 @@ export class RedisBackend implements ResultBackend {
             return listen();
         }
 
-        return this.pool.get().then((client) => {
+        return this.pool.use((client) => {
             const response = client.get(`celery-task-meta-${taskId}`)
                 .then((raw) => {
                     if (isNullOrUndefined(raw)) {
@@ -153,9 +149,7 @@ export class RedisBackend implements ResultBackend {
                     return parsed;
                 });
 
-            const withTimeout = createTimeoutPromise(response, timeout);
-
-            return this.pool.returnAfter(withTimeout, client);
+            return createTimeoutPromise(response, timeout);
         });
     }
 
