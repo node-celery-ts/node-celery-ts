@@ -40,22 +40,26 @@ import {
 import * as IoRedis from "ioredis";
 
 /**
- * Options polymorphically wraps the logic of client and URI creation
+ * `RedisOptions` objects encapsulate the logic of Redis client creation.
  *
  * @see createOptions
  */
 export interface RedisOptions {
     /**
-     * @returns a Client according to the type of the Options object
+     * @returns A Redis client configured according to the class type.
      */
     createClient(): IoRedis.Redis;
 
     /**
-     * @returns a URI that can be used to lossily reconstruct an Options object
+     * @returns A URI that lossily encodes a `RedisOptions` object.
      */
     createUri(): string;
 }
 
+/**
+ * `RedisTcpOptions` creates Redis clients that connect to a single database
+ * over TCP.
+ */
 export class RedisTcpOptions implements RedisOptions {
     public readonly options: BasicRedisTcpOptions;
 
@@ -101,6 +105,10 @@ export class RedisTcpOptions implements RedisOptions {
     }
 }
 
+/**
+ * `RedisSocketOptions` creates Redis clients that connect to a single database
+ * over Unix Socket.
+ */
 export class RedisSocketOptions implements RedisOptions {
     public readonly options: BasicRedisSocketOptions;
 
@@ -129,6 +137,10 @@ export class RedisSocketOptions implements RedisOptions {
     }
 }
 
+/**
+ * `RedisSentinelOptions` creates Redis clients that connect to a group of Redis
+ * Sentinel nodes, automatically discovering slave nodes in the network.
+ */
 export class RedisSentinelOptions implements RedisOptions {
     public readonly options: BasicRedisSentinelOptions;
 
@@ -145,6 +157,10 @@ export class RedisSentinelOptions implements RedisOptions {
     }
 }
 
+/**
+ * `RedisClusterOptions` creates Redis clients that connect to a Redis
+ * Cluster network.
+ */
 export class RedisClusterOptions implements RedisOptions {
     public readonly options: BasicRedisClusterOptions;
 
@@ -165,6 +181,10 @@ export const DEFAULT_REDIS_OPTIONS: RedisTcpOptions = new RedisTcpOptions({
     protocol: "redis"
 });
 
+/**
+ * @param options Options that might be used to construct ioredis clients.
+ * @returns A transformed `NativeOptions` object.
+ */
 export const createOptions = (options: NativeOptions): RedisOptions => {
     if (isCluster(options)) {
         return new RedisClusterOptions(options);
