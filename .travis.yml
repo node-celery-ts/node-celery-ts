@@ -6,6 +6,7 @@ node_js:
   - "lts/*"
 before_script:
   - npm run setup
+  - npm run build
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
@@ -13,15 +14,21 @@ script:
   - npm test
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
-after_success:
-  - npm run build
-  - npm run typedoc
+before_deploy:
   - npm pack
+  - npm run typedoc
 deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  keep-history: true
-  on:
-    branch: develop
-  local-dir: docs
+  - provider: npm
+    skip-cleanup: true
+    email: $NPM_EMAIL
+    api_key: $NPM_API_KEY
+    on:
+      branch: master
+      tags: true
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    keep-history: true
+    on:
+      branch: develop
+    local-dir: docs
