@@ -102,14 +102,9 @@ export class RpcBackend implements ResultBackend {
         const toSend = Buffer.from(JSON.stringify(message), "utf8");
         const options = RpcBackend.createPublishOptions(message);
 
-        return this.channels.get().then((channel) =>
+        return this.channels.use((channel) =>
             this.assertQueue(channel)
                 .then(() => this.sendToQueue({ channel, options, toSend }))
-                .then((response) => {
-                    this.channels.return(channel);
-
-                    return response;
-                })
         );
     }
 
