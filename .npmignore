@@ -1,0 +1,11 @@
+.nyc_output/
+coverage/
+docs/
+src/
+test/
+
+.npmignore
+.travis.yml
+celery-ts-*.tgz
+tsconfig.json
+tslint.json
