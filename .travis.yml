@@ -3,19 +3,25 @@ env:
     - CC_TEST_REPORTER_ID=b84d24d87a44d1bc041abe37a4e8c4bae44e5691b136ec6a37df73b3bf6b8ca4
 language: node_js
 node_js:
-    - "lts/*"
+  - "lts/*"
 before_script:
-    - npm run setup
-    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-    - chmod +x ./cc-test-reporter
-    - ./cc-test-reporter before-build
+  - npm run setup
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script:
-    - npm test
+  - npm test
 after_script:
-    - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 after_success:
-    - rm -rf ./node_modules/typedoc/node_modules/typescript/*
-    - cp -r ./node_modules/typescript/* ./node_modules/typedoc/node_modules/typescript/*
-    - npm run build
-    - npm run typedoc
-    - npm pack
+  - npm run build
+  - npm run typedoc
+  - npm pack
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  on:
+    branch: develop
+  local-dir: docs
