@@ -223,8 +223,8 @@ export class PromiseMap<K, V> {
         }
 
         const promise = new Promise<V>((resolve, reject) => this.data.set(key, {
-            status: State.Pending,
             functions: { resolve, reject },
+            status: State.Pending,
         }));
 
         this.promises.set(key, promise);
@@ -272,6 +272,13 @@ export class PromiseMap<K, V> {
         return keys.length;
     }
 
+    /**
+     * Sets a timeout for a key. After at least `this.timeout` milliseconds,
+     * will call `PromiseMap#delete` on the specified key.
+     *
+     * @param key The key to set a timeout on.
+     * @returns True if a timeout was set.
+     */
     private setTimeout(key: K): boolean {
         const maybeData = this.data.get(key);
 
@@ -293,6 +300,13 @@ export class PromiseMap<K, V> {
         return true;
     }
 
+    /**
+     * @param key The key to fetch its promise and related data for.
+     * @returns A `[Promise, MapData]` pair if the key is present,
+     *          `undefined` otherwise.
+     *
+     * @throws Error If the internal state of the `PromiseMap` is invalid.
+     */
     private getRaw(key: K): [Promise<V>, MapData<V>] | undefined {
         const maybePromise = this.promises.get(key);
         const maybeData = this.data.get(key);
@@ -309,19 +323,30 @@ export class PromiseMap<K, V> {
     }
 }
 
+/**
+ * Potential states for a Promise to be in. `Fulfilled` and `Rejected` are both
+ * settled states.
+ */
 enum State {
     Pending,
     Fulfilled,
     Rejected,
 }
 
+/**
+ * Control block data for a `PromiseMap` entry.
+ */
 interface MapData<T> {
     readonly functions?: PromiseFunctions<T>;
     readonly status: State;
     readonly timer?: NodeJS.Timer;
 }
 
+/**
+ * Functions that can be used to settle a `Promise`. Should be taken from
+ * the `[resolve, reject]` function invoked by the constructor of `Promise`.
+ */
 interface PromiseFunctions<T> {
     reject(reason?: any): void;
-    resolve(message?: T | PromiseLike<T>): void;
+    resolve(value: T | PromiseLike<T>): void;
 }
