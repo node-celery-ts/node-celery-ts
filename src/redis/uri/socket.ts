@@ -38,9 +38,16 @@ import { isNullOrUndefined, parseBoolean } from "../../utility";
 import * as _ from "underscore";
 
 /**
- * @param uri the URI to parse, should be of the format:
+ * `uri` should be of the format:
  * redis[s]+socket://path[?query=value[&query=value]...]
- * @returns the SocketOptions extracted from the URI string
+ * Valid queries are `"noDelay"` and `"password"`. snake_case will be converted
+ * to camelCase. If multiple duplicate queries are provided, the last one
+ * provided will be used.
+ *
+ * @param uri The URI to parse.
+ * @returns The `Options` parsed from `uri`.
+ *
+ * @throws ParseError If `uri` is not a valid Redis Socket URI.
  */
 export const parse = (uri: string): Options => {
     const protocol = getScheme(uri);
@@ -62,16 +69,28 @@ export const parse = (uri: string): Options => {
     return withQueries;
 };
 
+/**
+ * Socket URI queries that will be parsed for.
+ */
 interface SocketQueries {
     readonly noDelay?: boolean;
     readonly password?: string;
 }
 
+/**
+ * Query identifiers.
+ */
 enum Query {
     NoDelay = "noDelay",
     Password = "password",
 }
 
+/**
+ * @param path The URI path to validate.
+ * @returns `path`, if it is a valid Unix path.
+ *
+ * @throws ParseError If `path` contains a null-terminator (`'\0'`).
+ */
 const validatePath = (path: string): string => {
     if (/^[^\0]+$/.test(path) !== true) {
         throw new ParseError(`invalid path "${path}"`);
@@ -80,6 +99,13 @@ const validatePath = (path: string): string => {
     return path;
 };
 
+/**
+ * @param uri The object representation of a Sentinel URI.
+ * @param options The object to append queries to.
+ * @returns An `Options` object with present in `uri` appended.
+ *
+ * @throws ParseError If the queries could not be parsed.
+ */
 const addQueries = (uri: Uri, options: Options): Options => {
     if (isNullOrUndefined(uri.query)) {
         return options;
@@ -106,6 +132,12 @@ const addQueries = (uri: Uri, options: Options): Options => {
     );
 };
 
+/**
+ * @param queries The raw URI queries to convert into Socket-specific queries.
+ * @returns The parsed and converted queries.
+ *
+ * @throws ParseError If `"noDelay"` could not be parsed as a boolean.
+ */
 const intoQueries = (queries: Queries): SocketQueries => {
     type FunctionList = Array<(appending: SocketQueries) => SocketQueries>;
 
@@ -120,6 +152,15 @@ const intoQueries = (queries: Queries): SocketQueries => {
     return convert({ });
 };
 
+/**
+ * Internally uses `Utility.parseBoolean`. If multiple `noDelay` queries are
+ * provided, will use the last one provided.
+ *
+ * @param queries The raw URI queries to extract `noDelay` from.
+ * @returns A function that will append `noDelay` from `queries`.
+ *
+ * @throws ParseError If `queries.noDelay` could not be parsed as a boolean.
+ */
 const appendNoDelay = (queries: Queries) => {
     const maybeNoDelay = queries.noDelay;
 
@@ -135,6 +176,12 @@ const appendNoDelay = (queries: Queries) => {
     });
 };
 
+/**
+ * If multiple `noDelay` queries are provided, will use the last one provided.
+ *
+ * @param queries The raw URI queries to extract `password` from.
+ * @returns A function that will append `password` from `queries`.
+ */
 const appendPassword = (queries: Queries) => {
     const maybePassword = queries.password;
 
@@ -150,8 +197,16 @@ const appendPassword = (queries: Queries) => {
     });
 };
 
+/**
+ * @param queries A set of queries to pass through.
+ * @returns `queries`
+ */
 const identity = (queries: SocketQueries): SocketQueries => queries;
 
+/**
+ * @param maybeArray An array of query responses.
+ * @returns The last element of `maybeArray` or `maybeArray` if it is T.
+ */
 const asScalar = <T>(maybeArray: T | Array<T>): T => {
     if (maybeArray instanceof Array) {
         const array = maybeArray;

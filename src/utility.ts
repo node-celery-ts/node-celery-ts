@@ -34,10 +34,14 @@ import { ParseError } from "./errors";
 import * as Events from "events";
 
 /**
- * ignores case, autodetects radix like C, throws ParseError on failure
- * will not parse negative numbers
- * @param maybeInt a string which may be parsable as an integer
- * @returns the parsed integer
+ * Follows the same rules as C/C++ integral literal parsing, stripping away
+ * whitespace on the left or right before attempting to parse.
+ * Examples: "0644" -> 420, "0x20" -> 32, "0b101" -> 5, "  15 " => 15
+ *
+ * @param maybeInt A a non-negative base-{2,8,10,16} integer.
+ * @returns The parsed integer.
+ *
+ * @throws ParseError If the string is not a non-negative integer.
  */
 export const parseInteger = (maybeInt: string): number => {
     const [radix, toParse] = (() => {
@@ -57,12 +61,14 @@ export const parseInteger = (maybeInt: string): number => {
 };
 
 /**
- * attempts to parse a string as a boolean value, case-insensitive
- * "true", "1", "on", and "yes" are true
- * "false", "0", "off", and "no" are false
- * other inputs will throw Celery.Errors.ParseError
- * @param maybeBoolean the string to attempt parsing
- * @returns the parsed boolean
+ * Strips whitespace on the left and right and parses case-insensitively.
+ * "true" | "1" | "on" | "yes" -> true
+ * "false" | "0" | "off" | "no" -> false
+ *
+ * @param maybeBoolean A boolean value.
+ * @returns The parsed boolean value.
+ *
+ * @throws ParseError If the string is not a boolean value.
  */
 export const parseBoolean = (maybeBoolean: string): boolean => {
     switch (maybeBoolean.toLowerCase().trim()) {
@@ -75,28 +81,29 @@ export const parseBoolean = (maybeBoolean: string): boolean => {
 };
 
 /**
- * @param value a possibly null or undefined value
- * @returns a type assertion if value is null or undefined
+ * @param value A potentially null or undefined value.
+ * @returns True if `value` is `null` or `undefined`.
  */
-export const isNullOrUndefined =
-<T>(value: T | null | undefined): value is null | undefined =>
-    value === null || typeof value === "undefined";
+export const isNullOrUndefined = <T>(
+    value: T | null | undefined
+): value is null | undefined => value === null || typeof value === "undefined";
 
 /**
- * Replaces all instances of _([a-z]) with (1).toUpperCase()
+ * Converts from snake_case to camelCase.
  *
- * @param toConvert the string to convert from snake_case to camelCase
- * @returns a camelCase string
+ * @param toConvert The string to convert.
+ * @returns A camelCase string.
  */
 export const toCamelCase = (toConvert: string): string =>
     toConvert.replace(/_([a-z])/, (_, match) => match.toUpperCase());
 
 /**
- * Returns a promise that resolves when an event is emitted
+ * Implemented using `EventEmitter#once`.
  *
- * @param emitter the emitter to listen to
- * @param name the name of the event to await
- * @returns a promise which resolves when the event is emitted
+ * @param emitter The emitter to listen to.
+ * @param name The name of the event.
+ * @returns A `Promise` that settles when the specified emitter emits an event
+ *          with matching name.
  */
 export const promisifyEvent = <T>(
     emitter: Events.EventEmitter,
@@ -104,27 +111,33 @@ export const promisifyEvent = <T>(
 ): Promise<T> => new Promise((resolve) => emitter.once(name, resolve));
 
 /**
- * Returns a promise that resolves when an event is fired and a
- * filter condition is valid, then maps the arguments of the event handler
- *
- * @param emitter the emitter to listen to
- * @param filterMap function that takes the output of an event; returns
- *                  undefined if the event should be ignored and a mapped output
- *                  otherwise
- * @param name the name of the event to await
- * @returns a promise which fulfils to the first event that passes the predicate
+ * @param emitter The emitter to listen to.
+ * @param filterMap A function that maps the arguments of the
+ *                  emitted event to a value of type `U` if a filtering
+ *                  condition is met. Otherwise, returns `undefined`.
+ * @param name The name of the event.
+ * @returns A `Promise` that settles when the specified emitter emits an event
+ *          with matching name and the filtering condition is met.
  */
-export const filterMapEvent = <U>({ emitter, filterMap, name }: {
+export const filterMapEvent = <T>({ emitter, filterMap, name }: {
     emitter: Events.EventEmitter;
-    filterMap(...args: Array<any>): U | undefined;
+    filterMap(...args: Array<any>): T | undefined;
     name: string | symbol;
-}): Promise<U> => new Promise((resolve) => {
+}): Promise<T> => new Promise((resolve) => {
+    let resolved = false;
+
     const onEvent = (...values: Array<any>) => {
+        // this may not be necessary, but just in case...
+        if (resolved) {
+            return;
+        }
+
         const maybeMapped = filterMap(...values);
 
         if (!isNullOrUndefined(maybeMapped)) {
             emitter.removeListener(name, onEvent);
             resolve(maybeMapped);
+            resolved = true;
         }
     };
 
@@ -132,10 +145,14 @@ export const filterMapEvent = <U>({ emitter, filterMap, name }: {
 });
 
 /**
+ * Implemented using `Promise.race` and `createTimerPromise`.
+ *
  * @param timeout The time (in milliseconds) to wait before rejecting.
- * @param promise The Promise to wait on.
- * @returns A Promise that will resolve what promise resolves to if it resolves
- *          before the timeout expires, else will reject with a timeout error.
+ * @param promise The `Promise` to race.
+ * @returns A `Promise` that will follow `promise` or reject after at least
+ *          `timeout` milliseconds, whichever comes first.
+ *
+ * @see createTimerPromise
  */
 export const createTimeoutPromise = <T>(
     promise: T | PromiseLike<T>,
@@ -152,28 +169,30 @@ export const createTimeoutPromise = <T>(
 };
 
 /**
+ * Implemented using `setTimeout`.
+ *
  * @param timeout The time (in milliseconds) to wait before rejecting.
- * @returns A Promise that will reject after a specified duration.
+ * @returns A `Promise` that rejects after at least `timeout` milliseconds.
  */
 export const createTimerPromise = <T>(timeout: number): Promise<T> =>
-    new Promise<T>((_, reject) => {
-        const timer = setTimeout(
-            () => {
-                clearTimeout(timer);
+    new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error("timed out")), timeout)
+    );
 
-                reject(new Error(
-                    "Celery.Utility.createTimerPromise: timed out"
-                ));
-            },
-            timeout
-        );
-    });
-
-/** @ignore */
+/**
+ * Set of valid numeric bases accepted by `parseInteger`.
+ */
 type Radix = 2 | 8 | 10 | 16;
 
-/** @ignore */
+/**
+ * @param maybeNumber A potentially valid string representation of a
+ *                    base-{2,8,10,16} number.
+ * @returns If `maybeNumber` is a valid numeric string, the detected `Radix` and
+ *          the string to parse, sans base prefixes. Otherwise, `undefined`.
+ */
 const getRadix = (maybeNumber: string): [Radix, string] | undefined => {
+    // four groups - one for octal, one for hex, one for binary,
+    // and one for decimal - that match in that order
     const REGEX: RegExp =
         /^(?:(0[0-7]*)|(?:0x([\da-f]+))|(?:0b([01]+))|([1-9][\d]*))$/;
     const OCTAL_INDEX: number = 1;

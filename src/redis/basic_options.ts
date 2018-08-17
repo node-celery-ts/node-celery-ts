@@ -32,14 +32,9 @@
 import * as Tls from "tls";
 
 /**
- * I avoid {@literal @}types/ioredis here so we can overload for different
- * connection types
+ * Options common to both TCP and Sentinel Redis connections.
  */
-
-/**
- * TCP/Unix Socket common options
- */
-interface BasicRedisOptions {
+export interface BasicRedisOptions {
     autoResendUnfulfilledCommands?: boolean;
     autoResubscribe?: boolean;
     connectionName?: string;
@@ -62,9 +57,7 @@ interface BasicRedisOptions {
 }
 
 /**
- * TCP connection options
- * uri should be of the format:
- * redis[s]://[:pass{@literal @}]host[:port][/db][?key=value[?key=value]...]
+ * TCP connection options.
  */
 export interface BasicRedisTcpOptions extends BasicRedisOptions {
     family?: 4 | 6;
@@ -73,18 +66,14 @@ export interface BasicRedisTcpOptions extends BasicRedisOptions {
 }
 
 /**
- * Unix Socket connection options
- * uri should be of the format:
- * redis[s]+socket://path[?key=value[?key=value]...]
+ * Unix Socket connection options.
  */
 export interface BasicRedisSocketOptions extends BasicRedisOptions {
     path: string;
 }
 
 /**
- * Sentinel connection options
- * uri should be of the format:
- * sentinel[s]://name{@literal @}host:port[;sentinel[s]://host:port]...
+ * Sentinel connection options.
  */
 export interface BasicRedisSentinelOptions extends BasicRedisTcpOptions {
     name: string;
@@ -94,7 +83,7 @@ export interface BasicRedisSentinelOptions extends BasicRedisTcpOptions {
 }
 
 /**
- * Cluster connection options
+ * Cluster connection options.
  */
 export interface BasicRedisClusterOptions {
     clusterRetryStrategy?(times: number): number;
@@ -108,6 +97,9 @@ export interface BasicRedisClusterOptions {
     scaleReads?: "master" | "slave" | "all";
 }
 
+/**
+ * Celery/Kombu transport options for Redis transports.
+ */
 export interface RedisTransportOptions {
     fanoutPatterns?: string;
     fanoutPrefix?: string;
@@ -116,7 +108,7 @@ export interface RedisTransportOptions {
 }
 
 /**
- * fields to describe a Sentinel
+ * Location of a Sentinel node.
  */
 export interface RedisSentinelAuthority {
     host: string;
@@ -124,7 +116,7 @@ export interface RedisSentinelAuthority {
 }
 
 /**
- * fields to describe a Cluster Node
+ * Location of a Cluster node.
  */
 export interface RedisClusterNode {
     host: string;

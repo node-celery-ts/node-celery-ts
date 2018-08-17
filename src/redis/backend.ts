@@ -203,10 +203,21 @@ export class RedisBackend implements ResultBackend {
         return this.options.createUri();
     }
 
+    /**
+     * @param taskId The task UUID to prefix.
+     * @returns The key of a Celery task result in Redis.
+     */
     private static getKey(taskId: string): string {
         return `celery-task-meta-${taskId}`;
     }
 
+    /**
+     * @param channel The channel that this message was published to.
+     * @param message The payload  of the PUBLISH command.
+     *
+     * @throws Error If a message is received by the subscription that isn't
+     *               a prefixed UUID.
+     */
     private onMessage(channel: string, message: string): void {
         const maybeId = channel.match(RedisBackend.UUID_REGEX);
 

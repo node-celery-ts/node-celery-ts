@@ -174,6 +174,10 @@ export class ResourcePool<T> {
     }
 }
 
+/**
+ * Functions that can be used to settle a `Promise`. Should be taken from
+ * the `[resolve, reject]` function invoked by the constructor of `Promise`.
+ */
 interface PromiseFunctions<T> {
     reject(reason?: any): void;
     resolve(value: T | PromiseLike<T>): void;
