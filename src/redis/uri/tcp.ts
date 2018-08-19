@@ -29,10 +29,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+import { parseRedisQuery } from "./common";
+
 import { BasicRedisTcpOptions as Options } from "../basic_options";
 
 import { ParseError } from "../../errors";
-import { createBooleanQueryDescriptor, QueryParser } from "../../query_parser";
 import { getScheme, parseUri, Scheme, Uri } from "../../uri";
 import { isNullOrUndefined, parseInteger, } from "../../utility";
 
@@ -63,9 +64,11 @@ export const parse = (rawUri: string): Options => {
     }
 
     const rawOptions = addOptions(parsed, { protocol });
-    const withQueries = addQueries(parsed, rawOptions);
 
-    return withQueries;
+    return {
+        ...rawOptions,
+        ...parseRedisQuery(parsed),
+    };
 };
 
 /**
@@ -105,26 +108,6 @@ const addOptions = (uri: Uri, options: Options): Options =>
         },
         options
     );
-
-/**
- * @param uri The object representation of a Sentinel URI.
- * @param options The object to append queries to.
- * @returns An `Options` object with present in `uri` appended.
- *
- * @throws ParseError If the queries could not be parsed.
- */
-const addQueries = (uri: Uri, options: Options): Options => {
-    if (isNullOrUndefined(uri.query)) {
-        return options;
-    }
-
-    const parser = new QueryParser<Options>([
-        { source: "password" },
-        createBooleanQueryDescriptor("noDelay"),
-    ]);
-
-    return parser.parse(uri.query, options);
-};
 
 /**
  * @param uri The URI to parse from.
