@@ -30,7 +30,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 import { Queries } from "./uri";
-import { isNullOrUndefined } from "./utility";
+import { isNullOrUndefined, parseBoolean, parseInteger } from "./utility";
+
+import * as Fs from "fs";
 
 export class QueryParser<T extends object> {
     private readonly functions: Map<string, MapEntry<any>>;
@@ -46,24 +48,10 @@ export class QueryParser<T extends object> {
     public parse(query: Queries, init: T): T {
         const entries = Array.from(this.functions.entries());
 
-        const hasSource = ([source, _entry]: [string, MapEntry<any>]) =>
-            !isNullOrUndefined(query[source]);
+        const hasSource = createSourceChecker<T>(query);
         const withSources = entries.filter(hasSource);
 
-        const appendParsed = (
-            previous: T,
-            [source, { target, parser }]: [string, MapEntry<any>]
-        ) => {
-            // revisit this when TypeScript issue #10727 is implemented
-            // https://github.com/Microsoft/TypeScript/issues/10727
-            const withParsed = {
-                ...previous as object,
-                [target]: parser(query[source]!),
-            };
-
-            return withParsed as T;
-        };
-
+        const appendParsed = createParsedAppender<T>(query);
         const doParse = (value: T) => withSources.reduce(appendParsed, value);
 
         return doParse(init);
@@ -137,3 +125,22 @@ interface HasTarget {
     readonly source: string;
     readonly target: string;
 }
+
+const createSourceChecker = <T>(query: Queries) => ([source, _]: [
+    string,
+    MapEntry<T>
+]) => !isNullOrUndefined(query[source]);
+
+const createParsedAppender = <T extends object>(query: Queries) => (
+    previous: T,
+    [source, { target, parser }]: [string, MapEntry<any>]
+): T => {
+    // revisit this when TypeScript issue #10727 is implemented
+    // https://github.com/Microsoft/TypeScript/issues/10727
+    const withParsed = {
+        ...previous as object,
+        [target]: parser(query[source]!),
+    };
+
+    return withParsed as T;
+};
