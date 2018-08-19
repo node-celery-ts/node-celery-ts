@@ -955,6 +955,9 @@ img { max-width: 100%; }
 		<li class=" tsd-kind-class tsd-has-type-parameter">
 			<a href="classes/promisemap.html" class="tsd-kind-icon">Promise<wbr>Map</a>
 		</li>
+		<li class=" tsd-kind-class tsd-has-type-parameter">
+			<a href="classes/queryparser.html" class="tsd-kind-icon">Query<wbr>Parser</a>
+		</li>
 		<li class=" tsd-kind-class">
 			<a href="classes/redisbackend.html" class="tsd-kind-icon">Redis<wbr>Backend</a>
 		</li>
@@ -1036,11 +1039,17 @@ img { max-width: 100%; }
 		<li class=" tsd-kind-interface">
 			<a href="interfaces/queries.html" class="tsd-kind-icon">Queries</a>
 		</li>
+		<li class=" tsd-kind-interface tsd-has-type-parameter">
+			<a href="interfaces/querydescriptor.html" class="tsd-kind-icon">Query<wbr>Descriptor</a>
+		</li>
 		<li class=" tsd-kind-interface">
 			<a href="interfaces/redisclusternode.html" class="tsd-kind-icon">Redis<wbr>Cluster<wbr>Node</a>
 		</li>
 		<li class=" tsd-kind-interface">
 			<a href="interfaces/redisoptions.html" class="tsd-kind-icon">Redis<wbr>Options</a>
+		</li>
+		<li class=" tsd-kind-interface">
+			<a href="interfaces/redisqueryoptions.html" class="tsd-kind-icon">Redis<wbr>Query<wbr>Options</a>
 		</li>
 		<li class=" tsd-kind-interface">
 			<a href="interfaces/redissentinelauthority.html" class="tsd-kind-icon">Redis<wbr>Sentinel<wbr>Authority</a>
@@ -1102,17 +1111,29 @@ img { max-width: 100%; }
 		<li class=" tsd-kind-type-alias">
 			<a href="globals.html#nativeoptions" class="tsd-kind-icon">Native<wbr>Options</a>
 		</li>
+		<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+			<a href="globals.html#parser" class="tsd-kind-icon">Parser</a>
+		</li>
 		<li class=" tsd-kind-type-alias">
 			<a href="globals.html#priority" class="tsd-kind-icon">Priority</a>
 		</li>
 		<li class=" tsd-kind-variable">
 			<a href="globals.html#default_redis_options" class="tsd-kind-icon">DEFAULT_<wbr>REDIS_<wbr>OPTIONS</a>
 		</li>
+		<li class=" tsd-kind-function tsd-has-type-parameter">
+			<a href="globals.html#asarray" class="tsd-kind-icon">as<wbr>Array</a>
+		</li>
+		<li class=" tsd-kind-function tsd-has-type-parameter">
+			<a href="globals.html#asscalar" class="tsd-kind-icon">as<wbr>Scalar</a>
+		</li>
 		<li class=" tsd-kind-function">
 			<a href="globals.html#createbackend" class="tsd-kind-icon">create<wbr>Backend</a>
 		</li>
 		<li class=" tsd-kind-function">
 			<a href="globals.html#createbase64encoder" class="tsd-kind-icon">create<wbr>Base64<wbr>Encoder</a>
+		</li>
+		<li class=" tsd-kind-function">
+			<a href="globals.html#createbooleanquerydescriptor" class="tsd-kind-icon">create<wbr>Boolean<wbr>Query<wbr>Descriptor</a>
 		</li>
 		<li class=" tsd-kind-function">
 			<a href="globals.html#createbroker" class="tsd-kind-icon">create<wbr>Broker</a>
@@ -1130,6 +1151,9 @@ img { max-width: 100%; }
 			<a href="globals.html#createidentitycompressor" class="tsd-kind-icon">create<wbr>Identity<wbr>Compressor</a>
 		</li>
 		<li class=" tsd-kind-function">
+			<a href="globals.html#createintegerquerydescriptor" class="tsd-kind-icon">create<wbr>Integer<wbr>Query<wbr>Descriptor</a>
+		</li>
+		<li class=" tsd-kind-function">
 			<a href="globals.html#createjsonserializer" class="tsd-kind-icon">create<wbr>Json<wbr>Serializer</a>
 		</li>
 		<li class=" tsd-kind-function">
@@ -1137,6 +1161,12 @@ img { max-width: 100%; }
 		</li>
 		<li class=" tsd-kind-function">
 			<a href="globals.html#createpacker" class="tsd-kind-icon">create<wbr>Packer</a>
+		</li>
+		<li class=" tsd-kind-function">
+			<a href="globals.html#createpatharrayquerydescriptor" class="tsd-kind-icon">create<wbr>Path<wbr>Array<wbr>Query<wbr>Descriptor</a>
+		</li>
+		<li class=" tsd-kind-function">
+			<a href="globals.html#createpathquerydescriptor" class="tsd-kind-icon">create<wbr>Path<wbr>Query<wbr>Descriptor</a>
 		</li>
 		<li class=" tsd-kind-function">
 			<a href="globals.html#createplaintextencoder" class="tsd-kind-icon">create<wbr>Plaintext<wbr>Encoder</a>
@@ -1176,6 +1206,9 @@ img { max-width: 100%; }
 		</li>
 		<li class=" tsd-kind-function">
 			<a href="globals.html#parseinteger" class="tsd-kind-icon">parse<wbr>Integer</a>
+		</li>
+		<li class=" tsd-kind-function">
+			<a href="globals.html#parseredisquery" class="tsd-kind-icon">parse<wbr>Redis<wbr>Query</a>
 		</li>
 		<li class=" tsd-kind-function">
 			<a href="globals.html#parsesentineluri" class="tsd-kind-icon">parse<wbr>Sentinel<wbr>Uri</a>
@@ -1370,6 +1403,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 							<li class="tsd-kind-class"><a href="classes/packer.html" class="tsd-kind-icon">Packer</a></li>
 							<li class="tsd-kind-class"><a href="classes/parseerror.html" class="tsd-kind-icon">Parse<wbr>Error</a></li>
 							<li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/promisemap.html" class="tsd-kind-icon">Promise<wbr>Map</a></li>
+							<li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/queryparser.html" class="tsd-kind-icon">Query<wbr>Parser</a></li>
 							<li class="tsd-kind-class"><a href="classes/redisbackend.html" class="tsd-kind-icon">Redis<wbr>Backend</a></li>
 							<li class="tsd-kind-class"><a href="classes/redisbroker.html" class="tsd-kind-icon">Redis<wbr>Broker</a></li>
 							<li class="tsd-kind-class"><a href="classes/redisclusteroptions.html" class="tsd-kind-icon">Redis<wbr>Cluster<wbr>Options</a></li>
@@ -1402,8 +1436,10 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 							<li class="tsd-kind-interface"><a href="interfaces/messagebroker.html" class="tsd-kind-icon">Message<wbr>Broker</a></li>
 							<li class="tsd-kind-interface"><a href="interfaces/options.html" class="tsd-kind-icon">Options</a></li>
 							<li class="tsd-kind-interface"><a href="interfaces/queries.html" class="tsd-kind-icon">Queries</a></li>
+							<li class="tsd-kind-interface tsd-has-type-parameter"><a href="interfaces/querydescriptor.html" class="tsd-kind-icon">Query<wbr>Descriptor</a></li>
 							<li class="tsd-kind-interface"><a href="interfaces/redisclusternode.html" class="tsd-kind-icon">Redis<wbr>Cluster<wbr>Node</a></li>
 							<li class="tsd-kind-interface"><a href="interfaces/redisoptions.html" class="tsd-kind-icon">Redis<wbr>Options</a></li>
+							<li class="tsd-kind-interface"><a href="interfaces/redisqueryoptions.html" class="tsd-kind-icon">Redis<wbr>Query<wbr>Options</a></li>
 							<li class="tsd-kind-interface"><a href="interfaces/redissentinelauthority.html" class="tsd-kind-icon">Redis<wbr>Sentinel<wbr>Authority</a></li>
 							<li class="tsd-kind-interface"><a href="interfaces/redistransportoptions.html" class="tsd-kind-icon">Redis<wbr>Transport<wbr>Options</a></li>
 							<li class="tsd-kind-interface"><a href="interfaces/resultbackend.html" class="tsd-kind-icon">Result<wbr>Backend</a></li>
@@ -1429,6 +1465,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 							<li class="tsd-kind-type-alias"><a href="globals.html#contenttype" class="tsd-kind-icon">Content<wbr>Type</a></li>
 							<li class="tsd-kind-type-alias"><a href="globals.html#failoverstrategy" class="tsd-kind-icon">Failover<wbr>Strategy</a></li>
 							<li class="tsd-kind-type-alias"><a href="globals.html#nativeoptions" class="tsd-kind-icon">Native<wbr>Options</a></li>
+							<li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="globals.html#parser" class="tsd-kind-icon">Parser</a></li>
 							<li class="tsd-kind-type-alias"><a href="globals.html#priority" class="tsd-kind-icon">Priority</a></li>
 						</ul>
 					</section>
@@ -1441,16 +1478,22 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<section class="tsd-index-section ">
 						<h3>Functions</h3>
 						<ul class="tsd-index-list">
+							<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#asarray" class="tsd-kind-icon">as<wbr>Array</a></li>
+							<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#asscalar" class="tsd-kind-icon">as<wbr>Scalar</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#createbackend" class="tsd-kind-icon">create<wbr>Backend</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#createbase64encoder" class="tsd-kind-icon">create<wbr>Base64<wbr>Encoder</a></li>
+							<li class="tsd-kind-function"><a href="globals.html#createbooleanquerydescriptor" class="tsd-kind-icon">create<wbr>Boolean<wbr>Query<wbr>Descriptor</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#createbroker" class="tsd-kind-icon">create<wbr>Broker</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#createclient" class="tsd-kind-icon">create<wbr>Client</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#createdefaultpacker" class="tsd-kind-icon">create<wbr>Default<wbr>Packer</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#creategzipcompressor" class="tsd-kind-icon">create<wbr>Gzip<wbr>Compressor</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#createidentitycompressor" class="tsd-kind-icon">create<wbr>Identity<wbr>Compressor</a></li>
+							<li class="tsd-kind-function"><a href="globals.html#createintegerquerydescriptor" class="tsd-kind-icon">create<wbr>Integer<wbr>Query<wbr>Descriptor</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#createjsonserializer" class="tsd-kind-icon">create<wbr>Json<wbr>Serializer</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#createoptions" class="tsd-kind-icon">create<wbr>Options</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#createpacker" class="tsd-kind-icon">create<wbr>Packer</a></li>
+							<li class="tsd-kind-function"><a href="globals.html#createpatharrayquerydescriptor" class="tsd-kind-icon">create<wbr>Path<wbr>Array<wbr>Query<wbr>Descriptor</a></li>
+							<li class="tsd-kind-function"><a href="globals.html#createpathquerydescriptor" class="tsd-kind-icon">create<wbr>Path<wbr>Query<wbr>Descriptor</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#createplaintextencoder" class="tsd-kind-icon">create<wbr>Plaintext<wbr>Encoder</a></li>
 							<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#createtimeoutpromise" class="tsd-kind-icon">create<wbr>Timeout<wbr>Promise</a></li>
 							<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#createtimerpromise" class="tsd-kind-icon">create<wbr>Timer<wbr>Promise</a></li>
@@ -1464,6 +1507,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 							<li class="tsd-kind-function"><a href="globals.html#parseamqpuri" class="tsd-kind-icon">parse<wbr>Amqp<wbr>Uri</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#parseboolean" class="tsd-kind-icon">parse<wbr>Boolean</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#parseinteger" class="tsd-kind-icon">parse<wbr>Integer</a></li>
+							<li class="tsd-kind-function"><a href="globals.html#parseredisquery" class="tsd-kind-icon">parse<wbr>Redis<wbr>Query</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#parsesentineluri" class="tsd-kind-icon">parse<wbr>Sentinel<wbr>Uri</a></li>
 							<li class="tsd-kind-function"><a href="globals.html#parseuri" class="tsd-kind-icon">parse<wbr>Uri</a></li>
 							<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#promisifyevent" class="tsd-kind-icon">promisify<wbr>Event</a></li>
@@ -1488,7 +1532,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 				<div class="tsd-signature tsd-kind-icon">Args<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/task.ts#L460">task.ts:460</a></li>
+						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/task.ts#L460">task.ts:460</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1498,7 +1542,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 				<div class="tsd-signature tsd-kind-icon">Content<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"json"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"yaml"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"application/json"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"application/x-yaml"</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L79">config.ts:79</a></li>
+						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L79">config.ts:79</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1508,7 +1552,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 				<div class="tsd-signature tsd-kind-icon">Failover<wbr>Strategy<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L82">config.ts:82</a></li>
+						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L82">config.ts:82</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-type-declaration">
@@ -1539,9 +1583,40 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 				<div class="tsd-signature tsd-kind-icon">Native<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">IoRedis.RedisOptions</span><span class="tsd-signature-symbol"> | </span><a href="interfaces/basicredisclusteroptions.html" class="tsd-signature-type">BasicRedisClusterOptions</a></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/redis/options.ts#L209">redis/options.ts:209</a></li>
+						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/redis/options.ts#L209">redis/options.ts:209</a></li>
 					</ul>
 				</aside>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-has-type-parameter">
+				<a name="parser" class="tsd-anchor"></a>
+				<h3>Parser</h3>
+				<div class="tsd-signature tsd-kind-icon">Parser<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/query_parser.ts#L156">query_parser.ts:156</a></li>
+					</ul>
+				</aside>
+				<div class="tsd-type-declaration">
+					<h4>Type declaration</h4>
+					<ul class="tsd-parameters">
+						<li class="tsd-parameter-siganture">
+							<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias tsd-is-not-exported">
+								<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>raw<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span></li>
+							</ul>
+							<ul class="tsd-descriptions">
+								<li class="tsd-description">
+									<h4 class="tsd-parameters-title">Parameters</h4>
+									<ul class="tsd-parameters">
+										<li>
+											<h5>raw: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5>
+										</li>
+									</ul>
+									<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span></h4>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
 			</section>
 			<section class="tsd-panel tsd-member tsd-kind-type-alias">
 				<a name="priority" class="tsd-anchor"></a>
@@ -1549,7 +1624,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 				<div class="tsd-signature tsd-kind-icon">Priority<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/task.ts#L466">task.ts:466</a></li>
+						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/task.ts#L466">task.ts:466</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1562,13 +1637,90 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 				<div class="tsd-signature tsd-kind-icon">DEFAULT_<wbr>REDIS_<wbr>OPTIONS<span class="tsd-signature-symbol">:</span> <a href="classes/redistcpoptions.html" class="tsd-signature-type">RedisTcpOptions</a><span class="tsd-signature-symbol"> =&nbsp;new RedisTcpOptions({protocol: &quot;redis&quot;})</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/redis/options.ts#L180">redis/options.ts:180</a></li>
+						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/redis/options.ts#L180">redis/options.ts:180</a></li>
 					</ul>
 				</aside>
 			</section>
 		</section>
 		<section class="tsd-panel-group tsd-member-group ">
 			<h2>Functions</h2>
+			<section class="tsd-panel tsd-member tsd-kind-function tsd-has-type-parameter">
+				<a name="asarray" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagConst">Const</span> as<wbr>Array</h3>
+				<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
+					<li class="tsd-signature tsd-kind-icon">as<wbr>Array&lt;T&gt;<span class="tsd-signature-symbol">(</span>scalarOrArray<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/query_parser.ts#L249">query_parser.ts:249</a></li>
+							</ul>
+						</aside>
+						<h4 class="tsd-type-parameters-title">Type parameters</h4>
+						<ul class="tsd-type-parameters">
+							<li>
+								<h4>T</h4>
+							</li>
+						</ul>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5>scalarOrArray: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>A value to assert as an <code>Array</code>.</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						<p>If <code>scalarOrArray</code> is a scalar, <code>[scalarOrArray]</code>. If
+						<code>scalarOrArray</code> is an <code>Array</code>, <code>scalarOrArray</code>.</p>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-function tsd-has-type-parameter">
+				<a name="asscalar" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagConst">Const</span> as<wbr>Scalar</h3>
+				<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
+					<li class="tsd-signature tsd-kind-icon">as<wbr>Scalar&lt;T&gt;<span class="tsd-signature-symbol">(</span>scalarOrArray<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/query_parser.ts#L232">query_parser.ts:232</a></li>
+							</ul>
+						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>If <code>scalarOrArray</code> is an <code>Array</code>, it cannot be empty.</p>
+							</div>
+						</div>
+						<h4 class="tsd-type-parameters-title">Type parameters</h4>
+						<ul class="tsd-type-parameters">
+							<li>
+								<h4>T</h4>
+							</li>
+						</ul>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5>scalarOrArray: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>A value to assert as a scalar.</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span></h4>
+						<p>If <code>scalarOrArray</code> is a scalar, <code>scalarOrArray</code>. If <code>scalarOrArray</code>
+						is an <code>Array</code>, <code>scalarOrArray[scalarOrArray.length - 1]</code>.</p>
+					</li>
+				</ul>
+			</section>
 			<section class="tsd-panel tsd-member tsd-kind-function">
 				<a name="createbackend" class="tsd-anchor"></a>
 				<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Backend</h3>
@@ -1579,7 +1731,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/factories.ts#L95">factories.ts:95</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/factories.ts#L95">factories.ts:95</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1621,7 +1773,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/packer/encoder.ts#L57">packer/encoder.ts:57</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/packer/encoder.ts#L57">packer/encoder.ts:57</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1635,6 +1787,48 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 				</ul>
 			</section>
 			<section class="tsd-panel tsd-member tsd-kind-function">
+				<a name="createbooleanquerydescriptor" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Boolean<wbr>Query<wbr>Descriptor</h3>
+				<ul class="tsd-signatures tsd-kind-function">
+					<li class="tsd-signature tsd-kind-icon">create<wbr>Boolean<wbr>Query<wbr>Descriptor<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, target<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/querydescriptor.html" class="tsd-signature-type">QueryDescriptor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/query_parser.ts#L165">query_parser.ts:165</a></li>
+							</ul>
+						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>If multiple values are provided, the last one provided is used.</p>
+							</div>
+						</div>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5>source: <span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The property name to map from.</p>
+									</div>
+								</div>
+							</li>
+							<li>
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> target: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The property name to map into. Defaults to <code>source</code>.</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <a href="interfaces/querydescriptor.html" class="tsd-signature-type">QueryDescriptor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						<p>A <code>QueryDescriptor</code> that transforms to a <code>boolean</code>.</p>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-function">
 				<a name="createbroker" class="tsd-anchor"></a>
 				<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Broker</h3>
 				<ul class="tsd-signatures tsd-kind-function">
@@ -1644,7 +1838,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/factories.ts#L131">factories.ts:131</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/factories.ts#L131">factories.ts:131</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1678,7 +1872,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/factories.ts#L57">factories.ts:57</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/factories.ts#L57">factories.ts:57</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1710,7 +1904,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/packer/factory.ts#L66">packer/factory.ts:66</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/packer/factory.ts#L66">packer/factory.ts:66</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1734,7 +1928,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/packer/compressor.ts#L57">packer/compressor.ts:57</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/packer/compressor.ts#L57">packer/compressor.ts:57</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1757,11 +1951,53 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/packer/compressor.ts#L46">packer/compressor.ts:46</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/packer/compressor.ts#L46">packer/compressor.ts:46</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-returns-title">Returns <a href="interfaces/compressor.html" class="tsd-signature-type">Compressor</a></h4>
 						<p>a Compressor that returns a copy of its inputs</p>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-function">
+				<a name="createintegerquerydescriptor" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Integer<wbr>Query<wbr>Descriptor</h3>
+				<ul class="tsd-signatures tsd-kind-function">
+					<li class="tsd-signature tsd-kind-icon">create<wbr>Integer<wbr>Query<wbr>Descriptor<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, target<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/querydescriptor.html" class="tsd-signature-type">QueryDescriptor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/query_parser.ts#L181">query_parser.ts:181</a></li>
+							</ul>
+						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>If multiple values are provided, the last one provided is used.</p>
+							</div>
+						</div>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5>source: <span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The property name to map from.</p>
+									</div>
+								</div>
+							</li>
+							<li>
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> target: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The property name to map into. Defaults to <code>source</code>.</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <a href="interfaces/querydescriptor.html" class="tsd-signature-type">QueryDescriptor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						<p>A <code>QueryDescriptor</code> that transforms to a <code>number</code>.</p>
 					</li>
 				</ul>
 			</section>
@@ -1775,7 +2011,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/packer/serializer.ts#L48">packer/serializer.ts:48</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/packer/serializer.ts#L48">packer/serializer.ts:48</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1798,7 +2034,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/redis/options.ts#L188">redis/options.ts:188</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/redis/options.ts#L188">redis/options.ts:188</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1827,7 +2063,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/packer/factory.ts#L45">packer/factory.ts:45</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/packer/factory.ts#L45">packer/factory.ts:45</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1844,6 +2080,93 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 				</ul>
 			</section>
 			<section class="tsd-panel tsd-member tsd-kind-function">
+				<a name="createpatharrayquerydescriptor" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Path<wbr>Array<wbr>Query<wbr>Descriptor</h3>
+				<ul class="tsd-signatures tsd-kind-function">
+					<li class="tsd-signature tsd-kind-icon">create<wbr>Path<wbr>Array<wbr>Query<wbr>Descriptor<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, target<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/querydescriptor.html" class="tsd-signature-type">QueryDescriptor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Buffer</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/query_parser.ts#L198">query_parser.ts:198</a></li>
+							</ul>
+						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Interprets the values as paths, then reads it into a buffer with
+								<code>Fs.readFileSync</code>.</p>
+							</div>
+						</div>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5>source: <span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The property name to map from.</p>
+									</div>
+								</div>
+							</li>
+							<li>
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> target: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The property name to map into. Defaults to <code>source</code>.</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <a href="interfaces/querydescriptor.html" class="tsd-signature-type">QueryDescriptor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Buffer</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						<p>A <code>QueryDescriptor</code> that transforms into an <code>Array&lt;Buffer&gt;</code>.</p>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-function">
+				<a name="createpathquerydescriptor" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Path<wbr>Query<wbr>Descriptor</h3>
+				<ul class="tsd-signatures tsd-kind-function">
+					<li class="tsd-signature tsd-kind-icon">create<wbr>Path<wbr>Query<wbr>Descriptor<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, target<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/querydescriptor.html" class="tsd-signature-type">QueryDescriptor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Buffer</span><span class="tsd-signature-symbol">&gt;</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/query_parser.ts#L216">query_parser.ts:216</a></li>
+							</ul>
+						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Interprets the value as a path, then reads from each path&#39;s corresponding
+									file using <code>Fs.readFileSync</code>. If multiple values are provided, the last one
+								provided is used.</p>
+							</div>
+						</div>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5>source: <span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The property name to map from.</p>
+									</div>
+								</div>
+							</li>
+							<li>
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> target: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The property name to map into. Defaults to <code>source</code>.</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <a href="interfaces/querydescriptor.html" class="tsd-signature-type">QueryDescriptor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Buffer</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						<p>A <code>QueryDescriptor</code> that maps to a <code>Buffer</code>.</p>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-function">
 				<a name="createplaintextencoder" class="tsd-anchor"></a>
 				<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Plaintext<wbr>Encoder</h3>
 				<ul class="tsd-signatures tsd-kind-function">
@@ -1853,7 +2176,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/packer/encoder.ts#L46">packer/encoder.ts:46</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/packer/encoder.ts#L46">packer/encoder.ts:46</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1876,7 +2199,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/utility.ts#L157">utility.ts:157</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/utility.ts#L157">utility.ts:157</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1925,7 +2248,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/utility.ts#L177">utility.ts:177</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/utility.ts#L177">utility.ts:177</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1965,7 +2288,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/packer/serializer.ts#L60">packer/serializer.ts:60</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/packer/serializer.ts#L60">packer/serializer.ts:60</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1989,7 +2312,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/packer/compressor.ts#L68">packer/compressor.ts:68</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/packer/compressor.ts#L68">packer/compressor.ts:68</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2012,7 +2335,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/utility.ts#L122">utility.ts:122</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/utility.ts#L122">utility.ts:122</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2045,7 +2368,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/client.ts#L117">client.ts:117</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/client.ts#L117">client.ts:117</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2075,7 +2398,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/uri.ts#L134">uri.ts:134</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/uri.ts#L134">uri.ts:134</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2109,7 +2432,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/utility.ts#L87">utility.ts:87</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/utility.ts#L87">utility.ts:87</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2145,7 +2468,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/redis/uri/tcp.ts#L56">redis/uri/tcp.ts:56</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/redis/uri/tcp.ts#L53">redis/uri/tcp.ts:53</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2178,7 +2501,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/redis/uri/socket.ts#L52">redis/uri/socket.ts:52</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/redis/uri/socket.ts#L53">redis/uri/socket.ts:53</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2220,7 +2543,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/amqp/uri.ts#L56">amqp/uri.ts:56</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/amqp/uri.ts#L57">amqp/uri.ts:57</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2262,7 +2585,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/utility.ts#L73">utility.ts:73</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/utility.ts#L73">utility.ts:73</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2298,7 +2621,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/utility.ts#L46">utility.ts:46</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/utility.ts#L46">utility.ts:46</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2325,6 +2648,35 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 				</ul>
 			</section>
 			<section class="tsd-panel tsd-member tsd-kind-function">
+				<a name="parseredisquery" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagConst">Const</span> parse<wbr>Redis<wbr>Query</h3>
+				<ul class="tsd-signatures tsd-kind-function">
+					<li class="tsd-signature tsd-kind-icon">parse<wbr>Redis<wbr>Query<span class="tsd-signature-symbol">(</span>uri<span class="tsd-signature-symbol">: </span><a href="interfaces/uri.html" class="tsd-signature-type">Uri</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/redisqueryoptions.html" class="tsd-signature-type">RedisQueryOptions</a></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/redis/uri/common.ts#L50">redis/uri/common.ts:50</a></li>
+							</ul>
+						</aside>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5>uri: <a href="interfaces/uri.html" class="tsd-signature-type">Uri</a></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The object representation of a Redis URI.</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <a href="interfaces/redisqueryoptions.html" class="tsd-signature-type">RedisQueryOptions</a></h4>
+						<p>A <code>RedisQueryOptions</code> object with options present in <code>uri</code> mapped.</p>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-function">
 				<a name="parsesentineluri" class="tsd-anchor"></a>
 				<h3><span class="tsd-flag ts-flagConst">Const</span> parse<wbr>Sentinel<wbr>Uri</h3>
 				<ul class="tsd-signatures tsd-kind-function">
@@ -2334,7 +2686,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/redis/uri/sentinel.ts#L55">redis/uri/sentinel.ts:55</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/redis/uri/sentinel.ts#L56">redis/uri/sentinel.ts:56</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2368,7 +2720,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/uri.ts#L100">uri.ts:100</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/uri.ts#L100">uri.ts:100</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2397,7 +2749,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/utility.ts#L108">utility.ts:108</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/utility.ts#L108">utility.ts:108</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2446,7 +2798,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/utility.ts#L97">utility.ts:97</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/utility.ts#L97">utility.ts:97</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2479,7 +2831,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 				<div class="tsd-signature tsd-kind-icon">DEFAULT_<wbr>AMQP_<wbr>OPTIONS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/amqp/options.ts#L60">amqp/options.ts:60</a></li>
+						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/amqp/options.ts#L60">amqp/options.ts:60</a></li>
 					</ul>
 				</aside>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
@@ -2488,7 +2840,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<div class="tsd-signature tsd-kind-icon">hostname<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;localhost&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/amqp/options.ts#L61">amqp/options.ts:61</a></li>
+							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/amqp/options.ts#L61">amqp/options.ts:61</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2498,7 +2850,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<div class="tsd-signature tsd-kind-icon">protocol<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;amqp&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/amqp/options.ts#L62">amqp/options.ts:62</a></li>
+							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/amqp/options.ts#L62">amqp/options.ts:62</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2509,7 +2861,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 				<div class="tsd-signature tsd-kind-icon">DEFAULT_<wbr>CONFIG<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L67">config.ts:67</a></li>
+						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L67">config.ts:67</a></li>
 					</ul>
 				</aside>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
@@ -2518,7 +2870,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<div class="tsd-signature tsd-kind-icon">broker<wbr>Failover<wbr>Strategy<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"round-robin"</span><span class="tsd-signature-symbol"> =&nbsp;&quot;round-robin&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L68">config.ts:68</a></li>
+							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L68">config.ts:68</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2528,7 +2880,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<div class="tsd-signature tsd-kind-icon">broker<wbr>Url<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;amqp://localhost&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L69">config.ts:69</a></li>
+							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L69">config.ts:69</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2538,7 +2890,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<div class="tsd-signature tsd-kind-icon">result<wbr>Persistent<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> =&nbsp;false</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L70">config.ts:70</a></li>
+							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L70">config.ts:70</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2548,7 +2900,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<div class="tsd-signature tsd-kind-icon">result<wbr>Serializer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"json"</span><span class="tsd-signature-symbol"> =&nbsp;&quot;json&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L71">config.ts:71</a></li>
+							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L71">config.ts:71</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2558,7 +2910,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<div class="tsd-signature tsd-kind-icon">task<wbr>Default<wbr>Delivery<wbr>Mode<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"persistent"</span><span class="tsd-signature-symbol"> =&nbsp;&quot;persistent&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L72">config.ts:72</a></li>
+							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L72">config.ts:72</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2568,7 +2920,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<div class="tsd-signature tsd-kind-icon">task<wbr>Default<wbr>Queue<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;celery&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L73">config.ts:73</a></li>
+							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L73">config.ts:73</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2578,7 +2930,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<div class="tsd-signature tsd-kind-icon">task<wbr>Ignore<wbr>Result<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> =&nbsp;false</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L74">config.ts:74</a></li>
+							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L74">config.ts:74</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2588,7 +2940,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<div class="tsd-signature tsd-kind-icon">task<wbr>Protocol<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">2</span><span class="tsd-signature-symbol"> =&nbsp;2</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L75">config.ts:75</a></li>
+							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L75">config.ts:75</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2598,7 +2950,7 @@ promise.then(<span class="hljs-built_in">console</span>.log)
 					<div class="tsd-signature tsd-kind-icon">task<wbr>Serializer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"json"</span><span class="tsd-signature-symbol"> =&nbsp;&quot;json&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/0d79d1f/src/config.ts#L76">config.ts:76</a></li>
+							<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/config.ts#L76">config.ts:76</a></li>
 						</ul>
 					</aside>
 				</section>
