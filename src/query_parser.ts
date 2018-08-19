@@ -85,16 +85,20 @@ export class QueryParser<T extends object> {
 
     /**
      * @param maybe `QueryDescriptor`s that might not have a `parser`.
-     * @returns A copy of `maybe` coerced into a `HasParser` by defaulting an
-     *          identity parser.
+     * @returns A copy of `maybe` coerced into an `Array<HasParser>` by
+     *          defaulting identity parsers.
      */
     private static assertParsers(
         maybe: Array<QueryDescriptor<any>>
     ): Array<HasParser> {
         return maybe.map((descriptor) => {
+            if (!isNullOrUndefined(descriptor.parser)) {
+                return descriptor as HasParser;
+            }
+
             const withParser = {
-                parser: (raw: string) => raw,
                 ...descriptor,
+                parser: (raw: string) => raw,
             };
 
             return withParser as HasParser;
@@ -110,9 +114,13 @@ export class QueryParser<T extends object> {
         maybe: Array<HasParser>
     ): Array<HasTarget> {
         return maybe.map((descriptor) => {
+            if (!isNullOrUndefined(descriptor.target)) {
+                return descriptor as HasTarget;
+            }
+
             const withTarget = {
-                target: descriptor.source,
                 ...descriptor,
+                target: descriptor.source,
             };
 
             return withTarget as HasTarget;
