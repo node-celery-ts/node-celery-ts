@@ -35,7 +35,8 @@ import {
 } from "../basic_options";
 
 import { ParseError } from "../../errors";
-import { getScheme, parseUri, Queries, Scheme, Uri } from "../../uri";
+import { asScalar, QueryParser } from "../../query_parser";
+import { getScheme, parseUri, Scheme, Uri } from "../../uri";
 import { isNullOrUndefined } from "../../utility";
 
 /**
@@ -146,10 +147,12 @@ const parseQueries = (uri: Uri): SentinelQueries => {
 
     const rawQuery = uri.query;
 
-    return [appendName, appendRole].reduce(
-        (appending, f) => f(appending, rawQuery),
-        { },
-    );
+    const parser = new QueryParser<SentinelQueries>([
+        { source: "name" },
+        { parser: (x) => parseRole(asScalar(x)), source: "role" },
+    ]);
+
+    return parser.parse(rawQuery, { });
 };
 
 /**
@@ -162,66 +165,15 @@ const isSentinelScheme = (scheme: Scheme): boolean =>
     scheme === Scheme.RedisSentinel || scheme === Scheme.RedisSentinelSecure;
 
 /**
- * @param appending The object to append to.
- * @param queries The queries to parse from.
- * @returns A copy of `appending` with `name` defined if present in `queries`.
- */
-const appendName = (
-    appending: SentinelQueries,
-    queries: Queries
-): SentinelQueries => {
-    const maybeName = queries.name;
-
-    if (isNullOrUndefined(maybeName)) {
-        return appending;
-    }
-
-    const name = collapseArray(maybeName);
-
-    return {
-        ...queries,
-        name,
-    };
-};
-
-/**
- * @param appending The object to append to.
- * @param queries The queries to parse from.
- * @returns A copy of `appending` with `role` defined if present in `queries`.
+ * @param role A string that should be `"master" | "slave"`.
+ * @returns `role`.
  *
  * @throws ParseError If `role` is not `master` or `slave`.
  */
-const appendRole = (
-    appending: SentinelQueries,
-    queries: Queries
-): SentinelQueries => {
-    const maybeRole = queries.role;
-
-    if (isNullOrUndefined(maybeRole)) {
-        return appending;
-    }
-
-    const role = collapseArray(maybeRole);
-
+const parseRole = (role: string): "master" | "slave" => {
     if (role !== "master" && role !== "slave") {
         throw new ParseError(`role "${role}" is not "master" or "slave"`);
     }
 
-    return {
-        ...queries,
-        role,
-    };
-};
-
-/**
- * @param maybeArray The value to transform into a scalar.
- * @returns If `maybeArray` is an `Array<T>`, its last element. Else,
- *          `maybeArray` asserted as `T`.
- */
-const collapseArray = <T>(maybeArray: T | Array<T>): T => {
-    if (maybeArray instanceof Array) {
-        return maybeArray[maybeArray.length - 1];
-    }
-
-    return maybeArray;
+    return role;
 };
