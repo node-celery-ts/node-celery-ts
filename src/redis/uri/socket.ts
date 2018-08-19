@@ -32,8 +32,9 @@
 import { BasicRedisSocketOptions as Options } from "../basic_options";
 
 import { ParseError } from "../../errors";
-import { getScheme, parseUri, Queries, Scheme, Uri } from "../../uri";
-import { isNullOrUndefined, parseBoolean } from "../../utility";
+import { createBooleanQueryDescriptor, QueryParser } from "../../query_parser";
+import { getScheme, parseUri, Scheme, Uri } from "../../uri";
+import { isNullOrUndefined } from "../../utility";
 
 import * as _ from "underscore";
 
@@ -70,22 +71,6 @@ export const parse = (uri: string): Options => {
 };
 
 /**
- * Socket URI queries that will be parsed for.
- */
-interface SocketQueries {
-    readonly noDelay?: boolean;
-    readonly password?: string;
-}
-
-/**
- * Query identifiers.
- */
-enum Query {
-    NoDelay = "noDelay",
-    Password = "password",
-}
-
-/**
  * @param path The URI path to validate.
  * @returns `path`, if it is a valid Unix path.
  *
@@ -111,110 +96,10 @@ const addQueries = (uri: Uri, options: Options): Options => {
         return options;
     }
 
-    const queries = intoQueries(uri.query);
+    const parser = new QueryParser<Options>([
+        { source: "password" },
+        createBooleanQueryDescriptor("noDelay"),
+    ]);
 
-    return _.reduce(
-        _.pairs(queries) as Array<[Query, any]>,
-        (appending: Options,
-         [property, value]: [Query, any]): Options => {
-            switch (property) {
-                case Query.NoDelay: return {
-                    ...appending,
-                    noDelay: value as boolean,
-                };
-                case Query.Password: return {
-                    ...appending,
-                    password: value as string,
-                };
-            }
-        },
-        options
-    );
-};
-
-/**
- * @param queries The raw URI queries to convert into Socket-specific queries.
- * @returns The parsed and converted queries.
- *
- * @throws ParseError If `"noDelay"` could not be parsed as a boolean.
- */
-const intoQueries = (queries: Queries): SocketQueries => {
-    type FunctionList = Array<(appending: SocketQueries) => SocketQueries>;
-
-    const functions: FunctionList = [
-        appendNoDelay(queries),
-        appendPassword(queries),
-    ];
-
-    const convert = (toConvert: SocketQueries) =>
-        functions.reduce((x, f) => f(x), toConvert);
-
-    return convert({ });
-};
-
-/**
- * Internally uses `Utility.parseBoolean`. If multiple `noDelay` queries are
- * provided, will use the last one provided.
- *
- * @param queries The raw URI queries to extract `noDelay` from.
- * @returns A function that will append `noDelay` from `queries`.
- *
- * @throws ParseError If `queries.noDelay` could not be parsed as a boolean.
- */
-const appendNoDelay = (queries: Queries) => {
-    const maybeNoDelay = queries.noDelay;
-
-    if (isNullOrUndefined(maybeNoDelay)) {
-        return identity;
-    }
-
-    const noDelay = parseBoolean(asScalar(maybeNoDelay));
-
-    return (appending: SocketQueries): SocketQueries => ({
-        ...appending,
-        noDelay,
-    });
-};
-
-/**
- * If multiple `noDelay` queries are provided, will use the last one provided.
- *
- * @param queries The raw URI queries to extract `password` from.
- * @returns A function that will append `password` from `queries`.
- */
-const appendPassword = (queries: Queries) => {
-    const maybePassword = queries.password;
-
-    if (isNullOrUndefined(maybePassword)) {
-        return identity;
-    }
-
-    const password = asScalar(maybePassword);
-
-    return (appending: SocketQueries): SocketQueries => ({
-        ...appending,
-        password,
-    });
-};
-
-/**
- * @param queries A set of queries to pass through.
- * @returns `queries`
- */
-const identity = (queries: SocketQueries): SocketQueries => queries;
-
-/**
- * @param maybeArray An array of query responses.
- * @returns The last element of `maybeArray` or `maybeArray` if it is T.
- */
-const asScalar = <T>(maybeArray: T | Array<T>): T => {
-    if (maybeArray instanceof Array) {
-        const array = maybeArray;
-
-        return array[array.length - 1];
-    }
-
-    const scalar = maybeArray;
-
-    return scalar;
+    return parser.parse(uri.query, options);
 };

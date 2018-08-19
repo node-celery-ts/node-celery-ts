@@ -32,8 +32,9 @@
 import { AmqpOptions } from "./options";
 
 import { ParseError } from "../errors";
+import { createIntegerQueryDescriptor, QueryParser, } from "../query_parser";
 import { getScheme, parseUri, Queries, Scheme, Uri } from "../uri";
-import { isNullOrUndefined, parseInteger, toCamelCase } from "../utility";
+import { isNullOrUndefined } from "../utility";
 
 import * as _ from "underscore";
 
@@ -88,16 +89,6 @@ export const parseAmqpUri = (rawUri: string): AmqpOptions => {
 };
 
 /**
- * All the options that will be parsed from a URI query.
- */
-interface AmqpQueries {
-    readonly channelMax?: number;
-    readonly frameMax?: number;
-    readonly heartbeat?: number;
-    readonly locale?: string;
-}
-
-/**
  * @param uri The URI to extract a password, port, and username from.
  * @param appending The object to use as default.
  * @returns A shallow copy of `appending` with options added.
@@ -118,15 +109,25 @@ const appendOptions = (uri: Uri, appending: AmqpOptions): AmqpOptions => {
  * @param uri The URI to extract queries from.
  * @param appending The object to use as default.
  * @returns A shallow copy of `appending` with query options added.
+ *
+ * @throws ParseError If invalid query key-value pairs with matching keys are
+ *                    found.
  */
 const appendQueries = (uri: Uri, appending: AmqpOptions): AmqpOptions => {
     if (isNullOrUndefined(uri.query)) {
         return appending;
     }
 
-    const queries = asQueries(uri.query);
+    const query: Queries = uri.query;
 
-    return _.defaults(queries, appending);
+    const parser = new QueryParser<AmqpOptions>([
+        createIntegerQueryDescriptor("channelMax"),
+        createIntegerQueryDescriptor("frameMax"),
+        createIntegerQueryDescriptor("heartbeat"),
+        { source: "locale" },
+    ]);
+
+    return parser.parse(query, appending);
 };
 
 /**
@@ -202,134 +203,4 @@ const appendUser = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
         ...options,
         username: uri.authority.userInfo.user,
     };
-};
-
-/**
- * @param toTransform The raw URI queries to parse from.
- * @returns The converted queries.
- *
- * @throws ParseError If the queries to be extracted are ill-formed.
- */
-const asQueries = (toTransform: Queries): AmqpQueries => {
-    const cased = camelCaseQueries(toTransform);
-
-    type FunctionList = Array<QueryAppender>;
-
-    const functions: FunctionList = [
-        appendChannelMax(cased),
-        appendFrameMax(cased),
-        appendHeartbeat(cased),
-        appendLocale(cased),
-    ];
-
-    const append = (queries: AmqpQueries): AmqpQueries =>
-        functions.reduce((x, f) => f(x), queries);
-
-    return append({ });
-};
-
-/**
- * @param raw The queries to extract channelMax from.
- * @returns A function that will append channelMax to an input.
- */
-const appendChannelMax = (raw: Queries): QueryAppender => {
-    const maybeChannelMax = raw.channelMax;
-
-    if (isNullOrUndefined(maybeChannelMax)) {
-        return identity;
-    }
-
-    return (queries) => ({
-        ...queries,
-        channelMax: parseInteger(narrowArray(maybeChannelMax)),
-    });
-};
-
-/**
- * @param raw The queries to extract frameMax from.
- * @returns A function that will append frameMax to an input.
- */
-const appendFrameMax = (raw: Queries): QueryAppender => {
-    const maybeFrameMax = raw.frameMax;
-
-    if (isNullOrUndefined(maybeFrameMax)) {
-        return identity;
-    }
-
-    return (queries) => ({
-        ...queries,
-        frameMax: parseInteger(narrowArray(maybeFrameMax)),
-    });
-};
-
-/**
- * @param raw The queries to extract heartbeat from.
- * @returns A function that will append heartbeat to an input.
- */
-const appendHeartbeat = (raw: Queries): QueryAppender => {
-    const maybeHeartbeat = raw.heartbeat;
-
-    if (isNullOrUndefined(maybeHeartbeat)) {
-        return identity;
-    }
-
-    return (queries) => ({
-        ...queries,
-        heartbeat: parseInteger(narrowArray(maybeHeartbeat)),
-    });
-};
-
-/**
- * @param raw The queries to extract a locale from.
- * @returns A function that will append the locale to an input.
- */
-const appendLocale = (raw: Queries): QueryAppender => {
-    const maybeLocale = raw.locale;
-
-    if (isNullOrUndefined(maybeLocale)) {
-        return identity;
-    }
-
-    return (queries) => ({
-        ...queries,
-        locale: narrowArray(maybeLocale),
-    });
-};
-
-/**
- * @param queries The queries to convert from snake_case to camelCase.
- * @returns Queries with all that were in snake_case as camelCase.
- */
-const camelCaseQueries = (queries: Queries): Queries =>
-    _.reduce(
-        _.keys(queries) as Array<string>,
-        (converting: Queries, key: string): Queries => ({
-            ...converting,
-            [toCamelCase(key)]: queries[key],
-        }),
-        { },
-    );
-
-/**
- * A function that makes a copy of an `AmqpQueries` object and appends a new
- * parameter to it.
- */
-type QueryAppender = (queries: AmqpQueries) => AmqpQueries;
-
-/**
- * @param queries The object to forward.
- * @returns `queries`.
- */
-const identity = (queries: AmqpQueries): AmqpQueries => queries;
-
-/**
- * @param value A scalar or an array to convert into a scalar.
- * @returns A scalar; either the value itself, or the last element of an array.
- */
-const narrowArray = <T>(value: T | Array<T>): T => {
-    if (value instanceof Array) {
-        return value[value.length - 1];
-    }
-
-    return value;
 };

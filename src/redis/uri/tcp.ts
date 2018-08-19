@@ -32,13 +32,9 @@
 import { BasicRedisTcpOptions as Options } from "../basic_options";
 
 import { ParseError } from "../../errors";
-import { getScheme, parseUri, Queries, Scheme, Uri } from "../../uri";
-import {
-    isNullOrUndefined,
-    parseBoolean,
-    parseInteger,
-    toCamelCase,
-} from "../../utility";
+import { createBooleanQueryDescriptor, QueryParser } from "../../query_parser";
+import { getScheme, parseUri, Scheme, Uri } from "../../uri";
+import { isNullOrUndefined, parseInteger, } from "../../utility";
 
 import * as _ from "underscore";
 
@@ -83,22 +79,6 @@ enum Option {
 }
 
 /**
- * Accepted query keys-value types for TCP URIs.
- */
-interface TcpQueries {
-    readonly noDelay?: boolean;
-    readonly password?: string;
-}
-
-/**
- * Set of valid query keys.
- */
-enum Query {
-    NoDelay = "noDelay",
-    Password = "password",
-}
-
-/**
  * TODO: restructure this to be less verbose and less duplicated.
  *
  * @param uri The URI to extract authority and path information from.
@@ -127,7 +107,7 @@ const addOptions = (uri: Uri, options: Options): Options =>
     );
 
 /**
- * @param uri The object representation of a TCP URI.
+ * @param uri The object representation of a Sentinel URI.
  * @param options The object to append queries to.
  * @returns An `Options` object with present in `uri` appended.
  *
@@ -138,54 +118,13 @@ const addQueries = (uri: Uri, options: Options): Options => {
         return options;
     }
 
-    const queries = intoQueries(uri.query);
+    const parser = new QueryParser<Options>([
+        { source: "password" },
+        createBooleanQueryDescriptor("noDelay"),
+    ]);
 
-    return _.reduce(
-        _.pairs(queries) as Array<[Query, any]>,
-        (appending: Options,
-         [property, value]: [Query, any]): Options => {
-            switch (property) {
-                case Query.NoDelay: return {
-                    ...appending,
-                    noDelay: value as boolean,
-                };
-                case Query.Password: return {
-                    ...appending,
-                    password: value as string,
-                };
-            }
-        },
-        options
-    );
+    return parser.parse(uri.query, options);
 };
-
-/**
- * @param queries The raw URI queries to convert into TCP-specific queries.
- * @returns The parsed and converted queries.
- *
- * @throws ParseError If `"noDelay"` could not be parsed as a boolean.
- */
-const intoQueries = (queries: Queries): TcpQueries =>
-    _.reduce(
-        _.pairs(queries) as Array<[string, any]>,
-        (converting: TcpQueries, [key, value]: [string, any]): TcpQueries => {
-            switch (toCamelCase(key)) {
-                case "noDelay":
-                    return {
-                        ...converting,
-                        noDelay: parseBoolean(value),
-                    };
-                case "password":
-                    return {
-                        ...converting,
-                        password: value,
-                    };
-            }
-
-            return converting;
-        },
-        { }
-    );
 
 /**
  * @param uri The URI to parse from.
