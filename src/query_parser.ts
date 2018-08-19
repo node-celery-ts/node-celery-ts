@@ -29,6 +29,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+import { ParseError } from "./errors";
 import { Queries } from "./uri";
 import { isNullOrUndefined, parseBoolean, parseInteger } from "./utility";
 
@@ -65,7 +66,7 @@ export class QueryParser<T extends object> {
      *             parameters.
      * @returns A `T` with all available queries mapped from `query`.
      *
-     * @throws Error If any of the query parsers throw.
+     * @throws ParseError If any of the query parsers throw.
      */
     public parse(query: Queries, init: T): T {
         const entries = Array.from(this.functions.entries());
@@ -79,7 +80,7 @@ export class QueryParser<T extends object> {
         try {
             return doParse(init);
         } catch (error) {
-            throw new Error(`query parsing failed: ${error}`);
+            throw new ParseError(`query parsing failed: ${error}`);
         }
     }
 
