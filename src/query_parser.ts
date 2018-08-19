@@ -109,6 +109,66 @@ export interface QueryDescriptor<T> {
 
 export type Parser<T> = (raw: string | Array<string>) => T;
 
+export const createBooleanQueryDescriptor = (
+    source: string,
+    target?: string
+): QueryDescriptor<boolean> => ({
+    parser: (x) => parseBoolean(asScalar(x)),
+    source,
+    target,
+});
+
+export const createIntegerQueryDescriptor = (
+    source: string,
+    target?: string
+): QueryDescriptor<number> => ({
+    parser: (x) => parseInteger(asScalar(x)),
+    source,
+    target,
+});
+
+export const createPathArrayQueryDescriptor = (
+    source: string,
+    target?: string
+): QueryDescriptor<Array<Buffer>> => ({
+    parser: (x) => asArray(x).map((p) => Fs.readFileSync(p)),
+    source,
+    target,
+});
+
+export const createPathQueryDescriptor = (
+    source: string,
+    target?: string
+): QueryDescriptor<Buffer> => ({
+    parser: (x) => Fs.readFileSync(asScalar(x)),
+    source,
+    target,
+});
+
+export const asScalar = <T>(scalarOrArray: T | Array<T>): T => {
+    if (scalarOrArray instanceof Array) {
+        const array: Array<T> = scalarOrArray;
+
+        return array[array.length - 1];
+    }
+
+    const scalar = scalarOrArray;
+
+    return scalar;
+};
+
+export const asArray = <T>(scalarOrArray: T | Array<T>): Array<T> => {
+    if (scalarOrArray instanceof Array) {
+        const array = scalarOrArray;
+
+        return array;
+    }
+
+    const scalar = scalarOrArray;
+
+    return [scalar];
+};
+
 interface MapEntry<T> {
     readonly parser: Parser<T>;
     readonly target: string;
