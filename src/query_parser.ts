@@ -214,6 +214,8 @@ export const createPathQueryDescriptor = (
 });
 
 /**
+ * If `scalarOrArray` is an `Array`, it cannot be empty.
+ *
  * @param scalarOrArray A value to assert as a scalar.
  * @returns If `scalarOrArray` is a scalar, `scalarOrArray`. If `scalarOrArray`
  *          is an `Array`, `scalarOrArray[scalarOrArray.length - 1]`.
