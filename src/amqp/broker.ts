@@ -110,8 +110,8 @@ export class AmqpBroker implements MessageBroker {
         const body = AmqpBroker.getBody(message);
         const options = AmqpBroker.getPublishOptions(message);
 
-        return this.channels.get().then((channel) => {
-            const response = AmqpBroker.assert({
+        return this.channels.use((channel) =>
+            AmqpBroker.assert({
                 channel,
                 exchange,
                 routingKey
@@ -121,10 +121,8 @@ export class AmqpBroker implements MessageBroker {
                 exchange,
                 options,
                 routingKey,
-            }));
-
-            return this.channels.returnAfter(response, channel);
-        });
+            }))
+        );
     }
 
     /**
