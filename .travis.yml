@@ -22,15 +22,12 @@ before_script:
   - ./cc-test-reporter before-build
 script:
   - npm test
-  - ./cc-test-reporter format-coverage --output "coverage/codeclimate.0.json"
-  - npm run test-integration
-  - ./cc-test-reporter format-coverage --output "coverage/codeclimate.1.json"
+after_script:
 after_script:
   - docker logs --details -t rabbitmq
   - docker logs --details -t redis
   - docker logs --details -t celery
-  - ./cc-test-reporter sum-coverage coverage/codeclimate.*.json
-  - ./cc-test-reporter upload-coverage
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 before_deploy:
   - npm pack
   - npm run typedoc
