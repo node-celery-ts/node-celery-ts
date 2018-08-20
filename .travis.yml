@@ -23,7 +23,7 @@ before_script:
 script:
   - npm test
   - ./cc-test-reporter format-coverage --output "coverage/codeclimate.0.json"
-  - npm test-integration
+  - npm run test-integration
   - ./cc-test-reporter format-coverage --output "coverage/codeclimate.1.json"
 after_script:
   - ./cc-test-reporter sum-coverage coverage/codeclimate.*.json
