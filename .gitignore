@@ -5,3 +5,5 @@ celery-ts-*.tgz
 *.DS_Store
 /.nyc_output/
 /coverage/
+*.log
+.vagrant/
