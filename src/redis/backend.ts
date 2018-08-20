@@ -164,15 +164,10 @@ export class RedisBackend implements ResultBackend {
     public delete(taskId: string): Promise<string> {
         const key = RedisBackend.getKey(taskId);
 
-        return this.pool.get().then((client) => {
-            const delResponse = client.del(key)
-                .then((response: string) => {
-                    this.pool.return(client);
+        return this.pool.use((client) => {
+            this.results.delete(taskId);
 
-                    return response;
-                });
-
-            return this.pool.returnAfter(delResponse, client);
+            return client.del(key);
         });
     }
 
