@@ -60,7 +60,9 @@ export interface RedisOptions {
 }
 
 /**
- * Add default Redis options for uniform behavior
+ * @param options The options to copy from.
+ * @returns A new options object with old options copied from `options` and
+ *          certain options forced to a value.
  */
 const appendDefaultOptions = <T extends BasicRedisOptions>(options: T): T => {
     const appended = {
@@ -74,6 +76,20 @@ const appendDefaultOptions = <T extends BasicRedisOptions>(options: T): T => {
 };
 
 /**
+ */
+const maybeOverride = <T extends BasicRedisOptions>(
+    options: T,
+    override?: object
+): T => {
+    if (typeof override === "undefined") {
+        return options;
+    }
+
+    // tslint:disable:no-object-literal-type-assertion
+    return { ...options as object, ...override } as T;
+};
+
+/**
  * `RedisTcpOptions` creates Redis clients that connect to a single database
  * over TCP.
  */
@@ -84,13 +100,8 @@ export class RedisTcpOptions implements RedisOptions {
         this.options = appendDefaultOptions(options);
     }
 
-    public createClient(override?: BasicRedisTcpOptions): IoRedis.Redis {
-        if (typeof override === "undefined") {
-            return new IoRedis(this.options);
-        }
-
-        // tslint:disable:no-object-literal-type-assertion
-        return new IoRedis({ ...this.options, ...override } as object);
+    public createClient(override?: object): IoRedis.Redis {
+        return new IoRedis(maybeOverride(this.options, override));
     }
 
     public createUri(): string {
@@ -139,12 +150,7 @@ export class RedisSocketOptions implements RedisOptions {
     }
 
     public createClient(override?: object): IoRedis.Redis {
-        if (typeof override === "undefined") {
-            return new IoRedis(this.options);
-        }
-
-        // tslint:disable:no-object-literal-type-assertion
-        return new IoRedis({ ...this.options, ...override } as object);
+        return new IoRedis(maybeOverride(this.options, override));
     }
 
     public createUri(): string {
@@ -176,12 +182,7 @@ export class RedisSentinelOptions implements RedisOptions {
     }
 
     public createClient(override?: object): IoRedis.Redis {
-        if (typeof override === "undefined") {
-            return new IoRedis(this.options);
-        }
-
-        // tslint:disable:no-object-literal-type-assertion
-        return new IoRedis({ ...this.options, ...override } as object);
+        return new IoRedis(maybeOverride(this.options, override));
     }
 
     public createUri(): string {
