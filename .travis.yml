@@ -26,6 +26,9 @@ script:
   - npm run test-integration
   - ./cc-test-reporter format-coverage --output "coverage/codeclimate.1.json"
 after_script:
+  - docker logs --details -t rabbitmq
+  - docker logs --details -t redis
+  - docker logs --details -t celery
   - ./cc-test-reporter sum-coverage coverage/codeclimate.*.json
   - ./cc-test-reporter upload-coverage
 before_deploy:
