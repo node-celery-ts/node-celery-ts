@@ -34,7 +34,7 @@ import * as Celery from "../src";
 import * as Chai from "chai";
 import * as Mocha from "mocha";
 
-Mocha.describe("Celery.createClient", () => {
+Mocha.describe("Celery.Client", () => {
     Mocha.it("should work", async () => {
         const client = Celery.createClient({
             brokerUrl: "amqp://localhost",
