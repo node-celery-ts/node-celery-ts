@@ -10,6 +10,6 @@ nvm install --lts
 npm i -g npm
 
 mkdir -p $HOME/node-celery-ts/
-cp -r /vagrant/node-celery-ts/* $HOME/node-celery-ts/
+cp -r /vagrant/* $HOME/node-celery-ts/
 cd $HOME/node-celery-ts/
 npm i

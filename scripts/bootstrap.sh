@@ -3,10 +3,10 @@
 apt-get update
 apt-get upgrade -y
 
-if [ ! -e /usr/local/bin/rabbitmqctl ]; then
-	ln -s /vagrant/scripts/rabbitmqctl.sh /usr/local/bin/rabbitmqctl
-fi
+rm -f /usr/local/bin/rabbitmqctl
+cp /vagrant/scripts/rabbitmqctl.sh /usr/local/bin/rabbitmqctl
+chmod +x /usr/local/bin/rabbitmqctl
 
-if [ ! -e /usr/local/bin/redis-cli ]; then
-	ln -s /vagrant/scripts/redis-cli.sh /usr/local/bin/redis-cli
-fi
+rm -f /usr/local/bin/redis-cli
+cp /vagrant/scripts/redis-cli.sh /usr/local/bin/redis-cli
+chmod +x /usr/local/bin/redis-cli
