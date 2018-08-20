@@ -86,6 +86,22 @@ export class Client {
             name,
         });
     }
+
+    /**
+     * Forcefully disconnects from message brokers and the result backend.
+     */
+    public async disconnect(): Promise<void> {
+        await Promise.all(this.brokers.map((broker) => broker.disconnect()));
+        await this.backend.disconnect();
+    }
+
+    /**
+     * Gently disconnect from message brokers and the result backend.
+     */
+    public async end(): Promise<void> {
+        await Promise.all(this.brokers.map((broker) => broker.end()));
+        await this.backend.end();
+    }
 }
 
 /**

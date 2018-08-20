@@ -156,7 +156,7 @@ export class RpcBackend implements ResultBackend {
      *
      * @returns A `Promise` that resolves when the disconnection is complete.
      */
-    public end(): Promise<void> {
+    public async end(): Promise<void> {
         return Promise.all([
             this.consumer,
             this.consumerTag,

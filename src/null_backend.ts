@@ -70,12 +70,17 @@ export class NullBackend implements ResultBackend {
     }
 
     /**
-     * @returns A rejected `Promise`.
+     * @returns A resolved `Promise`.
      */
-    public disconnect(): Promise<void> {
-        return Promise.reject(new Error(
-            "cannot disconnect from a null backend"
-        ));
+    public async disconnect(): Promise<void> {
+        return this.end();
+    }
+
+    /**
+     * @returns A resolved `Promise`.
+     */
+    public async end(): Promise<void> {
+        return Promise.resolve();
     }
 
     /**
