@@ -11,9 +11,9 @@ before_install:
   - docker pull redis:latest
   - docker build ./containers/celery -t celery
   - docker network create celery
-  - docker run rabbitmq --name rabbitmq --network celery -p 5672:5672 -d
-  - docker run redis --name redis --network celery -p 6379:6379 -d
-  - docker run celery --name celery --network celery -d
+  - docker run --name rabbitmq --network celery -p 5672:5672 -d rabbitmq
+  - docker run --name redis --network celery -p 6379:6379 -d redis
+  - docker run --name celery --network celery -d celery
 before_script:
   - npm run setup
   - npm run build
@@ -22,9 +22,9 @@ before_script:
   - ./cc-test-reporter before-build
 script:
   - npm test
-  - ./cc-test-reporter format-coverage --output "coverage/codeclimate.1.json"
-  - npm test-integration
   - ./cc-test-reporter format-coverage --output "coverage/codeclimate.0.json"
+  - npm test-integration
+  - ./cc-test-reporter format-coverage --output "coverage/codeclimate.1.json"
 after_script:
   - ./cc-test-reporter sum-coverage coverage/codeclimate.*.json
   - ./cc-test-reporter upload-coverage
