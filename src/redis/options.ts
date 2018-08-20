@@ -32,6 +32,7 @@
 import { UnimplementedError } from "../errors";
 import {
     BasicRedisClusterOptions,
+    BasicRedisOptions,
     BasicRedisSentinelOptions,
     BasicRedisSocketOptions,
     BasicRedisTcpOptions,
@@ -61,10 +62,11 @@ export interface RedisOptions {
 /**
  * Add default Redis options for uniform behavior
  */
-const appendDefaultOptions = <T extends object>(options: T): T => {
+const appendDefaultOptions = <T extends BasicRedisOptions>(options: T): T => {
     const appended = {
         ...options as object,
         dropBufferSupport: true,
+        keyPrefix: "celery-task-meta-",
         stringNumbers: true,
     };
 
