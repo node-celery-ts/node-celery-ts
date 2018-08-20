@@ -59,12 +59,19 @@ export interface ResultBackend {
     delete(taskId: string): Promise<string>;
 
     /**
+     * Forcefully terminates the connection with the backend. To be called once.
+     *
+     * @returns A Promise that resolves when the connection has been closed.
+     */
+    disconnect(): Promise<void>;
+
+    /**
      * Gently terminates the connection with the backend. To be called once.
      *
      * @returns A Promise that resolves when all pending transactions have
      *          been completed and the connection has been closed.
      */
-    disconnect(): Promise<void>;
+    end(): Promise<void>;
 
     /**
      * @returns A lossy representation of this backend's options.

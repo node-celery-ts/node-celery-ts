@@ -178,16 +178,27 @@ export class RedisBackend implements ResultBackend {
     }
 
     /**
+     * Gently terminates the connection with Redis using QUIT. Same as #end.
+     *
+     * @returns A Promise that resolves to the QUIT response from Redis.
+     *
+     * @see #end
+     */
+    public async disconnect(): Promise<void> {
+        await this.end();
+    }
+
+    /**
      * Gently terminates the connection with Redis using QUIT.
      *
      * @returns A Promise that resolves to the QUIT response from Redis.
      */
-    public disconnect(): Promise<void> {
-        return this.subscriber.then((subscriber) => {
-            this.pool.return(subscriber);
+    public async end(): Promise<void> {
+        const subscriber = await this.subscriber;
+        await subscriber.punsubscribe("celery-task-meta-*");
+        this.pool.return(subscriber);
 
-            return this.pool.destroyAll().then(() => { });
-        });
+        await this.pool.destroyAll();
     }
 
     /**
