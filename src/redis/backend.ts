@@ -102,11 +102,10 @@ export class RedisBackend implements ResultBackend {
         const key = RedisBackend.getKey(message.task_id);
         const toPut = JSON.stringify(message);
 
-        return this.pool.use((client) =>
-            client.multi()
-                .setex(key, RedisBackend.TIMEOUT / 1000, toPut)
-                .publish(key, toPut)
-                .exec()
+        return this.pool.use((client) => client.multi()
+            .setex(key, RedisBackend.TIMEOUT / 1000, toPut)
+            .publish(key, toPut)
+            .exec()
         );
     }
 
