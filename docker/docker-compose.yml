@@ -1,0 +1,23 @@
+version: '3'
+services:
+  celery:
+    build: ./celery/
+    networks:
+      - rabbitmq
+      - redis
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - rabbitmq
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      - redis
+networks:
+  rabbitmq:
+  redis:
