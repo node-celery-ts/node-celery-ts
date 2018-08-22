@@ -100,42 +100,49 @@ export class ResourcePool<T> {
      * @param f A function that accepts a resource and returns some value.
      * @returns A `Promise` that follows the result of invoking `f`.
      */
-    public use<U>(f: (resource: T) => U | PromiseLike<U>): Promise<U> {
-        return this.get()
-            .then((resource) => this.returnAfter(f(resource), resource));
+    public async use<U>(f: (resource: T) => U | PromiseLike<U>): Promise<U> {
+        const resource = await this.get();
+
+        try {
+            const result = f(resource);
+
+            return this.returnAfter(result, resource);
+        } catch (error) {
+            return this.returnAfter(Promise.reject(error), resource);
+        }
     }
 
     /**
      * @returns An unused resource from the pool. If none are available, one
      *          will be created.
      */
-    public get(): Promise<T> {
-        const resource = this.getResource();
+    public async get(): Promise<T> {
+        const resource = await this.getResource();
+        this.inUse.add(resource);
 
-        return resource.then((r) => {
-            this.inUse.add(r);
-
-            return r;
-        });
+        return resource;
     }
 
     /**
      * @param promise The `Promise` to settle before returning the resource.
      * @param resource The resource to return after `promise` settles.
      */
-    public returnAfter<U>(
+    public async returnAfter<U>(
         promise: U | PromiseLike<U>,
         resource: T
     ): Promise<U> {
-        return Promise.resolve(promise).catch((reason) => {
-            this.return(resource);
+        // unsure why this doesn't work with async/await syntax
 
-            return Promise.reject(reason);
-        }).then((value) => {
-            this.return(resource);
+        return Promise.resolve(promise)
+            .then((value) => {
+                this.return(resource);
 
-            return value;
-        });
+                return value;
+            }).catch((reason) => {
+                this.return(resource);
+
+                return Promise.reject(reason);
+            });
     }
 
     /**
@@ -167,44 +174,38 @@ export class ResourcePool<T> {
      * @returns A Promise that resolves to the response of each call to
      *          destroy() after all resources have been returned.
      */
-    public destroyAll(): Promise<Array<string>> {
-        const doDestroy = () => {
-            const connections = Array.from(this.unused);
-            this.unused = new List<T>();
-
-            const replies = connections.map((resource) =>
-                this.destroy(resource)
-            );
-
-            return Promise.all(replies);
-        };
-
+    public async destroyAll(): Promise<Array<string>> {
         if (this.inUse.size !== 0) {
-            return promisifyEvent(this.emptyEmitter, "empty").then(doDestroy);
+            await promisifyEvent(this.emptyEmitter, "empty");
         }
 
-        return doDestroy();
+        const connections = Array.from(this.unused);
+        this.unused = new List<T>();
+
+        const replies = connections.map((resource) =>
+            this.destroy(resource)
+        );
+
+        return Promise.all(replies);
     }
 
     /**
      * @returns A resource. Will be created if all owned resources are in use.
      */
-    private getResource(): Promise<T> {
-        if (this.unused.length === 0) {
-            if (this.resourceCount < this.maxResources) {
-                ++this.resourceCount;
+    private async getResource(): Promise<T> {
+        const maybeUnused = this.unused.shift();
 
-                return Promise.resolve(this.create());
-            } else {
-                const promise = new Promise<T>((resolve, reject) => {
-                    this.waiting.push({ reject, resolve });
-                });
+        if (typeof maybeUnused !== "undefined") {
+            return maybeUnused;
+        } else if (this.resourceCount < this.maxResources) {
+            ++this.resourceCount;
 
-                return promise;
-            }
+            return Promise.resolve(this.create());
         }
 
-        return Promise.resolve(this.unused.shift()!);
+        return new Promise<T>((resolve, reject) => {
+            this.waiting.push({ reject, resolve });
+        });
     }
 }
 
