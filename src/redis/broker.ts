@@ -70,8 +70,8 @@ export class RedisBroker implements MessageBroker {
      *
      * @returns A Promise that resolves when the connection is servered.
      */
-    public disconnect(): Promise<void> {
-        return Promise.resolve(this.connection.disconnect());
+    public async disconnect(): Promise<void> {
+        this.connection.disconnect();
     }
 
     /**
@@ -80,9 +80,9 @@ export class RedisBroker implements MessageBroker {
      * @returns A Promise that resolves when all operations in flight are
      *          executed and the connection is severed.
      */
-    public end(): Promise<void> {
-        return Promise.resolve(this.connection.quit())
-            .then(() => this.connection.disconnect());
+    public async end(): Promise<void> {
+        await this.connection.quit();
+        this.connection.disconnect();
     }
 
     /**
@@ -95,10 +95,10 @@ export class RedisBroker implements MessageBroker {
      * @returns A Promise that resolves to the response of the Redis server
      *          after the `LPUSH` operation is completed.
      */
-    public publish(message: TaskMessage): Promise<string> {
+    public async publish(message: TaskMessage): Promise<string> {
         const toPublish = JSON.stringify(message);
         const queue = "celery";
 
-        return Promise.resolve(this.connection.lpush(queue, toPublish));
+        return this.connection.lpush(queue, toPublish);
     }
 }
