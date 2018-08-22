@@ -145,7 +145,8 @@ export const filterMapEvent = <T>({ emitter, filterMap, name }: {
 });
 
 /**
- * Implemented using `Promise.race` and `createTimerPromise`.
+ * Implemented using `Promise.race` and `createTimerPromise`. If `timeout` is
+ * `undefined`, will not set a timeout.
  *
  * @param timeout The time (in milliseconds) to wait before rejecting.
  * @param promise The `Promise` to race.
