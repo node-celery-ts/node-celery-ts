@@ -919,6 +919,9 @@ img { max-width: 100%; }
 				<li class=" tsd-kind-method tsd-parent-kind-class">
 					<a href="rpcbackend.html#disconnect" class="tsd-kind-icon">disconnect</a>
 				</li>
+				<li class=" tsd-kind-method tsd-parent-kind-class">
+					<a href="rpcbackend.html#end" class="tsd-kind-icon">end</a>
+				</li>
 				<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 					<a href="rpcbackend.html#get" class="tsd-kind-icon">get</a>
 				</li>
@@ -970,6 +973,7 @@ img { max-width: 100%; }
 						<ul class="tsd-index-list">
 							<li class="tsd-kind-method tsd-parent-kind-class"><a href="rpcbackend.html#delete" class="tsd-kind-icon">delete</a></li>
 							<li class="tsd-kind-method tsd-parent-kind-class"><a href="rpcbackend.html#disconnect" class="tsd-kind-icon">disconnect</a></li>
+							<li class="tsd-kind-method tsd-parent-kind-class"><a href="rpcbackend.html#end" class="tsd-kind-icon">end</a></li>
 							<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="rpcbackend.html#get" class="tsd-kind-icon">get</a></li>
 							<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="rpcbackend.html#put" class="tsd-kind-icon">put</a></li>
 							<li class="tsd-kind-method tsd-parent-kind-class"><a href="rpcbackend.html#uri" class="tsd-kind-icon">uri</a></li>
@@ -990,7 +994,7 @@ img { max-width: 100%; }
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/amqp/backend.ts#L55">amqp/backend.ts:55</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/2e956ea/src/amqp/backend.ts#L55">amqp/backend.ts:55</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1037,7 +1041,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Implementation of <a href="../interfaces/resultbackend.html">ResultBackend</a>.<a href="../interfaces/resultbackend.html#delete">delete</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/amqp/backend.ts#L130">amqp/backend.ts:130</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/2e956ea/src/amqp/backend.ts#L130">amqp/backend.ts:130</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1067,7 +1071,37 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Implementation of <a href="../interfaces/resultbackend.html">ResultBackend</a>.<a href="../interfaces/resultbackend.html#disconnect">disconnect</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/amqp/backend.ts#L147">amqp/backend.ts:147</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/2e956ea/src/amqp/backend.ts#L150">amqp/backend.ts:150</a></li>
+							</ul>
+						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Gently closes all channels and the connection with RabbitMQ.
+								Alias for #end.</p>
+							</div>
+							<dl class="tsd-comment-tags">
+								<dt>see</dt>
+								<dd><p>#end</p>
+								</dd>
+							</dl>
+						</div>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						<p>A <code>Promise</code> that resolves when the disconnection is complete.</p>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<a name="end" class="tsd-anchor"></a>
+				<h3>end</h3>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<li class="tsd-signature tsd-kind-icon">end<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<p>Implementation of <a href="../interfaces/resultbackend.html">ResultBackend</a>.<a href="../interfaces/resultbackend.html#end">end</a></p>
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/2e956ea/src/amqp/backend.ts#L159">amqp/backend.ts:159</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1090,7 +1124,7 @@ img { max-width: 100%; }
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/amqp/backend.ts#L119">amqp/backend.ts:119</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/2e956ea/src/amqp/backend.ts#L119">amqp/backend.ts:119</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1128,7 +1162,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Implementation of <a href="../interfaces/resultbackend.html">ResultBackend</a>.<a href="../interfaces/resultbackend.html#put">put</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/amqp/backend.ts#L101">amqp/backend.ts:101</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/2e956ea/src/amqp/backend.ts#L101">amqp/backend.ts:101</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1164,7 +1198,7 @@ img { max-width: 100%; }
 						<aside class="tsd-sources">
 							<p>Implementation of <a href="../interfaces/resultbackend.html">ResultBackend</a>.<a href="../interfaces/resultbackend.html#uri">uri</a></p>
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/f7b3652/src/amqp/backend.ts#L171">amqp/backend.ts:171</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/2e956ea/src/amqp/backend.ts#L183">amqp/backend.ts:183</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
