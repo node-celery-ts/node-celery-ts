@@ -110,22 +110,18 @@ export class PromiseMap<K, V> {
         const maybePromiseData = this.getRaw(key);
         const hasEntry = !isNullOrUndefined(maybePromiseData);
 
-        const doResolve = () => Promise.resolve(value)
-            .then((resolved) => {
-                this.data.set(key, {
-                    ...this.data.get(key)!,
-                    status: State.Fulfilled,
-                });
+        const doResolve = async () => {
+            try {
+                const resolved = await value;
+                this.setFulfilled(key);
 
                 return resolved;
-            }).catch((reason) => {
-                this.data.set(key, {
-                    ...this.data.get(key)!,
-                    status: State.Rejected,
-                });
+            } catch (error) {
+                this.setRejected(key);
 
-                return Promise.reject(reason);
-            });
+                return error;
+            }
+        };
 
         if (!isNullOrUndefined(maybePromiseData)) {
             const data = maybePromiseData[1];
@@ -137,7 +133,7 @@ export class PromiseMap<K, V> {
 
             data.functions.resolve(doResolve());
 
-            const { functions, ...resolved } = {
+            const { functions: _, ...resolved } = {
                 ...data,
                 status: State.Pending,
             };
@@ -200,7 +196,7 @@ export class PromiseMap<K, V> {
         const keys = Array.from(this.data.entries())
             .filter(([_, data]) => data.status === State.Pending
                                    && !isNullOrUndefined(data.functions))
-            .map(([key, _]) => key);
+            .map(([key]) => key);
 
         for (const key of keys) {
             this.reject(key, reason);
@@ -215,7 +211,7 @@ export class PromiseMap<K, V> {
      * @param key The key of the `Promise` to get.
      * @returns The matching `Promise` to the key.
      */
-    public get(key: K): Promise<V> {
+    public async get(key: K): Promise<V> {
         const maybePromiseData = this.getRaw(key);
 
         if (!isNullOrUndefined(maybePromiseData)) {
@@ -270,6 +266,26 @@ export class PromiseMap<K, V> {
         }
 
         return keys.length;
+    }
+
+    /**
+     * @param key The key to set as fulfilled.
+     */
+    private setFulfilled(key: K): void {
+        this.data.set(key, {
+            ...this.data.get(key)!,
+            status: State.Fulfilled,
+        });
+    }
+
+    /**
+     * @param key The key to set as rejected.
+     */
+    private setRejected(key: K): void {
+        this.data.set(key, {
+            ...this.data.get(key)!,
+            status: State.Rejected,
+        });
     }
 
     /**
