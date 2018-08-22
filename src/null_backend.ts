@@ -45,43 +45,35 @@ export class NullBackend implements ResultBackend {
     /**
      * @returns A rejected `Promise`.
      */
-    public put(): Promise<string> {
-        return Promise.reject(new Error(
-            "cannot put results onto a null backend"
-        ));
+    public async put(): Promise<string> {
+        throw new Error("cannot put results onto a null backend");
     }
 
     /**
      * @returns A rejected `Promise`.
      */
-    public get<T>(): Promise<ResultMessage<T>> {
-        return Promise.reject(new Error(
-            "cannot get results from a null backend"
-        ));
+    public async get<T>(): Promise<ResultMessage<T>> {
+        throw new Error("cannot get results from a null backend");
     }
 
     /**
      * @returns A rejected `Promise`.
      */
     public delete(): Promise<string> {
-        return Promise.reject(new Error(
-            "cannot delete results from a null backend"
-        ));
+        throw new Error("cannot delete results from a null backend");
     }
 
     /**
      * @returns A resolved `Promise`.
      */
     public async disconnect(): Promise<void> {
-        return this.end();
+        await this.end();
     }
 
     /**
      * @returns A resolved `Promise`.
      */
-    public async end(): Promise<void> {
-        return Promise.resolve();
-    }
+    public async end(): Promise<void> { }
 
     /**
      * @returns Nothing; will never return.
