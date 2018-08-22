@@ -29,9 +29,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-import { ResultMessage } from "./messages";
 import { ResultBackend } from "./result_backend";
-import { createTimeoutPromise, isNullOrUndefined } from "./utility";
+import { createTimeoutPromise } from "./utility";
 
 /**
  * The result of a task invocation. Asynchronously fetched.
