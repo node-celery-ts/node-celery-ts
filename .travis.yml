@@ -17,9 +17,11 @@ before_script:
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
 script:
-  - npm test
+  - npm run test-integration
 after_script:
+  - cd ./docker/
   - docker-compose logs -t celery rabbitmq redis
+  - cd ../
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 before_deploy:
   - npm pack
