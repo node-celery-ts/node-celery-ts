@@ -29,65 +29,24 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-import { ResultMessage } from "./messages";
-import { ResultBackend } from "./result_backend";
+import * as Celery from "../src";
 
-/**
- * A dummy backend. All operations will either throw or return a rejected
- * `Promise`, whichever is appropriate. To be used when ignoring results.
- */
-export class NullBackend implements ResultBackend {
-    /**
-     * @returns A `NullBackend` ready to fail at the earliest convenience.
-     */
-    public constructor() { }
+import * as Chai from "chai";
+import * as Mocha from "mocha";
 
-    /**
-     * @returns A rejected `Promise`.
-     */
-    public put(): Promise<string> {
-        return Promise.reject(new Error(
-            "cannot put results onto a null backend"
-        ));
-    }
+Mocha.describe("Celery.Client", () => {
+    Mocha.it("should work", async () => {
+        const client = Celery.createClient({
+            brokerUrl: "amqp://localhost",
+            resultBackend: "redis://localhost",
+        });
 
-    /**
-     * @returns A rejected `Promise`.
-     */
-    public get<T>(): Promise<ResultMessage<T>> {
-        return Promise.reject(new Error(
-            "cannot get results from a null backend"
-        ));
-    }
+        const task = client.createTask("tasks.add");
+        const applied = task.applyAsync({ args: [10, 15], kwargs: { } });
+        const result = await applied.get();
 
-    /**
-     * @returns A rejected `Promise`.
-     */
-    public delete(): Promise<string> {
-        return Promise.reject(new Error(
-            "cannot delete results from a null backend"
-        ));
-    }
+        await client.end();
 
-    /**
-     * @returns A resolved `Promise`.
-     */
-    public async disconnect(): Promise<void> {
-        return this.end();
-    }
-
-    /**
-     * @returns A resolved `Promise`.
-     */
-    public async end(): Promise<void> {
-        return Promise.resolve();
-    }
-
-    /**
-     * @returns Nothing; will never return.
-     * @throws Error If invoked.
-     */
-    public uri(): never {
-        throw new Error("cannot query the URI of a null backend");
-    }
-}
+        Chai.expect(result).to.deep.equal(25);
+    });
+});

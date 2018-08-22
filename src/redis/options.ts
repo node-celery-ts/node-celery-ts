@@ -32,6 +32,7 @@
 import { UnimplementedError } from "../errors";
 import {
     BasicRedisClusterOptions,
+    BasicRedisOptions,
     BasicRedisSentinelOptions,
     BasicRedisSocketOptions,
     BasicRedisTcpOptions,
@@ -46,15 +47,47 @@ import * as IoRedis from "ioredis";
  */
 export interface RedisOptions {
     /**
+     * @param override Options to be written over existing options before
+     *                 creating the client
      * @returns A Redis client configured according to the class type.
      */
-    createClient(): IoRedis.Redis;
+    createClient(override?: object): IoRedis.Redis;
 
     /**
      * @returns A URI that lossily encodes a `RedisOptions` object.
      */
     createUri(): string;
 }
+
+/**
+ * @param options The options to copy from.
+ * @returns A new options object with old options copied from `options` and
+ *          certain options forced to a value.
+ */
+const appendDefaultOptions = <T extends BasicRedisOptions>(options: T): T => {
+    const appended = {
+        ...options as object,
+        dropBufferSupport: true,
+        keyPrefix: "celery-task-meta-",
+        stringNumbers: true,
+    };
+
+    return appended as T;
+};
+
+/**
+ */
+const maybeOverride = <T extends BasicRedisOptions>(
+    options: T,
+    override?: object
+): T => {
+    if (typeof override === "undefined") {
+        return options;
+    }
+
+    // tslint:disable:no-object-literal-type-assertion
+    return { ...options as object, ...override } as T;
+};
 
 /**
  * `RedisTcpOptions` creates Redis clients that connect to a single database
@@ -64,11 +97,11 @@ export class RedisTcpOptions implements RedisOptions {
     public readonly options: BasicRedisTcpOptions;
 
     public constructor(options: BasicRedisTcpOptions) {
-        this.options = options;
+        this.options = appendDefaultOptions(options);
     }
 
-    public createClient(): IoRedis.Redis {
-        return new IoRedis(this.options);
+    public createClient(override?: object): IoRedis.Redis {
+        return new IoRedis(maybeOverride(this.options, override));
     }
 
     public createUri(): string {
@@ -113,11 +146,11 @@ export class RedisSocketOptions implements RedisOptions {
     public readonly options: BasicRedisSocketOptions;
 
     public constructor(options: BasicRedisSocketOptions) {
-        this.options = options;
+        this.options = appendDefaultOptions(options);
     }
 
-    public createClient(): IoRedis.Redis {
-        return new IoRedis(this.options);
+    public createClient(override?: object): IoRedis.Redis {
+        return new IoRedis(maybeOverride(this.options, override));
     }
 
     public createUri(): string {
@@ -145,11 +178,11 @@ export class RedisSentinelOptions implements RedisOptions {
     public readonly options: BasicRedisSentinelOptions;
 
     public constructor(options: BasicRedisSentinelOptions) {
-        this.options = options;
+        this.options = appendDefaultOptions(options);
     }
 
-    public createClient(): IoRedis.Redis {
-        return new IoRedis(this.options);
+    public createClient(override?: object): IoRedis.Redis {
+        return new IoRedis(maybeOverride(this.options, override));
     }
 
     public createUri(): string {
@@ -165,7 +198,16 @@ export class RedisClusterOptions implements RedisOptions {
     public readonly options: BasicRedisClusterOptions;
 
     public constructor(options: BasicRedisClusterOptions) {
-        this.options = options;
+        this.options = (() => {
+            if (typeof options.redisOptions === "undefined") {
+                return options;
+            }
+
+            return {
+                ...options,
+                redisOptions: appendDefaultOptions(options.redisOptions),
+            };
+        })();
     }
 
     public createClient(): IoRedis.Redis {

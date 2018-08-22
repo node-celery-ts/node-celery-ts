@@ -61,7 +61,7 @@ export class RedisBroker implements MessageBroker {
             return options;
         })();
 
-        this.connection = this.options.createClient();
+        this.connection = this.options.createClient({ keyPrefix: "" });
     }
 
     /**

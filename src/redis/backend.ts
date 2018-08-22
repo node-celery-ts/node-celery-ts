@@ -69,7 +69,7 @@ export class RedisBackend implements ResultBackend {
         })();
 
         this.pool = new ResourcePool<IoRedis.Redis>(
-            () => this.options.createClient(),
+            () => this.options.createClient({ keyPrefix: "celery-task-meta-" }),
             (connection) => connection.quit()
                 .then((response) => {
                     connection.disconnect();
@@ -99,14 +99,13 @@ export class RedisBackend implements ResultBackend {
      *          after the message has been set and published.
      */
     public put<T>(message: ResultMessage<T>): Promise<string> {
-        const key = RedisBackend.getKey(message.task_id);
+        const key = message.task_id;
         const toPut = JSON.stringify(message);
 
-        return this.pool.use((client) =>
-            client.multi()
-                .setex(key, RedisBackend.TIMEOUT / 1000, toPut)
-                .publish(key, toPut)
-                .exec()
+        return this.pool.use((client) => client.multi()
+            .setex(key, RedisBackend.TIMEOUT / 1000, toPut)
+            .publish(key, toPut)
+            .exec()
         );
     }
 
@@ -134,7 +133,7 @@ export class RedisBackend implements ResultBackend {
         }
 
         return this.pool.use((client) => {
-            const response = client.get(`celery-task-meta-${taskId}`)
+            const response = client.get(taskId)
                 .then((raw) => {
                     if (isNullOrUndefined(raw)) {
                         return listen();
@@ -163,18 +162,22 @@ export class RedisBackend implements ResultBackend {
      * @returns A Promise that resolves to the DELETE response.
      */
     public delete(taskId: string): Promise<string> {
-        const key = RedisBackend.getKey(taskId);
+        return this.pool.use((client) => {
+            this.results.delete(taskId);
 
-        return this.pool.get().then((client) => {
-            const delResponse = client.del(key)
-                .then((response: string) => {
-                    this.pool.return(client);
-
-                    return response;
-                });
-
-            return this.pool.returnAfter(delResponse, client);
+            return client.del(taskId);
         });
+    }
+
+    /**
+     * Gently terminates the connection with Redis using QUIT. Same as #end.
+     *
+     * @returns A Promise that resolves to the QUIT response from Redis.
+     *
+     * @see #end
+     */
+    public async disconnect(): Promise<void> {
+        await this.end();
     }
 
     /**
@@ -182,12 +185,12 @@ export class RedisBackend implements ResultBackend {
      *
      * @returns A Promise that resolves to the QUIT response from Redis.
      */
-    public disconnect(): Promise<void> {
-        return this.subscriber.then((subscriber) => {
-            this.pool.return(subscriber);
+    public async end(): Promise<void> {
+        const subscriber = await this.subscriber;
+        await subscriber.punsubscribe("celery-task-meta-*");
+        this.pool.return(subscriber);
 
-            return this.pool.destroyAll().then(() => { });
-        });
+        await this.pool.destroyAll();
     }
 
     /**
@@ -195,14 +198,6 @@ export class RedisBackend implements ResultBackend {
      */
     public uri(): string {
         return this.options.createUri();
-    }
-
-    /**
-     * @param taskId The task UUID to prefix.
-     * @returns The key of a Celery task result in Redis.
-     */
-    private static getKey(taskId: string): string {
-        return `celery-task-meta-${taskId}`;
     }
 
     /**

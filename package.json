@@ -73,6 +73,7 @@
         "lint": "./node_modules/tslint/bin/tslint --project ./",
         "setup": "npm install",
         "test": "nyc mocha",
+        "test-integration": "nyc mocha --opts ./vagrant/mocha.opts",
         "typedoc": "./node_modules/typedoc/bin/typedoc ./src/"
     },
     "nyc": {

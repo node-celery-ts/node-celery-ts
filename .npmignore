@@ -1,11 +1,17 @@
 .nyc_output/
+.vagrant/
+containers/
 coverage/
 docs/
+scripts/
 src/
 test/
+vagrant/
 
+*.log
 .npmignore
 .travis.yml
 celery-ts-*.tgz
 tsconfig.json
 tslint.json
+Vagrantfile

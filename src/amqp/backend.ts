@@ -141,10 +141,22 @@ export class RpcBackend implements ResultBackend {
 
     /**
      * Gently closes all channels and the connection with RabbitMQ.
+     * Alias for #end.
+     *
+     * @returns A `Promise` that resolves when the disconnection is complete.
+     *
+     * @see #end
+     */
+    public async disconnect(): Promise<void> {
+        await this.end();
+    }
+
+    /**
+     * Gently closes all channels and the connection with RabbitMQ.
      *
      * @returns A `Promise` that resolves when the disconnection is complete.
      */
-    public disconnect(): Promise<void> {
+    public async end(): Promise<void> {
         return Promise.all([
             this.consumer,
             this.consumerTag,

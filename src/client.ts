@@ -86,6 +86,20 @@ export class Client {
             name,
         });
     }
+
+    /**
+     * Forcefully disconnects from message brokers and the result backend.
+     */
+    public async disconnect(): Promise<void> {
+        await disconnectOrEndAll(this.brokers, this.backend, "disconnect");
+    }
+
+    /**
+     * Gently disconnect from message brokers and the result backend.
+     */
+    public async end(): Promise<void> {
+        await disconnectOrEndAll(this.brokers, this.backend, "end");
+    }
 }
 
 /**
@@ -126,3 +140,17 @@ export const getRoundRobinStrategy = (size: number): FailoverStrategy => {
         return broker;
     };
 };
+
+/**
+ * @param brokers To have #disconnect or #end called on them.
+ * @param backend To have #disconnect or #end called on it.
+ * @param toInvoke The name of the function to invoke.
+ * @returns A `Promise` that settles when all invocations have settled.
+ */
+const disconnectOrEndAll = async (
+    brokers: Array<MessageBroker>,
+    backend: ResultBackend,
+    toInvoke: "disconnect" | "end"
+): Promise<Array<void>> => Promise.all(
+    brokers.map((b) => b[toInvoke]()).concat(backend[toInvoke]())
+);
