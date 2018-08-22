@@ -177,13 +177,15 @@ export class Task<T> {
             }),
         };
 
-        const tryPublish = (): Promise<string> =>
-            this.broker.publish(publishOptions)
-                .catch(() => {
-                    this.broker = this.failoverStrategy(this.brokers);
+        const tryPublish = async (): Promise<string> => {
+            try {
+                return this.broker.publish(publishOptions);
+            } catch {
+                this.broker = this.failoverStrategy(this.brokers);
 
-                    return tryPublish();
-                });
+                return tryPublish();
+            }
+        };
 
         tryPublish();
 
