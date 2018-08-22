@@ -105,10 +105,10 @@ export const toCamelCase = (toConvert: string): string =>
  * @returns A `Promise` that settles when the specified emitter emits an event
  *          with matching name.
  */
-export const promisifyEvent = <T>(
+export const promisifyEvent = async <T>(
     emitter: Events.EventEmitter,
-    name: string | symbol
-): Promise<T> => new Promise((resolve) => emitter.once(name, resolve));
+    name: string | symbol,
+): Promise<T> => new Promise<T>((resolve) => emitter.once(name, resolve));
 
 /**
  * @param emitter The emitter to listen to.
@@ -119,11 +119,11 @@ export const promisifyEvent = <T>(
  * @returns A `Promise` that settles when the specified emitter emits an event
  *          with matching name and the filtering condition is met.
  */
-export const filterMapEvent = <T>({ emitter, filterMap, name }: {
+export const filterMapEvent = async <T>({ emitter, filterMap, name }: {
     emitter: Events.EventEmitter;
     filterMap(...args: Array<any>): T | undefined;
     name: string | symbol;
-}): Promise<T> => new Promise((resolve) => {
+}): Promise<T> => new Promise<T>((resolve) => {
     let resolved = false;
 
     const onEvent = (...values: Array<any>) => {
@@ -155,18 +155,15 @@ export const filterMapEvent = <T>({ emitter, filterMap, name }: {
  *
  * @see createTimerPromise
  */
-export const createTimeoutPromise = <T>(
+export const createTimeoutPromise = async <T>(
     promise: T | PromiseLike<T>,
     timeout?: number
 ): Promise<T> => {
     if (isNullOrUndefined(timeout)) {
-        return Promise.resolve(promise);
+        return promise;
     }
 
-    return Promise.race([
-        promise,
-        createTimerPromise<T>(timeout),
-    ]);
+    return Promise.race([promise, createTimerPromise(timeout)]);
 };
 
 /**
@@ -175,8 +172,8 @@ export const createTimeoutPromise = <T>(
  * @param timeout The time (in milliseconds) to wait before rejecting.
  * @returns A `Promise` that rejects after at least `timeout` milliseconds.
  */
-export const createTimerPromise = <T>(timeout: number): Promise<T> =>
-    new Promise<T>((_, reject) =>
+export const createTimerPromise = async (timeout: number): Promise<never> =>
+    new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error("timed out")), timeout)
     );
 
