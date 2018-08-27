@@ -104,44 +104,19 @@ export class PromiseMap<K, V> {
      *            not in the owned set.
      * @param value The value to settle the `Promise` to.
      * @returns True if a new `Promise` was inserted.
+     *
      * @throws Error If the matching `Promise` is already settled.
      */
     public resolve(key: K, value: V | PromiseLike<V>): boolean {
         const maybePromiseData = this.getRaw(key);
         const hasEntry = !isNullOrUndefined(maybePromiseData);
 
-        const doResolve = async () => {
-            try {
-                const resolved = await value;
-                this.setFulfilled(key);
-
-                return resolved;
-            } catch (error) {
-                this.setRejected(key);
-
-                return error;
-            }
-        };
-
         if (!isNullOrUndefined(maybePromiseData)) {
             const data = maybePromiseData[1];
 
-            if (data.status !== State.Pending
-                || isNullOrUndefined(data.functions)) {
-                throw new Error(`cannot resolve "${key}": already settled`);
-            }
-
-            data.functions.resolve(doResolve());
-
-            const { functions: _, ...resolved } = {
-                ...data,
-                status: State.Pending,
-            };
-
-            this.data.set(key, resolved);
+            this.resolveExisting({ key, data, value });
         } else {
-            this.promises.set(key, doResolve());
-            this.data.set(key, { status: State.Pending });
+            this.resolveNew(key, value);
         }
 
         this.setTimeout(key);
@@ -154,6 +129,7 @@ export class PromiseMap<K, V> {
      *            not in the owned set.
      * @param reason The reason to reject the `Promise` with.
      * @returns True if a new `Promise` was inserted.
+     *
      * @throws Error If the matching `Promise` is already settled.
      */
     public reject(key: K, reason?: any): boolean {
@@ -163,22 +139,9 @@ export class PromiseMap<K, V> {
         if (!isNullOrUndefined(maybePromiseData)) {
             const data = maybePromiseData[1];
 
-            if (data.status !== State.Pending
-                || isNullOrUndefined(data.functions)) {
-                throw new Error(`cannot reject "${key}": already settled`);
-            }
-
-            data.functions.reject(reason);
-
-            const { functions, ...rejected } = {
-                ...data,
-                status: State.Rejected,
-            };
-
-            this.data.set(key, rejected);
+            this.rejectExisting({ key, data, reason });
         } else {
-            this.promises.set(key, Promise.reject(reason));
-            this.data.set(key, { status: State.Rejected });
+            this.rejectNew(key, reason);
         }
 
         this.setTimeout(key);
@@ -266,6 +229,83 @@ export class PromiseMap<K, V> {
         }
 
         return keys.length;
+    }
+
+    /**
+     * @param key The key to resolve.
+     * @param data The data pertaining to this existing key.
+     * @param value The value to resolve with.
+     *
+     * @throws Error If `key` is already resolved.
+     */
+    private resolveExisting({ key, data, value }: {
+        key: K;
+        data: MapData<V>;
+        value: V | PromiseLike<V>;
+    }): void {
+        try {
+            getFunctions(data).resolve(this.doResolve(key, value));
+        } catch {
+            throw new Error(`cannot resolve ${key}: already settled`);
+        }
+
+        const resolved = withStatus(data, State.Pending);
+
+        this.data.set(key, resolved);
+    }
+
+    /**
+     * @param key The key to create as resolved.
+     * @param value The value to resolve with.
+     */
+    private resolveNew(key: K, value: V | PromiseLike<V>): void {
+        this.promises.set(key, this.doResolve(key, value));
+        this.data.set(key, { status: State.Pending });
+    }
+
+    /**
+     * @param key The key to reject.
+     * @param data The data of the key to reject.
+     * @param reason The (optional) reason to reject with.
+     *
+     * @throws Error If `key` is already settled.
+     */
+    private rejectExisting({ key, data, reason }: {
+        key: K;
+        data: MapData<V>;
+        reason?: any;
+    }): void {
+        try {
+            getFunctions(data).reject(reason);
+        } catch {
+            throw new Error(`cannot reject ${key}: already settled`);
+        }
+
+        const rejected = withStatus(data, State.Rejected);
+
+        this.data.set(key, rejected);
+    }
+
+    /**
+     * @param key The key to create as rejected.
+     * @param reason The (optional) reason to reject with.
+     */
+    private rejectNew(key: K, reason?: any): void {
+        this.promises.set(key, Promise.reject(reason));
+        this.data.set(key, { status: State.Rejected });
+    }
+
+    private async doResolve(key: K, value: V | PromiseLike<V>): Promise<V> {
+        try {
+            const resolved = await value;
+            this.setFulfilled(key);
+
+            return resolved;
+        } catch (error) {
+            this.setRejected(key);
+
+            return error;
+        }
     }
 
     /**
@@ -366,3 +406,31 @@ interface PromiseFunctions<T> {
     reject(reason?: any): void;
     resolve(value: T | PromiseLike<T>): void;
 }
+
+/**
+ * @param data The data to retrieve pending functions from.
+ * @returns The { reject, resolve } functions of `data`.
+ *
+ * @throws Error If `data` is not pending.
+ */
+const getFunctions = <T>(data: MapData<T>): PromiseFunctions<T> => {
+    if (data.status !== State.Pending
+        || isNullOrUndefined(data.functions)) {
+        throw new Error("data is not pending");
+    }
+
+    return data.functions;
+};
+
+/**
+ * @param data The data whose status we want to set.
+ * @returns A copy of `data`, sans `functions` and with provided `status`.
+ */
+const withStatus = <T>(data: MapData<T>, status: State): MapData<T> => {
+    const { functions: _, ...toReturn } = {
+        ...data,
+        status,
+    };
+
+    return toReturn;
+};
