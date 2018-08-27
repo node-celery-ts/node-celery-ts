@@ -29,6 +29,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+import { PromiseFunctions } from "../promise_functions";
 import { isNullOrUndefined } from "../utility";
 
 /**
@@ -395,15 +396,6 @@ interface MapData<T> {
     readonly functions?: PromiseFunctions<T>;
     readonly status: State;
     readonly timer?: NodeJS.Timer;
-}
-
-/**
- * Functions that can be used to settle a `Promise`. Should be taken from
- * the `[resolve, reject]` function invoked by the constructor of `Promise`.
- */
-interface PromiseFunctions<T> {
-    reject(reason?: any): void;
-    resolve(value: T | PromiseLike<T>): void;
 }
 
 /**
