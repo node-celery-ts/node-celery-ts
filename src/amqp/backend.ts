@@ -98,14 +98,15 @@ export class RpcBackend implements ResultBackend {
      * @param message The message to queue.
      * @returns The response from RabbitMQ.
      */
-    public put<T>(message: ResultMessage<T>): Promise<string> {
+    public async put<T>(message: ResultMessage<T>): Promise<string> {
         const toSend = Buffer.from(JSON.stringify(message), "utf8");
         const options = RpcBackend.createPublishOptions(message);
 
-        return this.channels.use((channel) =>
-            this.assertQueue(channel)
-                .then(() => this.sendToQueue({ channel, options, toSend }))
-        );
+        return this.channels.use(async (channel) => {
+            await this.assertQueue(channel);
+
+            return this.sendToQueue({ channel, options, toSend });
+        });
     }
 
     /**
@@ -116,9 +117,12 @@ export class RpcBackend implements ResultBackend {
      *                the promise. If `undefined`, will wait forever.
      * @returns The result as fetched from RabbitMQ.
      */
-    public get<T>({ taskId, timeout }: GetOptions): Promise<ResultMessage<T>> {
-        const result = this.promises.get(taskId)
-            .then((message) => RpcBackend.parseMessage<T>(message));
+    public async get<T>({
+        taskId,
+        timeout
+    }: GetOptions): Promise<ResultMessage<T>> {
+        const raw = await this.promises.get(taskId);
+        const result = RpcBackend.parseMessage<T>(raw);
 
         return createTimeoutPromise(result, timeout);
     }
@@ -127,16 +131,12 @@ export class RpcBackend implements ResultBackend {
      * @param taskId The UUID of the task whose result is to be deleted.
      * @returns "deleted" | "no result found".
      */
-    public delete(taskId: string): Promise<string> {
-        const response = (() => {
-            if (this.promises.delete(taskId)) {
-                return "deleted";
-            }
+    public async delete(taskId: string): Promise<string> {
+        if (this.promises.delete(taskId)) {
+            return "deleted";
+        }
 
-            return "no result found";
-        })();
-
-        return Promise.resolve(response);
+        return "no result found";
     }
 
     /**
@@ -157,20 +157,17 @@ export class RpcBackend implements ResultBackend {
      * @returns A `Promise` that resolves when the disconnection is complete.
      */
     public async end(): Promise<void> {
-        return Promise.all([
-            this.consumer,
-            this.consumerTag,
-        ]).then(([consumer, consumerTag]) => {
-            const reason = new Error("disconnecting");
-            this.promises.rejectAll(reason);
+        const consumer = await this.consumer;
+        const consumerTag = await this.consumerTag;
 
-            return Promise.all([
-                consumer.cancel(consumerTag),
-            ]).then(() => this.channels.return(consumer))
-            .then(() => this.channels.destroyAll())
-            .then(() => this.connection)
-            .then((connection) => connection.close());
-        });
+        this.promises.rejectAll(new Error("disconnecting"));
+
+        await consumer.cancel(consumerTag);
+        this.channels.return(consumer);
+        await this.channels.destroyAll();
+
+        const connection = await this.connection;
+        await connection.close();
     }
 
     /**
@@ -228,14 +225,14 @@ export class RpcBackend implements ResultBackend {
      * @param channel The channel to use.
      * @returns The reply from RabbitMQ.
      */
-    private assertQueue(
+    private async assertQueue(
         channel: AmqpLib.Channel
     ): Promise<AmqpLib.Replies.AssertQueue> {
-        return Promise.resolve(channel.assertQueue(this.routingKey, {
+        return channel.assertQueue(this.routingKey, {
             autoDelete: false,
             durable: false,
             expires: 86400000, // 1 day in ms
-        }));
+        });
     }
 
     /**
@@ -246,20 +243,22 @@ export class RpcBackend implements ResultBackend {
      * @param options The options to publish with.
      * @param toSend The payload to write.
      */
-    private sendToQueue({ channel, options, toSend }: {
+    private async sendToQueue({ channel, options, toSend }: {
         channel: AmqpLib.Channel;
         options: AmqpLib.Options.Publish;
         toSend: Buffer;
     }): Promise<string> {
-        const send = () =>
-            channel.sendToQueue(this.routingKey, toSend, options);
+        const send = () => channel.sendToQueue(
+            this.routingKey,
+            toSend,
+            options
+        );
 
-        if (!send()) {
-            return promisifyEvent<void>(channel, "drain")
-                .then(() => this.sendToQueue({ channel, options, toSend }));
+        while (!send()) {
+            await promisifyEvent<void>(channel, "drain");
         }
 
-        return Promise.resolve("flushed to write buffer");
+        return "flushed to write buffer";
     }
 
     /**
@@ -268,12 +267,14 @@ export class RpcBackend implements ResultBackend {
      * @param consumer The `Channel` to use.
      * @returns A `Promise` that resolves to the consumer tag of the `Channel`.
      */
-    private createConsumer(consumer: AmqpLib.Channel): Promise<string> {
-        return Promise.resolve(consumer.consume(
+    private async createConsumer(consumer: AmqpLib.Channel): Promise<string> {
+        const reply = await consumer.consume(
             this.routingKey,
             (message) => this.onMessage(message),
             { noAck: true },
-         )).then((reply) => reply.consumerTag);
+        );
+
+        return reply.consumerTag;
     }
 
     /**
@@ -285,8 +286,7 @@ export class RpcBackend implements ResultBackend {
      */
     private onMessage(maybeMessage?: Message | null): void {
         if (isNullOrUndefined(maybeMessage)) {
-            const error = new Error("RabbitMQ cancelled consumer");
-            this.promises.rejectAll(error);
+            this.promises.rejectAll(new Error("RabbitMQ cancelled consumer"));
 
             return;
         }

@@ -229,6 +229,34 @@ Mocha.describe("Celery.Containers.ResourcePool", () => {
         });
     });
 
+    Mocha.it("should allow #use to work with throwing functions", async () => {
+        const pool = createPool();
+
+        Chai.expect(pool.numOwned()).to.deep.equal(0);
+        Chai.expect(pool.numInUse()).to.deep.equal(0);
+        Chai.expect(pool.numUnused()).to.deep.equal(0);
+
+        const toThrow = new Error("foo");
+
+        try {
+            await pool.use(() => {
+                Chai.expect(pool.numOwned()).to.deep.equal(1);
+                Chai.expect(pool.numInUse()).to.deep.equal(1);
+                Chai.expect(pool.numUnused()).to.deep.equal(0);
+
+                throw toThrow;
+            });
+
+            Chai.assert(false);
+        } catch (error) {
+            Chai.expect(error).to.equal(toThrow);
+
+            Chai.expect(pool.numOwned()).to.deep.equal(1);
+            Chai.expect(pool.numInUse()).to.deep.equal(0);
+            Chai.expect(pool.numUnused()).to.deep.equal(1);
+        }
+    });
+
     Mocha.it("should not allocate more resources than are available", () => {
         const pool = createPool();
 

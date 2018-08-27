@@ -44,7 +44,7 @@ import * as AmqpLib from "amqplib";
  */
 export class AmqpBroker implements MessageBroker {
     private channels: ResourcePool<AmqpLib.Channel>;
-    private connection: Promise<AmqpLib.Connection>;
+    private readonly connection: Promise<AmqpLib.Connection>;
     private readonly options: AmqpOptions;
 
     /**
@@ -66,10 +66,16 @@ export class AmqpBroker implements MessageBroker {
         this.connection = Promise.resolve(AmqpLib.connect(this.options));
 
         this.channels = new ResourcePool(
-            () => this.connection.then((connection) =>
-                connection.createChannel()
-            ),
-            (channel) => channel.close().then(() => "closed"),
+            async () => {
+                const connection = await this.connection;
+
+                return connection.createChannel();
+            },
+            async (channel) => {
+                await channel.close();
+
+                return "closed";
+            },
             2,
         );
     }
@@ -82,8 +88,8 @@ export class AmqpBroker implements MessageBroker {
      *
      * @see #end
      */
-    public disconnect(): Promise<void> {
-        return this.end();
+    public async disconnect(): Promise<void> {
+        await this.end();
     }
 
     /**
@@ -91,9 +97,11 @@ export class AmqpBroker implements MessageBroker {
      *
      * @returns A `Promise` that resolves once the connection is closed.
      */
-    public end(): Promise<void> {
-        return this.channels.destroyAll().then(() => this.connection)
-            .then((connection) => connection.close());
+    public async end(): Promise<void> {
+        await this.channels.destroyAll();
+
+        const connection = await this.connection;
+        await connection.close();
     }
 
     /**
@@ -103,26 +111,24 @@ export class AmqpBroker implements MessageBroker {
      *                publishing options.
      * @returns A `Promise` that resolves to `"flushed to write buffer"`.
      */
-    public publish(message: TaskMessage): Promise<string> {
+    public async publish(message: TaskMessage): Promise<string> {
         const exchange = message.properties.delivery_info.exchange;
         const routingKey = message.properties.delivery_info.routing_key;
 
         const body = AmqpBroker.getBody(message);
         const options = AmqpBroker.getPublishOptions(message);
 
-        return this.channels.use((channel) =>
-            AmqpBroker.assert({
-                channel,
-                exchange,
-                routingKey
-            }).then(() => AmqpBroker.doPublish({
+        return this.channels.use(async (channel) => {
+            await AmqpBroker.assert({ channel, exchange, routingKey });
+
+            return AmqpBroker.doPublish({
                 body,
                 channel,
                 exchange,
                 options,
-                routingKey,
-            }))
-        );
+                routingKey
+            });
+        });
     }
 
     /**
@@ -158,22 +164,22 @@ export class AmqpBroker implements MessageBroker {
      * @param routingKey The queue to assert.
      * @returns A `Promise` that resolves when the assertions are complete.
      */
-    private static assert({ channel, exchange, routingKey }: {
+    private static async assert({ channel, exchange, routingKey }: {
         channel: AmqpLib.Channel;
         exchange: string;
         routingKey: string;
     }): Promise<void> {
-        const queue = channel.assertQueue(routingKey);
+        const assertion = channel.assertQueue(routingKey);
 
         // cannot assert default exchange
         if (exchange === "") {
-            return Promise.resolve(queue).then(() => { });
+            await assertion;
+        } else {
+            await Promise.all([
+                assertion,
+                channel.assertExchange(exchange, "direct"),
+            ]);
         }
-
-        return Promise.all([
-            channel.assertExchange(exchange, "direct"),
-            queue,
-        ]).then(() => { });
     }
 
     /**
@@ -189,19 +195,30 @@ export class AmqpBroker implements MessageBroker {
      *                   is the queue to route to.
      * @returns The response from the RabbitMQ node.
      */
-    private static doPublish({ body, channel, exchange, options, routingKey }: {
+    private static async doPublish({
+        body,
+        channel,
+        exchange,
+        options,
+        routingKey
+    }: {
         body: Buffer;
         channel: AmqpLib.Channel;
         exchange: string;
         options: AmqpLib.Options.Publish;
         routingKey: string;
     }): Promise<string> {
-        if (!channel.publish(exchange, routingKey, body, options)) {
-            return promisifyEvent(channel, "drain").then(() =>
-                this.doPublish({ body, channel, exchange, options, routingKey })
-            );
+        const publish = () => channel.publish(
+            exchange,
+            routingKey,
+            body,
+            options
+        );
+
+        while (!publish()) {
+            await promisifyEvent<void>(channel, "drain");
         }
 
-        return Promise.resolve("flushed to write buffer");
+        return "flushed to write buffer";
     }
 }

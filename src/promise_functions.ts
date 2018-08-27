@@ -29,57 +29,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-import { ResultMessage } from "./messages";
-import { ResultBackend } from "./result_backend";
-
 /**
- * A dummy backend. All operations will either throw or return a rejected
- * `Promise`, whichever is appropriate. To be used when ignoring results.
+ * Functions that can be used to settle a `Promise`. Should be taken from
+ * the `[resolve, reject]` function invoked by the constructor of `Promise`.
  */
-export class NullBackend implements ResultBackend {
-    /**
-     * @returns A `NullBackend` ready to fail at the earliest convenience.
-     */
-    public constructor() { }
-
-    /**
-     * @returns A rejected `Promise`.
-     */
-    public async put(): Promise<string> {
-        throw new Error("cannot put results onto a null backend");
-    }
-
-    /**
-     * @returns A rejected `Promise`.
-     */
-    public async get<T>(): Promise<ResultMessage<T>> {
-        throw new Error("cannot get results from a null backend");
-    }
-
-    /**
-     * @returns A rejected `Promise`.
-     */
-    public delete(): Promise<string> {
-        throw new Error("cannot delete results from a null backend");
-    }
-
-    /**
-     * @returns A resolved `Promise`.
-     */
-    public async disconnect(): Promise<void> {
-        await this.end();
-    }
-
-    /**
-     * @returns A resolved `Promise`.
-     */
-    public async end(): Promise<void> { }
-
-    /**
-     * @returns Nothing; will never return.
-     * @throws Error If invoked.
-     */
-    public uri(): never {
-        throw new Error("cannot query the URI of a null backend");
-    }
+export interface PromiseFunctions<T> {
+    reject(reason?: any): void;
+    resolve(value: T | PromiseLike<T>): void;
 }

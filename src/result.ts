@@ -29,9 +29,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-import { ResultMessage } from "./messages";
 import { ResultBackend } from "./result_backend";
-import { createTimeoutPromise, isNullOrUndefined } from "./utility";
+import { createTimeoutPromise } from "./utility";
 
 /**
  * The result of a task invocation. Asynchronously fetched.
@@ -64,11 +63,7 @@ export class Result<T> {
      * @returns A `Promise` that will resolve to the result of the task after
      *          it is fetched from the backend.
      */
-    public get(timeout?: number): Promise<T> {
-        if (isNullOrUndefined(timeout)) {
-            return this.result;
-        }
-
+    public async get(timeout?: number): Promise<T> {
         return createTimeoutPromise(this.result, timeout);
     }
 
@@ -78,7 +73,7 @@ export class Result<T> {
      *
      * @returns A `Promise` that resolves to the response of the result backend.
      */
-    public delete(): Promise<string> {
+    public async delete(): Promise<string> {
         return this.backend.delete(this.taskId);
     }
 
@@ -86,9 +81,9 @@ export class Result<T> {
      * @returns A `Promise` that resolves to the result fetched from the
      *          result backend.
      */
-    private getResult(): Promise<T> {
-        return this.backend
-            .get<T>({ taskId: this.taskId })
-            .then((message: ResultMessage<T>): T => message.result);
+    private async getResult(): Promise<T> {
+        const message = await this.backend.get<T>({ taskId: this.taskId });
+
+        return message.result;
     }
 }

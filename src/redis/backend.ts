@@ -70,24 +70,25 @@ export class RedisBackend implements ResultBackend {
 
         this.pool = new ResourcePool<IoRedis.Redis>(
             () => this.options.createClient({ keyPrefix: "celery-task-meta-" }),
-            (connection) => connection.quit()
-                .then((response) => {
-                    connection.disconnect();
+            async (connection) => {
+                const response = await connection.quit();
+                connection.disconnect();
 
-                    return response;
-                }),
+                return response;
+            },
             2,
         );
 
-        this.subscriber = this.pool.get();
-
-        this.subscriber.then((subscriber) =>
-            subscriber.psubscribe("celery-task-meta-*")
-                .then(() => subscriber.on(
+        this.subscriber = this.pool.get()
+            .then(async (subscriber) => {
+                await subscriber.psubscribe("celery-task-meta-*");
+                subscriber.on(
                     "pmessage",
-                    (_, channel, message) => this.onMessage(channel, message))
-                )
-        );
+                    (_, channel, message) => this.onMessage(channel, message)
+                );
+
+                return subscriber;
+            });
     }
 
     /**
@@ -98,11 +99,11 @@ export class RedisBackend implements ResultBackend {
      * @returns A Promise that resolves to the response of the Redis server
      *          after the message has been set and published.
      */
-    public put<T>(message: ResultMessage<T>): Promise<string> {
+    public async put<T>(message: ResultMessage<T>): Promise<string> {
         const key = message.task_id;
         const toPut = JSON.stringify(message);
 
-        return this.pool.use((client) => client.multi()
+        return this.pool.use(async (client): Promise<string> => client.multi()
             .setex(key, RedisBackend.TIMEOUT / 1000, toPut)
             .publish(key, toPut)
             .exec()
@@ -121,32 +122,36 @@ export class RedisBackend implements ResultBackend {
      *                undefined, no timeout will be set.
      * @returns A Promise that resolves to the result received from Redis.
      */
-    public get<T>({ taskId, timeout }: GetOptions): Promise<ResultMessage<T>> {
-        const listen = () => this.results
-            .get(taskId)
-            .then((unparsed: string): ResultMessage<T> =>
-                JSON.parse(unparsed)
-            );
+    public async get<T>({
+        taskId,
+        timeout
+    }: GetOptions): Promise<ResultMessage<T>> {
+        const listen = async (): Promise<ResultMessage<T>> => {
+            const raw = await this.results.get(taskId);
+
+            return JSON.parse(raw);
+        };
 
         if (this.results.has(taskId)) {
             return listen();
         }
 
-        return this.pool.use((client) => {
-            const response = client.get(taskId)
-                .then((raw) => {
-                    if (isNullOrUndefined(raw)) {
-                        return listen();
-                    }
+        return this.pool.use(async (client) => {
+            const response = (async () => {
+                const raw = await client.get(taskId);
 
-                    const parsed: ResultMessage<T> = JSON.parse(raw);
+                if (isNullOrUndefined(raw)) {
+                    return listen();
+                }
 
-                    if (parsed.status !== Status.Success) {
-                        return listen();
-                    }
+                const parsed: ResultMessage<T> = JSON.parse(raw);
 
-                    return parsed;
-                });
+                if (parsed.status !== Status.Success) {
+                    return listen();
+                }
+
+                return parsed;
+            })();
 
             return createTimeoutPromise(response, timeout);
         });
@@ -161,8 +166,8 @@ export class RedisBackend implements ResultBackend {
      *               Redis.
      * @returns A Promise that resolves to the DELETE response.
      */
-    public delete(taskId: string): Promise<string> {
-        return this.pool.use((client) => {
+    public async delete(taskId: string): Promise<string> {
+        return this.pool.use(async (client): Promise<string> => {
             this.results.delete(taskId);
 
             return client.del(taskId);

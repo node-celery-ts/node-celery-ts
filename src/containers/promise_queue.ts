@@ -29,6 +29,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+import { PromiseFunctions } from "../promise_functions";
 import { List } from "./list";
 
 /**
@@ -123,14 +124,6 @@ export class PromiseQueue<T> {
 
         return true;
     }
-}
-
-/**
- * Functions obtained from the constructor of a `Promise`.
- */
-interface PromiseFunctions<T> {
-    reject(reason?: any): void;
-    resolve(value: T | PromiseLike<T>): void;
 }
 
 /**
