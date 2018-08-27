@@ -108,20 +108,11 @@ export class PromiseMap<K, V> {
      * @throws Error If the matching `Promise` is already settled.
      */
     public resolve(key: K, value: V | PromiseLike<V>): boolean {
-        const maybePromiseData = this.getRaw(key);
-        const hasEntry = !isNullOrUndefined(maybePromiseData);
-
-        if (!isNullOrUndefined(maybePromiseData)) {
-            const data = maybePromiseData[1];
-
-            this.resolveExisting({ key, data, value });
-        } else {
-            this.resolveNew(key, value);
-        }
-
-        this.setTimeout(key);
-
-        return !hasEntry;
+        return this.settle({
+            key,
+            onExisting: (data) => this.resolveExisting({ key, data, value }),
+            onNew: () => this.resolveNew(key, value),
+        });
     }
 
     /**
@@ -133,20 +124,11 @@ export class PromiseMap<K, V> {
      * @throws Error If the matching `Promise` is already settled.
      */
     public reject(key: K, reason?: any): boolean {
-        const maybePromiseData = this.getRaw(key);
-        const hasEntry = !isNullOrUndefined(maybePromiseData);
-
-        if (!isNullOrUndefined(maybePromiseData)) {
-            const data = maybePromiseData[1];
-
-            this.rejectExisting({ key, data, reason });
-        } else {
-            this.rejectNew(key, reason);
-        }
-
-        this.setTimeout(key);
-
-        return !hasEntry;
+        return this.settle({
+            key,
+            onExisting: (data) => this.rejectExisting({ key, data, reason }),
+            onNew: () => this.rejectNew(key, reason),
+        });
     }
 
     /**
@@ -232,6 +214,33 @@ export class PromiseMap<K, V> {
     }
 
     /**
+     * @param key The key of the `Promise` to settle.
+     * @param onExisting The function to call if `key` exists.
+     * @param onNew The function to call if `key` doesn't exist.
+     * @returns True if `key` didn't exist and `onNew` was called.
+     */
+    private settle({ key, onExisting, onNew }: {
+        key: K;
+        onExisting(data: MapData<V>): void;
+        onNew(): void;
+    }): boolean {
+        const maybePromiseData = this.getRaw(key);
+        const hasEntry = !isNullOrUndefined(maybePromiseData);
+
+        if (!isNullOrUndefined(maybePromiseData)) {
+            const data = maybePromiseData[1];
+
+            onExisting(data);
+        } else {
+            onNew();
+        }
+
+        this.setTimeout(key);
+
+        return !hasEntry;
+    }
+
+    /**
      * @param key The key to resolve.
      * @param data The data pertaining to this existing key.
      * @param value The value to resolve with.
@@ -298,33 +307,23 @@ export class PromiseMap<K, V> {
     private async doResolve(key: K, value: V | PromiseLike<V>): Promise<V> {
         try {
             const resolved = await value;
-            this.setFulfilled(key);
+            this.setStatus(key, State.Fulfilled);
 
             return resolved;
         } catch (error) {
-            this.setRejected(key);
+            this.setStatus(key, State.Rejected);
 
-            return error;
+            throw error;
         }
     }
 
     /**
-     * @param key The key to set as fulfilled.
+     * @param key The key to set the status of.
      */
-    private setFulfilled(key: K): void {
+    private setStatus(key: K, status: State): void {
         this.data.set(key, {
             ...this.data.get(key)!,
-            status: State.Fulfilled,
-        });
-    }
-
-    /**
-     * @param key The key to set as rejected.
-     */
-    private setRejected(key: K): void {
-        this.data.set(key, {
-            ...this.data.get(key)!,
-            status: State.Rejected,
+            status
         });
     }
 
