@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>UnimplementedError | celery-ts</title>
+	<title>PromiseQueue | celery-ts</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<style type="text/css">/*! normalize.css v1.1.3 | MIT License | git.io/normalize */
@@ -907,23 +907,26 @@ img { max-width: 100%; }
 </header>
 <nav class="tsd-navigation secondary">
 	<ul>
-		<li class="current tsd-kind-class">
-			<a href="unimplementederror.html" class="tsd-kind-icon">Unimplemented<wbr>Error</a>
+		<li class="current tsd-kind-class tsd-has-type-parameter">
+			<a href="promisequeue.html" class="tsd-kind-icon">Promise<wbr>Queue</a>
 			<ul>
 				<li class=" tsd-kind-constructor tsd-parent-kind-class">
-					<a href="unimplementederror.html#constructor" class="tsd-kind-icon">constructor</a>
+					<a href="promisequeue.html#constructor" class="tsd-kind-icon">constructor</a>
 				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-					<a href="unimplementederror.html#message" class="tsd-kind-icon">message</a>
+				<li class=" tsd-kind-method tsd-parent-kind-class">
+					<a href="promisequeue.html#push" class="tsd-kind-icon">push</a>
 				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-					<a href="unimplementederror.html#name" class="tsd-kind-icon">name</a>
+				<li class=" tsd-kind-method tsd-parent-kind-class">
+					<a href="promisequeue.html#rejectall" class="tsd-kind-icon">reject<wbr>All</a>
 				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
-					<a href="unimplementederror.html#stack" class="tsd-kind-icon">stack</a>
+				<li class=" tsd-kind-method tsd-parent-kind-class">
+					<a href="promisequeue.html#rejectone" class="tsd-kind-icon">reject<wbr>One</a>
 				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
-					<a href="unimplementederror.html#error" class="tsd-kind-icon">Error</a>
+				<li class=" tsd-kind-method tsd-parent-kind-class">
+					<a href="promisequeue.html#resolveall" class="tsd-kind-icon">resolve<wbr>All</a>
+				</li>
+				<li class=" tsd-kind-method tsd-parent-kind-class">
+					<a href="promisequeue.html#resolveone" class="tsd-kind-icon">resolve<wbr>One</a>
 				</li>
 			</ul>
 		</li>
@@ -934,20 +937,24 @@ img { max-width: 100%; }
 		<section class="tsd-panel tsd-comment">
 			<div class="tsd-comment tsd-typography">
 				<div class="lead">
-					<p>Error thrown when a feature is not yet implemented.</p>
+					<p>FIFO queue for <code>Promise</code>s. Supports pushing single elements onto the queue
+					and settling one or all elements in the queue. Implemented using <code>List</code>.</p>
 				</div>
 			</div>
+		</section>
+		<section class="tsd-panel tsd-type-parameters">
+			<h3>Type parameters</h3>
+			<ul class="tsd-type-parameters">
+				<li>
+					<h4>T</h4>
+				</li>
+			</ul>
 		</section>
 		<section class="tsd-panel tsd-hierarchy">
 			<h3>Hierarchy</h3>
 			<ul class="tsd-hierarchy">
 				<li>
-					<span class="tsd-signature-type">Error</span>
-					<ul class="tsd-hierarchy">
-						<li>
-							<span class="target">UnimplementedError</span>
-						</li>
-					</ul>
+					<span class="target">PromiseQueue</span>
 				</li>
 			</ul>
 		</section>
@@ -958,16 +965,17 @@ img { max-width: 100%; }
 					<section class="tsd-index-section ">
 						<h3>Constructors</h3>
 						<ul class="tsd-index-list">
-							<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="unimplementederror.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="promisequeue.html#constructor" class="tsd-kind-icon">constructor</a></li>
 						</ul>
 					</section>
 					<section class="tsd-index-section ">
-						<h3>Properties</h3>
+						<h3>Methods</h3>
 						<ul class="tsd-index-list">
-							<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="unimplementederror.html#message" class="tsd-kind-icon">message</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="unimplementederror.html#name" class="tsd-kind-icon">name</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited"><a href="unimplementederror.html#stack" class="tsd-kind-icon">stack</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="unimplementederror.html#error" class="tsd-kind-icon">Error</a></li>
+							<li class="tsd-kind-method tsd-parent-kind-class"><a href="promisequeue.html#push" class="tsd-kind-icon">push</a></li>
+							<li class="tsd-kind-method tsd-parent-kind-class"><a href="promisequeue.html#rejectall" class="tsd-kind-icon">reject<wbr>All</a></li>
+							<li class="tsd-kind-method tsd-parent-kind-class"><a href="promisequeue.html#rejectone" class="tsd-kind-icon">reject<wbr>One</a></li>
+							<li class="tsd-kind-method tsd-parent-kind-class"><a href="promisequeue.html#resolveall" class="tsd-kind-icon">resolve<wbr>All</a></li>
+							<li class="tsd-kind-method tsd-parent-kind-class"><a href="promisequeue.html#resolveone" class="tsd-kind-icon">resolve<wbr>One</a></li>
 						</ul>
 					</section>
 				</div>
@@ -979,80 +987,179 @@ img { max-width: 100%; }
 				<a name="constructor" class="tsd-anchor"></a>
 				<h3>constructor</h3>
 				<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-					<li class="tsd-signature tsd-kind-icon">new <wbr>Unimplemented<wbr>Error<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="unimplementederror.html" class="tsd-signature-type">UnimplementedError</a></li>
+					<li class="tsd-signature tsd-kind-icon">new <wbr>Promise<wbr>Queue<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="promisequeue.html" class="tsd-signature-type">PromiseQueue</a></li>
 				</ul>
 				<ul class="tsd-descriptions">
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/ce0162c/src/errors.ts#L35">errors.ts:35</a></li>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/ce0162c/src/containers/promise_queue.ts#L39">containers/promise_queue.ts:39</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
 						</div>
-						<h4 class="tsd-parameters-title">Parameters</h4>
-						<ul class="tsd-parameters">
-							<li>
-								<h5><span class="tsd-flag ts-flagOptional">Optional</span> message: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
-								<div class="tsd-comment tsd-typography">
-									<div class="lead">
-										<p>An optional message to be displayed when this Error is
-										stringified or when #message() is called.</p>
-									</div>
-								</div>
-							</li>
-						</ul>
-						<h4 class="tsd-returns-title">Returns <a href="unimplementederror.html" class="tsd-signature-type">UnimplementedError</a></h4>
-						<p>An UnimplementedError with the provided message.</p>
+						<h4 class="tsd-returns-title">Returns <a href="promisequeue.html" class="tsd-signature-type">PromiseQueue</a></h4>
+						<p>A <code>PromiseQueue</code> ready to have new <code>Promise</code>s queued up.</p>
 					</li>
 				</ul>
 			</section>
 		</section>
 		<section class="tsd-panel-group tsd-member-group ">
-			<h2>Properties</h2>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-				<a name="message" class="tsd-anchor"></a>
-				<h3>message</h3>
-				<div class="tsd-signature tsd-kind-icon">message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-				<aside class="tsd-sources">
-					<p>Inherited from Error.message</p>
-					<ul>
-						<li>Defined in /home/travis/build/IBM/node-celery-ts/node_modules/typescript/lib/lib.es5.d.ts:904</li>
-					</ul>
-				</aside>
+			<h2>Methods</h2>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<a name="push" class="tsd-anchor"></a>
+				<h3>push</h3>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<li class="tsd-signature tsd-kind-icon">push<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/ce0162c/src/containers/promise_queue.ts#L53">containers/promise_queue.ts:53</a></li>
+							</ul>
+						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Time complexity: O(1)</p>
+							</div>
+						</div>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						<p>A <code>Promise</code> that will be settled when its turn comes and
+							<code>#resolveOne</code> or <code>#rejectOne</code> is called, or when <code>#resolveAll</code>
+						or <code>#rejectAll</code> are called.</p>
+					</li>
+				</ul>
 			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-				<a name="name" class="tsd-anchor"></a>
-				<h3>name</h3>
-				<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-				<aside class="tsd-sources">
-					<p>Inherited from Error.name</p>
-					<ul>
-						<li>Defined in /home/travis/build/IBM/node-celery-ts/node_modules/typescript/lib/lib.es5.d.ts:903</li>
-					</ul>
-				</aside>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<a name="rejectall" class="tsd-anchor"></a>
+				<h3>reject<wbr>All</h3>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<li class="tsd-signature tsd-kind-icon">reject<wbr>All<span class="tsd-signature-symbol">(</span>reason<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/ce0162c/src/containers/promise_queue.ts#L78">containers/promise_queue.ts:78</a></li>
+							</ul>
+						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Time complexity: O(n), where n is the number of unsettled <code>Promise</code>s in
+								the queue.</p>
+							</div>
+						</div>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> reason: <span class="tsd-signature-type">any</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<p>The reason to reject queued <code>Promise</code>s with.</p>
+								</div>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						<p>The number of settled <code>Promise</code>s.</p>
+					</li>
+				</ul>
 			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
-				<a name="stack" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagOptional">Optional</span> stack</h3>
-				<div class="tsd-signature tsd-kind-icon">stack<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
-				<aside class="tsd-sources">
-					<p>Inherited from Error.stack</p>
-					<p>Overrides Error.stack</p>
-					<ul>
-						<li>Defined in /home/travis/build/IBM/node-celery-ts/node_modules/typescript/lib/lib.es5.d.ts:905</li>
-					</ul>
-				</aside>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<a name="rejectone" class="tsd-anchor"></a>
+				<h3>reject<wbr>One</h3>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<li class="tsd-signature tsd-kind-icon">reject<wbr>One<span class="tsd-signature-symbol">(</span>reason<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/ce0162c/src/containers/promise_queue.ts#L98">containers/promise_queue.ts:98</a></li>
+							</ul>
+						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Time complexity: O(1)</p>
+							</div>
+						</div>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> reason: <span class="tsd-signature-type">any</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<p>The reason to reject a queued <code>Promise</code> with.</p>
+								</div>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						<p>True if a <code>Promise</code> was dequeued and rejected.</p>
+					</li>
+				</ul>
 			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
-				<a name="error" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagStatic">Static</span> Error</h3>
-				<div class="tsd-signature tsd-kind-icon">Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ErrorConstructor</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in /home/travis/build/IBM/node-celery-ts/node_modules/typescript/lib/lib.es5.d.ts:914</li>
-					</ul>
-				</aside>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<a name="resolveall" class="tsd-anchor"></a>
+				<h3>resolve<wbr>All</h3>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<li class="tsd-signature tsd-kind-icon">resolve<wbr>All<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PromiseLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/ce0162c/src/containers/promise_queue.ts#L68">containers/promise_queue.ts:68</a></li>
+							</ul>
+						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Time complexity: O(n), where n is the number of unsettled <code>Promise</code>s in
+								the queue.</p>
+							</div>
+						</div>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5>value: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PromiseLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<p>The value to resolve queued <code>Promise</code>s with.</p>
+								</div>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						<p>The number of settled <code>Promise</code>s.</p>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<a name="resolveone" class="tsd-anchor"></a>
+				<h3>resolve<wbr>One</h3>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<li class="tsd-signature tsd-kind-icon">resolve<wbr>One<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PromiseLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/ce0162c/src/containers/promise_queue.ts#L88">containers/promise_queue.ts:88</a></li>
+							</ul>
+						</aside>
+						<div class="tsd-comment tsd-typography">
+							<div class="lead">
+								<p>Time complexity: O(1)</p>
+							</div>
+						</div>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5>value: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PromiseLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<p>The value to resolve a queued <code>Promise</code> with.</p>
+								</div>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						<p>True if a <code>Promise</code> was dequeued and resolved.</p>
+					</li>
+				</ul>
 			</section>
 		</section>
 		<footer class="with-border-bottom">
