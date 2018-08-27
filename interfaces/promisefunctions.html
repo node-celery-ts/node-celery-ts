@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>TaskHeaders | celery-ts</title>
+	<title>PromiseFunctions | celery-ts</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<style type="text/css">/*! normalize.css v1.1.3 | MIT License | git.io/normalize */
@@ -907,56 +907,14 @@ img { max-width: 100%; }
 </header>
 <nav class="tsd-navigation secondary">
 	<ul>
-		<li class="current tsd-kind-interface">
-			<a href="taskheaders.html" class="tsd-kind-icon">Task<wbr>Headers</a>
+		<li class="current tsd-kind-interface tsd-has-type-parameter">
+			<a href="promisefunctions.html" class="tsd-kind-icon">Promise<wbr>Functions</a>
 			<ul>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#argsrepr" class="tsd-kind-icon">argsrepr</a>
+				<li class=" tsd-kind-method tsd-parent-kind-interface">
+					<a href="promisefunctions.html#reject" class="tsd-kind-icon">reject</a>
 				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#compression" class="tsd-kind-icon">compression</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#eta" class="tsd-kind-icon">eta</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#expires" class="tsd-kind-icon">expires</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#group" class="tsd-kind-icon">group</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#id" class="tsd-kind-icon">id</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#kwargsrepr" class="tsd-kind-icon">kwargsrepr</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#lang" class="tsd-kind-icon">lang</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#meth" class="tsd-kind-icon">meth</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#origin" class="tsd-kind-icon">origin</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#parent_id" class="tsd-kind-icon">parent_<wbr>id</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#retries" class="tsd-kind-icon">retries</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#root_id" class="tsd-kind-icon">root_<wbr>id</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#shadow" class="tsd-kind-icon">shadow</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#task" class="tsd-kind-icon">task</a>
-				</li>
-				<li class=" tsd-kind-property tsd-parent-kind-interface">
-					<a href="taskheaders.html#timelimit" class="tsd-kind-icon">timelimit</a>
+				<li class=" tsd-kind-method tsd-parent-kind-interface">
+					<a href="promisefunctions.html#resolve" class="tsd-kind-icon">resolve</a>
 				</li>
 			</ul>
 		</li>
@@ -967,16 +925,24 @@ img { max-width: 100%; }
 		<section class="tsd-panel tsd-comment">
 			<div class="tsd-comment tsd-typography">
 				<div class="lead">
-					<p>JSON layout of task headers.
-					Directly (de)serializable via JSON.stringify() and JSON.parse().</p>
+					<p>Functions that can be used to settle a <code>Promise</code>. Should be taken from
+					the <code>[resolve, reject]</code> function invoked by the constructor of <code>Promise</code>.</p>
 				</div>
 			</div>
+		</section>
+		<section class="tsd-panel tsd-type-parameters">
+			<h3>Type parameters</h3>
+			<ul class="tsd-type-parameters">
+				<li>
+					<h4>T</h4>
+				</li>
+			</ul>
 		</section>
 		<section class="tsd-panel tsd-hierarchy">
 			<h3>Hierarchy</h3>
 			<ul class="tsd-hierarchy">
 				<li>
-					<span class="target">TaskHeaders</span>
+					<span class="target">PromiseFunctions</span>
 				</li>
 			</ul>
 		</section>
@@ -985,260 +951,62 @@ img { max-width: 100%; }
 			<section class="tsd-panel tsd-index-panel">
 				<div class="tsd-index-content">
 					<section class="tsd-index-section ">
-						<h3>Properties</h3>
+						<h3>Methods</h3>
 						<ul class="tsd-index-list">
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#argsrepr" class="tsd-kind-icon">argsrepr</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#compression" class="tsd-kind-icon">compression</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#eta" class="tsd-kind-icon">eta</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#expires" class="tsd-kind-icon">expires</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#group" class="tsd-kind-icon">group</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#id" class="tsd-kind-icon">id</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#kwargsrepr" class="tsd-kind-icon">kwargsrepr</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#lang" class="tsd-kind-icon">lang</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#meth" class="tsd-kind-icon">meth</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#origin" class="tsd-kind-icon">origin</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#parent_id" class="tsd-kind-icon">parent_<wbr>id</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#retries" class="tsd-kind-icon">retries</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#root_id" class="tsd-kind-icon">root_<wbr>id</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#shadow" class="tsd-kind-icon">shadow</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#task" class="tsd-kind-icon">task</a></li>
-							<li class="tsd-kind-property tsd-parent-kind-interface"><a href="taskheaders.html#timelimit" class="tsd-kind-icon">timelimit</a></li>
+							<li class="tsd-kind-method tsd-parent-kind-interface"><a href="promisefunctions.html#reject" class="tsd-kind-icon">reject</a></li>
+							<li class="tsd-kind-method tsd-parent-kind-interface"><a href="promisefunctions.html#resolve" class="tsd-kind-icon">resolve</a></li>
 						</ul>
 					</section>
 				</div>
 			</section>
 		</section>
 		<section class="tsd-panel-group tsd-member-group ">
-			<h2>Properties</h2>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="argsrepr" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagOptional">Optional</span> argsrepr</h3>
-				<div class="tsd-signature tsd-kind-icon">argsrepr<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L81">messages.ts:81</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>A Python representation of args, should an alternative be required.</p>
-					</div>
-				</div>
+			<h2>Methods</h2>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+				<a name="reject" class="tsd-anchor"></a>
+				<h3>reject</h3>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+					<li class="tsd-signature tsd-kind-icon">reject<span class="tsd-signature-symbol">(</span>reason<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/promise_functions.ts#L37">promise_functions.ts:37</a></li>
+							</ul>
+						</aside>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> reason: <span class="tsd-signature-type">any</span></h5>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+					</li>
+				</ul>
 			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="compression" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagOptional">Optional</span> compression</h3>
-				<div class="tsd-signature tsd-kind-icon">compression<span class="tsd-signature-symbol">:</span> <a href="../enums/compressionmime.html" class="tsd-signature-type">CompressionMime</a></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L83">messages.ts:83</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>MIME type of the compression of this task&#39;s message body.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="eta" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagOptional">Optional</span> eta</h3>
-				<div class="tsd-signature tsd-kind-icon">eta<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L85">messages.ts:85</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>Earliest time that this Task will execute. ISO 8601 date string.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="expires" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagOptional">Optional</span> expires</h3>
-				<div class="tsd-signature tsd-kind-icon">expires<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L87">messages.ts:87</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>Latest time that this Task will execute. ISO 8601 date string.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="group" class="tsd-anchor"></a>
-				<h3>group</h3>
-				<div class="tsd-signature tsd-kind-icon">group<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L68">messages.ts:68</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>The UUID of this task&#39;s group, if any.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="id" class="tsd-anchor"></a>
-				<h3>id</h3>
-				<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L70">messages.ts:70</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>The UUID of this task.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="kwargsrepr" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagOptional">Optional</span> kwargsrepr</h3>
-				<div class="tsd-signature tsd-kind-icon">kwargsrepr<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L89">messages.ts:89</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>A Python representation of kwargs, should an alternative be required.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="lang" class="tsd-anchor"></a>
-				<h3>lang</h3>
-				<div class="tsd-signature tsd-kind-icon">lang<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L72">messages.ts:72</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>The language this task is to be executed in, usually <code>&quot;py&quot;</code>.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="meth" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagOptional">Optional</span> meth</h3>
-				<div class="tsd-signature tsd-kind-icon">meth<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L90">messages.ts:90</a></li>
-					</ul>
-				</aside>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="origin" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagOptional">Optional</span> origin</h3>
-				<div class="tsd-signature tsd-kind-icon">origin<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L92">messages.ts:92</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>The name of the host that sent this task.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="parent_id" class="tsd-anchor"></a>
-				<h3>parent_<wbr>id</h3>
-				<div class="tsd-signature tsd-kind-icon">parent_<wbr>id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L74">messages.ts:74</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>The UUID of the task that caled this task, if any.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="retries" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagOptional">Optional</span> retries</h3>
-				<div class="tsd-signature tsd-kind-icon">retries<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L94">messages.ts:94</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>The number of times this task has been retried. Initially 0.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="root_id" class="tsd-anchor"></a>
-				<h3>root_<wbr>id</h3>
-				<div class="tsd-signature tsd-kind-icon">root_<wbr>id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L76">messages.ts:76</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>The UUID of the first task in this task&#39;s workflow, if any.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="shadow" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagOptional">Optional</span> shadow</h3>
-				<div class="tsd-signature tsd-kind-icon">shadow<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L95">messages.ts:95</a></li>
-					</ul>
-				</aside>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="task" class="tsd-anchor"></a>
-				<h3>task</h3>
-				<div class="tsd-signature tsd-kind-icon">task<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L78">messages.ts:78</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>The name of the task to execute.</p>
-					</div>
-				</div>
-			</section>
-			<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-				<a name="timelimit" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagOptional">Optional</span> timelimit</h3>
-				<div class="tsd-signature tsd-kind-icon">timelimit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">]</span></div>
-				<aside class="tsd-sources">
-					<ul>
-						<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/messages.ts#L97">messages.ts:97</a></li>
-					</ul>
-				</aside>
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>A tuple of the soft and hard time limits for this task, if any.</p>
-					</div>
-				</div>
+			<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+				<a name="resolve" class="tsd-anchor"></a>
+				<h3>resolve</h3>
+				<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+					<li class="tsd-signature tsd-kind-icon">resolve<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PromiseLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
+					<li class="tsd-description">
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/IBM/node-celery-ts/blob/d14222b/src/promise_functions.ts#L38">promise_functions.ts:38</a></li>
+							</ul>
+						</aside>
+						<h4 class="tsd-parameters-title">Parameters</h4>
+						<ul class="tsd-parameters">
+							<li>
+								<h5>value: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PromiseLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+							</li>
+						</ul>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+					</li>
+				</ul>
 			</section>
 		</section>
 		<footer class="with-border-bottom">
