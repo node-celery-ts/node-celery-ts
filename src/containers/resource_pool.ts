@@ -30,8 +30,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 import { List } from "./list";
+import { PromiseQueue } from "./promise_queue";
 
-import { isNullOrUndefined, promisifyEvent } from "../utility";
+import { promisifyEvent } from "../utility";
 
 import * as Events from "events";
 
@@ -48,7 +49,7 @@ export class ResourcePool<T> {
     private readonly maxResources: number;
     private unused: List<T>;
     private resourceCount: number = 0;
-    private waiting: List<PromiseFunctions<T>>;
+    private waiting: PromiseQueue<T>;
 
     /**
      * @param create Function to be called when a new resource must be created.
@@ -68,7 +69,7 @@ export class ResourcePool<T> {
 
         this.inUse = new Set<T>();
         this.unused = new List<T>();
-        this.waiting = new List<PromiseFunctions<T>>();
+        this.waiting = new PromiseQueue<T>();
     }
 
     /**
@@ -147,12 +148,7 @@ export class ResourcePool<T> {
             throw new Error("resource does not belong to this pool");
         }
 
-        const maybeWaiting = this.waiting.shift();
-
-        if (!isNullOrUndefined(maybeWaiting)) {
-            const waiting = maybeWaiting;
-            waiting.resolve(resource);
-
+        if (this.waiting.resolveOne(resource)) {
             return;
         }
 
@@ -196,23 +192,10 @@ export class ResourcePool<T> {
 
                 return Promise.resolve(this.create());
             } else {
-                const promise = new Promise<T>((resolve, reject) => {
-                    this.waiting.push({ reject, resolve });
-                });
-
-                return promise;
+                return this.waiting.push();
             }
         }
 
         return Promise.resolve(this.unused.shift()!);
     }
-}
-
-/**
- * Functions that can be used to settle a `Promise`. Should be taken from
- * the `[resolve, reject]` function invoked by the constructor of `Promise`.
- */
-interface PromiseFunctions<T> {
-    reject(reason?: any): void;
-    resolve(value: T | PromiseLike<T>): void;
 }
