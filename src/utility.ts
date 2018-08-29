@@ -82,11 +82,24 @@ export const parseBoolean = (maybeBoolean: string): boolean => {
 
 /**
  * @param value A potentially null or undefined value.
- * @returns True if `value` is `null` or `undefined`.
+ * @returns `value is null | undefined`.
  */
 export const isNullOrUndefined = <T>(
     value: T | null | undefined
-): value is null | undefined => value === null || typeof value === "undefined";
+): value is null | undefined => isNull(value) || isUndefined(value);
+
+/**
+ * @param value A potentially null value.
+ * @returns `value is null`.
+ */
+export const isNull = <T>(value: T | null): value is null => value === null;
+
+/**
+ * @param value A potentially undefined value.
+ * @returns `value is undefined`.
+ */
+export const isUndefined = <T>(value: T | undefined): value is undefined =>
+    typeof value === "undefined";
 
 /**
  * Converts from snake_case to camelCase.
