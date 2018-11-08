@@ -26,19 +26,10 @@ before_deploy:
   - npm pack
   - npm run typedoc
 deploy:
-  - provider: npm
-    skip-cleanup: true
-    email:
-      secure: "uHABxz6BMVLqb9cdguZL/032Oo8bD3ncvd8LC9B18fGQ3alAWrNvWCWXlzJ6f9qXkwS9RF5FBN/R+sej+Q77VSA6tXdkPZoVToJ8EnQfQsEmnaphqVBh/ei0OTDJMgAy6/c74RGeqkFR0it3r20Sen9OYxLhO8n70mEaKabRy1VMUsBJlbq1jx9+hrWDOod8qG+Z66d6zkbkWK1qgoWEWHznOegzqm4vib/DEVZCBdNti96Y+Q1nnTILKOVACLISuJqjb+qdvIh8I+xvpvJYvYolxwC6ioR/Oy4dBJduYQhXupORMn7KU8wLGBy1XN8o2wUuMCEwXd4W/lXozte4dpPrQjNGR6c79rL8K/qfyR94NFHnI5kKYKKAyXVg7P0qF7zFDXs0JbkAJyHPOE25BSbp5Uk9/z32tGEQWkH+429NU9NxV9YbPVEep6lWZ4jypozDv+rgCQEYm2vZ9bJGO2ogg/9QCG6S3CvMrfDsYP60wSZdXu3niVENMkcA7xDcX3fDiIMQX9/0K9fsyUrcMTpq+fmFP8wo0YBA0XoCrevahKOF+yaCtpJFF/foSYDkaWqOEshYrwJjxlDQ5Vi16zIREJAZaGx6VgqGFnHRWSr6qLQwAgnzrsZtc2aV7u9047e2CNHGcJQDYMCkLAd7I/KVzhvIm3kPaB6aRyX9BIM="
-    api_key:
-      secure: "Goiv26enEExa/oge6PVsREYH9/KD5Ua2XC/YfVv8ktq8FlS70qFJKRKDt5k8MB1toThKWtoSNJd3Q9f5cODYqaJP6jmxdoOOQBqY3FaPuBzWJCPXjvjEMCiBE5TnRCPUs+C4rriW+kIe7LNHQywnix1FfdYpwhYonCyjXD1bC51TubBjWemn+ktwe2EKaLclCbcKxWHpGj5w5WbdetF1ExsSTeZ71QLPAs3QIyxA00mTTsxdLBJ5ed4C6AnV81T7T8VXUHRpghNjR2nqAImhKQCOX3icvjHKOVahhC7krVnXAZmg86GiA39BoIZbxiDd75u6QzTPVK3sg6zpLSE2XXT46EZ/0e3UVnB7u0cmw7HjSDzHcC3YC9j9fPSduLi2LoEB07tA/3p0aerfrUXS9RgICNbkUHXNgIQx+yajbZOhlRas/M7o2jEuRhXWhFIob9Ah8xnq1aceutzZhVbVqAVz7scoWIjbA8VLMURC3Q7kG36QMFk7J8y/tkHMkWwFfdFlU6NrlL6Z9bdn240ZUtfySWR05QWIxggUzZrVFxboTjkL1J5/WPxlRCBbZsu0IbrIkOmrI8/IMNt/ssaEX0Cxv8mBNeoRRzoZEeVirj9An9EyUtZJANmUSQfjrIZ/GS80p7XCXHkArDDFinhzbUi0c+7btFp2xk2feT+IEnA="
-    on:
-      tags: true
-      repo: IBM/node-celery-ts
   - provider: pages
     skip-cleanup: true
     github-token: $GITHUB_TOKEN
     keep-history: true
     on:
-      branch: develop
+      branch: master
     local-dir: docs
