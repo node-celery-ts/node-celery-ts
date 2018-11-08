@@ -51,7 +51,7 @@ Mocha.describe("Celery.Containers.ResourcePool", () => {
 
                 return "destroyed";
             },
-            8,
+            4,
         );
     };
 
@@ -153,5 +153,138 @@ Mocha.describe("Celery.Containers.ResourcePool", () => {
 
             return pool.destroyAll();
         });
+    });
+
+    Mocha.it("should #returnAfter with a Promise that fulfills", () => {
+        const pool = createPool();
+
+        const promise = Promise.resolve(5);
+
+        return pool.get()
+            .then((a) => {
+                Chai.expect(pool.numOwned()).to.deep.equal(1);
+                Chai.expect(pool.numInUse()).to.deep.equal(1);
+                Chai.expect(pool.numUnused()).to.deep.equal(0);
+                Chai.expect(a.value).to.deep.equal(0);
+
+                return pool.returnAfter(promise, a);
+            }).then(() => {
+                Chai.expect(pool.numOwned()).to.deep.equal(1);
+                Chai.expect(pool.numInUse()).to.deep.equal(0);
+                Chai.expect(pool.numUnused()).to.deep.equal(1);
+
+                return pool.get();
+            }).then((a) => {
+                Chai.expect(pool.numOwned()).to.deep.equal(1);
+                Chai.expect(pool.numInUse()).to.deep.equal(1);
+                Chai.expect(pool.numUnused()).to.deep.equal(0);
+                Chai.expect(a.value).to.deep.equal(0);
+
+                return pool.returnAfter(Promise.resolve(), a);
+            });
+    });
+
+    Mocha.it("should #returnAfter with a Promise that rejects", () => {
+        const pool = createPool();
+
+        const error = new Error();
+        const promise = Promise.reject(error);
+
+        return pool.get()
+            .then((a) => pool.returnAfter(promise, a))
+            .catch((e) => {
+                Chai.expect(pool.numOwned()).to.deep.equal(1);
+                Chai.expect(pool.numInUse()).to.deep.equal(0);
+                Chai.expect(pool.numUnused()).to.deep.equal(1);
+                Chai.expect(e).to.deep.equal(error);
+
+                return pool.get();
+            }).then((a) => {
+                Chai.expect(pool.numOwned()).to.deep.equal(1);
+                Chai.expect(pool.numInUse()).to.deep.equal(1);
+                Chai.expect(pool.numUnused()).to.deep.equal(0);
+                Chai.expect(a.value).to.deep.equal(0);
+
+                pool.return(a);
+            });
+    });
+
+    Mocha.it("should automatically return resources after #use", () => {
+        const pool = createPool();
+
+        Chai.expect(pool.numOwned()).to.deep.equal(0);
+        Chai.expect(pool.numInUse()).to.deep.equal(0);
+        Chai.expect(pool.numUnused()).to.deep.equal(0);
+
+        return pool.use(() => {
+            Chai.expect(pool.numOwned()).to.deep.equal(1);
+            Chai.expect(pool.numInUse()).to.deep.equal(1);
+            Chai.expect(pool.numUnused()).to.deep.equal(0);
+
+            return;
+        }).then(() => {
+            Chai.expect(pool.numOwned()).to.deep.equal(1);
+            Chai.expect(pool.numInUse()).to.deep.equal(0);
+            Chai.expect(pool.numUnused()).to.deep.equal(1);
+        });
+    });
+
+    Mocha.it("should allow #use to work with throwing functions", async () => {
+        const pool = createPool();
+
+        Chai.expect(pool.numOwned()).to.deep.equal(0);
+        Chai.expect(pool.numInUse()).to.deep.equal(0);
+        Chai.expect(pool.numUnused()).to.deep.equal(0);
+
+        const toThrow = new Error("foo");
+
+        try {
+            await pool.use(() => {
+                Chai.expect(pool.numOwned()).to.deep.equal(1);
+                Chai.expect(pool.numInUse()).to.deep.equal(1);
+                Chai.expect(pool.numUnused()).to.deep.equal(0);
+
+                throw toThrow;
+            });
+
+            Chai.assert(false);
+        } catch (error) {
+            Chai.expect(error).to.equal(toThrow);
+
+            Chai.expect(pool.numOwned()).to.deep.equal(1);
+            Chai.expect(pool.numInUse()).to.deep.equal(0);
+            Chai.expect(pool.numUnused()).to.deep.equal(1);
+        }
+    });
+
+    Mocha.it("should not allocate more resources than are available", () => {
+        const pool = createPool();
+
+        const first = pool.get();
+        const second = pool.get();
+        const third = pool.get();
+        const fourth = pool.get();
+
+        return Promise.all([first, second, third, fourth])
+            .then((resources: Array<A>) => {
+                Chai.expect(pool.numOwned()).to.deep.equal(4);
+                Chai.expect(pool.numInUse()).to.deep.equal(4);
+                Chai.expect(pool.numUnused()).to.deep.equal(0);
+
+                const fifth = pool.get();
+                const sixth = pool.get();
+
+                const doReturn = () => resources.map((r) => pool.return(r));
+                setTimeout(doReturn, 5);
+
+                return Promise.all([fifth, sixth]);
+            }).then((resources: Array<A>) => {
+                Chai.expect(pool.numOwned()).to.deep.equal(4);
+                Chai.expect(pool.numInUse()).to.deep.equal(2);
+                Chai.expect(pool.numUnused()).to.deep.equal(2);
+
+                Chai.expect(resources[0].value).to.deep.equal(0);
+                Chai.expect(resources[1].value).to.deep.equal(1);
+            });
     });
 });

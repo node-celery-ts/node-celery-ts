@@ -46,7 +46,7 @@ Mocha.describe("Celery.Containers.PromiseMap", () => {
 
         return num.then((v) => {
             Chai.expect(map.isFulfilled("foo")).to.equal(true);
-            Chai.expect(v).to.equal(value)
+            Chai.expect(v).to.equal(value);
         });
     });
 
@@ -61,7 +61,7 @@ Mocha.describe("Celery.Containers.PromiseMap", () => {
 
         return num.then((v) => {
             Chai.expect(map.isFulfilled("foo")).to.equal(true);
-            Chai.expect(v).to.equal(value)
+            Chai.expect(v).to.equal(value);
         });
     });
 
@@ -77,7 +77,7 @@ Mocha.describe("Celery.Containers.PromiseMap", () => {
 
         return num.catch((reason) => {
             Chai.expect(map.isRejected("foo")).to.equal(true);
-            Chai.expect(reason).to.equal(error)
+            Chai.expect(reason).to.equal(error);
         });
     });
 
@@ -93,26 +93,34 @@ Mocha.describe("Celery.Containers.PromiseMap", () => {
 
         return num.catch((reason) => {
             Chai.expect(map.isRejected("foo")).to.equal(true);
-            Chai.expect(reason).to.equal(error)
+            Chai.expect(reason).to.equal(error);
         });
     });
 
-    Mocha.it("should throw when resolving a settled promise", () => {
+    Mocha.it("should overwrite settled Promises with #resolve", async () => {
         const map =  new PromiseMap<string, number>();
         map.resolve("foo", 5);
 
-        Chai.expect(() => map.resolve("foo", 10)).to.throw(Error);
+        Chai.expect(await map.get("foo")).to.equal(5);
 
-        return map.get("foo").then((v) => Chai.expect(v).to.equal(5));
+        map.resolve("foo", 10);
+
+        Chai.expect(await map.get("foo")).to.equal(10);
     });
 
-    Mocha.it("should throw when rejecting a settled promise", () => {
+    Mocha.it("should overwrite settled Promises with #reject", async () => {
         const map =  new PromiseMap<string, number>();
-        map.resolve("foo", 20);
+        map.resolve("foo", 5);
 
-        Chai.expect(() => map.reject("foo", 15)).to.throw(Error);
+        const error = new Error("foo");
+        map.reject("foo", error);
 
-        return map.get("foo").then((v) => Chai.expect(v).to.equal(20));
+        try {
+            await map.get("foo");
+            Chai.assert(false);
+        } catch (e) {
+            Chai.expect(e).to.equal(error);
+        }
     });
 
     Mocha.it("should delete promises as expected", () => {
@@ -161,6 +169,24 @@ Mocha.describe("Celery.Containers.PromiseMap", () => {
         Chai.expect(map.delete("baz")).to.equal(true);
     });
 
+    Mocha.it("should reject pending promises with #clear", async () => {
+        const map = new PromiseMap<string, number>();
+        map.resolve("foo", 0);
+        const bar = map.get("bar");
+
+        map.clear();
+
+        Chai.expect(map.has("foo")).to.equal(false);
+        Chai.expect(map.has("bar")).to.equal(false);
+
+        try {
+            await bar;
+            Chai.assert(false);
+        } catch (error) {
+            Chai.expect(error.message).to.equal("cleared");
+        }
+    });
+
     Mocha.it("should handle timeouts as expected", () => {
         const map = new PromiseMap<string, number>(10);
 
@@ -195,7 +221,7 @@ Mocha.describe("Celery.Containers.PromiseMap", () => {
         return map.get("foo").catch((reason) => {
             Chai.expect(map.isRejected("foo")).to.equal(true);
             Chai.expect(reason).to.equal(error);
-        })
+        });
     });
 
     Mocha.it("should reject rejecting promises that have been created", () => {
@@ -217,6 +243,6 @@ Mocha.describe("Celery.Containers.PromiseMap", () => {
         }).catch((reason) => {
             Chai.expect(map.isRejected("foo")).to.equal(true);
             Chai.expect(reason).to.equal(error);
-        })
+        });
     });
 });

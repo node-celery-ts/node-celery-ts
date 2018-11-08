@@ -33,29 +33,64 @@ import * as Amqp from "./amqp";
 import { Client } from "./client";
 import { UnimplementedError } from "./errors";
 import { MessageBroker } from "./message_broker";
+import { NullBackend } from "./null_backend";
 import * as Redis from "./redis";
 import { ResultBackend } from "./result_backend";
 import { getScheme, Scheme } from "./uri";
+import { isNullOrUndefined } from "./utility";
 
 import * as Uuid from "uuid";
 
+/**
+ * Delegates to `createBackend` and `createBroker`.
+ *
+ * @param brokerUrl The URI(s) where message broker(s) to be used can be found.
+ * @param resultBackend The optional URI where a result backend can be found.
+ *                      If none is provided, `NullBackend` will be used.
+ * @returns A newly constructed Client which will use the provided message
+ *          broker(s) and result backend.
+ * @throws Error If any of the URIs could not be parsed.
+ *
+ * @see createBackend
+ * @see createBroker
+ */
 export const createClient = ({ brokerUrl, resultBackend }: {
-    brokerUrl: string;
-    resultBackend: string;
-}) => {
+    brokerUrl: string | Array<string>;
+    resultBackend?: string;
+}): Client => {
     const id = Uuid.v4();
 
+    const backend = (() => {
+        if (isNullOrUndefined(resultBackend)) {
+            return new NullBackend();
+        }
+
+        return createBackend(id, resultBackend);
+    })();
+
+    const brokers = (() => {
+        if (typeof brokerUrl === "string") {
+            return [createBroker(brokerUrl)];
+        }
+
+        return brokerUrl.map(createBroker);
+    })();
+
     return new Client({
-        backend: createBackend(id, resultBackend),
-        brokers: [createBroker(brokerUrl)],
+        backend,
+        brokers,
         id,
     });
 };
 
 /**
+ * Supports Redis over TCP or Unix Socket, Redis Sentinel, or RabbitMQ RPC.
+ *
  * @param id The UUID of this app.
- * @param rawUri The raw URI string for the result backend.
- * @returns A ResultBackend with settings parsed from `rawUri`.
+ * @param rawUri The URI where a result backend can be found.
+ * @returns A `ResultBackend` with settings parsed from `rawUri`.
+ * @throws Error If an error is thrown during parsing.
+ * @throws UnimplementedError If an unsupported result backend URI is passed in.
  */
 export const createBackend = (id: string, rawUri: string): ResultBackend => {
     try {
@@ -86,8 +121,12 @@ export const createBackend = (id: string, rawUri: string): ResultBackend => {
 };
 
 /**
- * @param rawUri The raw URI string for the message broker.
- * @returns A MessageBroker with settings parsed from `rawUri`.
+ * Supports Redis over TCP and Sentinel, Redis Sentinel, and RabbitMQ.
+ *
+ * @param rawUri The URI where a message broker can be found.
+ * @returns A `MessageBroker` with settings parsed from `rawUri`.
+ * @throws Error If an error is thrown during parsing.
+ * @throws UnimplementedError If an unsupported message broker URI is passed in.
  */
 export const createBroker = (rawUri: string): MessageBroker => {
     try {

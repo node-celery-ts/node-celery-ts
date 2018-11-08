@@ -29,18 +29,26 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+import { parseRedisQuery } from "./common";
+
 import { BasicRedisSocketOptions as Options } from "../basic_options";
 
 import { ParseError } from "../../errors";
-import { getScheme, parseUri, Queries, Scheme, Uri } from "../../uri";
-import { isNullOrUndefined, parseBoolean } from "../../utility";
+import { getScheme, parseUri, Scheme } from "../../uri";
 
 import * as _ from "underscore";
 
 /**
- * @param uri the URI to parse, should be of the format:
+ * `uri` should be of the format:
  * redis[s]+socket://path[?query=value[&query=value]...]
- * @returns the SocketOptions extracted from the URI string
+ * Valid queries are `"noDelay"` and `"password"`. snake_case will be converted
+ * to camelCase. If multiple duplicate queries are provided, the last one
+ * provided will be used.
+ *
+ * @param uri The URI to parse.
+ * @returns The `Options` parsed from `uri`.
+ *
+ * @throws ParseError If `uri` is not a valid Redis Socket URI.
  */
 export const parse = (uri: string): Options => {
     const protocol = getScheme(uri);
@@ -51,115 +59,25 @@ export const parse = (uri: string): Options => {
     }
 
     const parsed = parseUri(uri);
-
     const path = parsed.path;
 
-    const withQueries = addQueries(parsed, {
+    return {
         path: validatePath(path),
-        protocol
-    });
-
-    return withQueries;
+        protocol,
+        ...parseRedisQuery(parsed),
+    };
 };
 
-interface SocketQueries {
-    readonly noDelay?: boolean;
-    readonly password?: string;
-}
-
-enum Query {
-    NoDelay = "noDelay",
-    Password = "password",
-}
-
+/**
+ * @param path The URI path to validate.
+ * @returns `path`, if it is a valid Unix path.
+ *
+ * @throws ParseError If `path` contains a null-terminator (`'\0'`).
+ */
 const validatePath = (path: string): string => {
     if (/^[^\0]+$/.test(path) !== true) {
         throw new ParseError(`invalid path "${path}"`);
     }
 
     return path;
-};
-
-const addQueries = (uri: Uri, options: Options): Options => {
-    if (isNullOrUndefined(uri.query)) {
-        return options;
-    }
-
-    const queries = intoQueries(uri.query);
-
-    return _.reduce(
-        _.pairs(queries) as Array<[Query, any]>,
-        (appending: Options,
-         [property, value]: [Query, any]): Options => {
-            switch (property) {
-                case Query.NoDelay: return {
-                    ...appending,
-                    noDelay: value as boolean,
-                };
-                case Query.Password: return {
-                    ...appending,
-                    password: value as string,
-                };
-            }
-        },
-        options
-    );
-};
-
-const intoQueries = (queries: Queries): SocketQueries => {
-    type FunctionList = Array<(appending: SocketQueries) => SocketQueries>;
-
-    const functions: FunctionList = [
-        appendNoDelay(queries),
-        appendPassword(queries),
-    ];
-
-    const convert = (toConvert: SocketQueries) =>
-        functions.reduce((x, f) => f(x), toConvert);
-
-    return convert({ });
-};
-
-const appendNoDelay = (queries: Queries) => {
-    const maybeNoDelay = queries.noDelay;
-
-    if (isNullOrUndefined(maybeNoDelay)) {
-        return identity;
-    }
-
-    const noDelay = parseBoolean(asScalar(maybeNoDelay));
-
-    return (appending: SocketQueries): SocketQueries => ({
-        ...appending,
-        noDelay,
-    });
-};
-
-const appendPassword = (queries: Queries) => {
-    const maybePassword = queries.password;
-
-    if (isNullOrUndefined(maybePassword)) {
-        return identity;
-    }
-
-    const password = asScalar(maybePassword);
-
-    return (appending: SocketQueries): SocketQueries => ({
-        ...appending,
-        password,
-    });
-};
-
-const identity = (queries: SocketQueries): SocketQueries => queries;
-
-const asScalar = <T>(maybeArray: T | Array<T>): T => {
-    if (maybeArray instanceof Array) {
-        const array = maybeArray;
-
-        return array[array.length - 1];
-    }
-
-    const scalar = maybeArray;
-
-    return scalar;
 };

@@ -32,21 +32,27 @@
 import { AmqpOptions } from "./options";
 
 import { ParseError } from "../errors";
+import { createIntegerQueryDescriptor, QueryParser, } from "../query_parser";
 import { getScheme, parseUri, Queries, Scheme, Uri } from "../uri";
-import { isNullOrUndefined, parseInteger, toCamelCase } from "../utility";
+import { isNullOrUndefined } from "../utility";
 
 import * as _ from "underscore";
 
 /**
- * parses a URI formatted according to the rules set forth by RabbitMQ
+ * Parses a URI formatted according to the rules set forth by RabbitMQ.
  * https://www.rabbitmq.com/uri-spec.html
  * https://www.rabbitmq.com/uri-query-parameters.html
- * potential queries are authMechanism, channelMax, connectionTimeout,
+ * Potential queries are authMechanism, channelMax, connectionTimeout,
  * frameMax, heartbeat, and locale. snake_case and camelCase are accepted.
+ * Should be formatted roughly as follows:
+ * amqp[s]://[user[:pass]@]host[:port][/vhost][?key0=value0[&key1=value1]...]
+ * Or as:
+ * rpc[s]://[user[:pass]@]host[:port][/vhost][?key0=value0[&key1=value1]...]
  *
- * @param uri a uri string formatted as follows:
- * amqp://[user[:pass]@]host[:port][/vhost][?key0=value0[&key1=value1]...]
- * @returns an Options object containing the information from the URI
+ * @param rawUri A RabbitMQ URI.
+ * @returns An object representation of `uri`.
+ *
+ * @throws ParseError If `rawUri` is not a RabbitMQ URI.
  */
 export const parseAmqpUri = (rawUri: string): AmqpOptions => {
     const scheme = getScheme(rawUri);
@@ -65,7 +71,7 @@ export const parseAmqpUri = (rawUri: string): AmqpOptions => {
     const protocol = (() => {
         switch (scheme) {
         case Scheme.Rpc: return Scheme.Amqp;
-        case Scheme.RpcSecure: return Scheme.RpcSecure;
+        case Scheme.RpcSecure: return Scheme.AmqpSecure;
         }
 
         return scheme;
@@ -82,15 +88,11 @@ export const parseAmqpUri = (rawUri: string): AmqpOptions => {
     return withQueries;
 };
 
-/** @ignore */
-interface AmqpQueries {
-    readonly channelMax?: number;
-    readonly frameMax?: number;
-    readonly heartbeat?: number;
-    readonly locale?: string;
-}
-
-/** @ignore */
+/**
+ * @param uri The URI to extract a password, port, and username from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with options added.
+ */
 const appendOptions = (uri: Uri, appending: AmqpOptions): AmqpOptions => {
     type FunctionList = Array<(options: AmqpOptions) => AmqpOptions>;
 
@@ -103,18 +105,39 @@ const appendOptions = (uri: Uri, appending: AmqpOptions): AmqpOptions => {
     );
 };
 
-/** @ignore */
+/**
+ * @param uri The URI to extract queries from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with query options added.
+ *
+ * @throws ParseError If invalid query key-value pairs with matching keys are
+ *                    found.
+ */
 const appendQueries = (uri: Uri, appending: AmqpOptions): AmqpOptions => {
     if (isNullOrUndefined(uri.query)) {
         return appending;
     }
 
-    const queries = asQueries(uri.query);
+    const query: Queries = uri.query;
 
-    return _.defaults(queries, appending);
+    const parser = new QueryParser<AmqpOptions>([
+        createIntegerQueryDescriptor("channelMax"),
+        createIntegerQueryDescriptor("frameMax"),
+        createIntegerQueryDescriptor("heartbeat"),
+        { source: "locale" },
+    ]);
+
+    return parser.parse(query, appending);
 };
 
-/** @ignore */
+/**
+ * vhost is parsed from the URI's path. amqp://localhost uses the default
+ * vhost, while amqp://localhost/ uses the vhost "". Strange.
+ *
+ * @param uri The URI to extract a vhost from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with options added.
+ */
 const appendVhost = (rawUri: string, appending: AmqpOptions): AmqpOptions => {
     const maybeMatches = /^.+:\/\/[^/]*\/([\w\d-.~%]*)$/.exec(rawUri);
 
@@ -130,7 +153,11 @@ const appendVhost = (rawUri: string, appending: AmqpOptions): AmqpOptions => {
     };
 };
 
-/** @ignore */
+/**
+ * @param uri The URI to extract a password from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with password added.
+ */
 const appendPass = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
     if (isNullOrUndefined(uri.authority)
         || isNullOrUndefined(uri.authority.userInfo)
@@ -144,7 +171,11 @@ const appendPass = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
     };
 };
 
-/** @ignore */
+/**
+ * @param uri The URI to extract a port number from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with port number added.
+ */
 const appendPort = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
     if (isNullOrUndefined(uri.authority)
         || isNullOrUndefined(uri.authority.port)) {
@@ -157,7 +188,11 @@ const appendPort = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
     };
 };
 
-/** @ignore */
+/**
+ * @param uri The URI to extract a username from.
+ * @param appending The object to use as default.
+ * @returns A shallow copy of `appending` with username added.
+ */
 const appendUser = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
     if (isNullOrUndefined(uri.authority)
         || isNullOrUndefined(uri.authority.userInfo)) {
@@ -168,104 +203,4 @@ const appendUser = (uri: Uri) => (options: AmqpOptions): AmqpOptions => {
         ...options,
         username: uri.authority.userInfo.user,
     };
-};
-
-/** @ignore */
-const asQueries = (toTransform: Queries): AmqpQueries => {
-    const cased = camelCaseQueries(toTransform);
-
-    type FunctionList = Array<QueryAppender>;
-
-    const functions: FunctionList = [
-        appendChannelMax(cased),
-        appendFrameMax(cased),
-        appendHeartbeat(cased),
-        appendLocale(cased),
-    ];
-
-    const append = (queries: AmqpQueries): AmqpQueries =>
-        functions.reduce((x, f) => f(x), queries);
-
-    return append({ });
-};
-
-/** @ignore */
-const appendChannelMax = (raw: Queries): QueryAppender => {
-    const maybeChannelMax = raw.channelMax;
-
-    if (isNullOrUndefined(maybeChannelMax)) {
-        return identity;
-    }
-
-    return (queries) => ({
-        ...queries,
-        channelMax: parseInteger(narrowArray(maybeChannelMax)),
-    });
-};
-
-/** @ignore */
-const appendFrameMax = (raw: Queries): QueryAppender => {
-    const maybeFrameMax = raw.frameMax;
-
-    if (isNullOrUndefined(maybeFrameMax)) {
-        return identity;
-    }
-
-    return (queries) => ({
-        ...queries,
-        frameMax: parseInteger(narrowArray(maybeFrameMax)),
-    });
-};
-
-/** @ignore */
-const appendHeartbeat = (raw: Queries): QueryAppender => {
-    const maybeHeartbeat = raw.heartbeat;
-
-    if (isNullOrUndefined(maybeHeartbeat)) {
-        return identity;
-    }
-
-    return (queries) => ({
-        ...queries,
-        heartbeat: parseInteger(narrowArray(maybeHeartbeat)),
-    });
-};
-
-/** @ignore */
-const appendLocale = (raw: Queries): QueryAppender => {
-    const maybeLocale = raw.locale;
-
-    if (isNullOrUndefined(maybeLocale)) {
-        return identity;
-    }
-
-    return (queries) => ({
-        ...queries,
-        locale: narrowArray(maybeLocale),
-    });
-};
-
-/** @ignore */
-const camelCaseQueries = (queries: Queries): Queries =>
-    _.reduce(
-        _.keys(queries) as Array<string>,
-        (converting: Queries, key: string): Queries => ({
-            ...converting,
-            [toCamelCase(key)]: queries[key],
-        }),
-        { },
-    );
-
-type QueryAppender = (queries: AmqpQueries) => AmqpQueries;
-
-/** @ignore */
-const identity = (queries: AmqpQueries): AmqpQueries => queries;
-
-/** @ignore */
-const narrowArray = <T>(value: T | Array<T>): T => {
-    if (value instanceof Array) {
-        return value[value.length - 1];
-    }
-
-    return value;
 };

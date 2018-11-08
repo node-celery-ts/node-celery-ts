@@ -29,7 +29,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-import { isNullOrUndefined } from "../utility";
+import { PromiseFunctions } from "../promise_functions";
+import { isUndefined } from "../utility";
 
 /**
  * `PromiseMap` is a key-value store where the values are `Promise`s.
@@ -69,7 +70,7 @@ export class PromiseMap<K, V> {
     public isPending(key: K): boolean {
         const entry = this.data.get(key);
 
-        return !isNullOrUndefined(entry) && entry.status === State.Pending;
+        return !isUndefined(entry) && entry.status === State.Pending;
     }
 
     /**
@@ -80,7 +81,7 @@ export class PromiseMap<K, V> {
     public isFulfilled(key: K): boolean {
         const entry = this.data.get(key);
 
-        return !isNullOrUndefined(entry) && entry.status === State.Fulfilled;
+        return !isUndefined(entry) && entry.status === State.Fulfilled;
     }
 
     /**
@@ -91,7 +92,7 @@ export class PromiseMap<K, V> {
     public isRejected(key: K): boolean {
         const entry = this.data.get(key);
 
-        return !isNullOrUndefined(entry) && entry.status === State.Rejected;
+        return !isUndefined(entry) && entry.status === State.Rejected;
     }
 
     /**
@@ -104,53 +105,13 @@ export class PromiseMap<K, V> {
      *            not in the owned set.
      * @param value The value to settle the `Promise` to.
      * @returns True if a new `Promise` was inserted.
-     * @throws Error If the matching `Promise` is already settled.
      */
     public resolve(key: K, value: V | PromiseLike<V>): boolean {
-        const maybePromiseData = this.getRaw(key);
-        const hasEntry = !isNullOrUndefined(maybePromiseData);
-
-        const doResolve = () => Promise.resolve(value)
-            .then((resolved) => {
-                this.data.set(key, {
-                    ...this.data.get(key)!,
-                    status: State.Fulfilled,
-                });
-
-                return resolved;
-            }).catch((reason) => {
-                this.data.set(key, {
-                    ...this.data.get(key)!,
-                    status: State.Rejected,
-                });
-
-                return Promise.reject(reason);
-            });
-
-        if (!isNullOrUndefined(maybePromiseData)) {
-            const data = maybePromiseData[1];
-
-            if (data.status !== State.Pending
-                || isNullOrUndefined(data.functions)) {
-                throw new Error(`cannot resolve "${key}": already settled`);
-            }
-
-            data.functions.resolve(doResolve());
-
-            const { functions, ...resolved } = {
-                ...data,
-                status: State.Pending,
-            };
-
-            this.data.set(key, resolved);
-        } else {
-            this.promises.set(key, doResolve());
-            this.data.set(key, { status: State.Pending });
-        }
-
-        this.setTimeout(key);
-
-        return !hasEntry;
+        return this.settle({
+            key,
+            onExisting: (data) => this.resolveExisting({ key, data, value }),
+            onNew: () => this.resolveNew(key, value),
+        });
     }
 
     /**
@@ -158,36 +119,13 @@ export class PromiseMap<K, V> {
      *            not in the owned set.
      * @param reason The reason to reject the `Promise` with.
      * @returns True if a new `Promise` was inserted.
-     * @throws Error If the matching `Promise` is already settled.
      */
     public reject(key: K, reason?: any): boolean {
-        const maybePromiseData = this.getRaw(key);
-        const hasEntry = !isNullOrUndefined(maybePromiseData);
-
-        if (!isNullOrUndefined(maybePromiseData)) {
-            const data = maybePromiseData[1];
-
-            if (data.status !== State.Pending
-                || isNullOrUndefined(data.functions)) {
-                throw new Error(`cannot reject "${key}": already settled`);
-            }
-
-            data.functions.reject(reason);
-
-            const { functions, ...rejected } = {
-                ...data,
-                status: State.Rejected,
-            };
-
-            this.data.set(key, rejected);
-        } else {
-            this.promises.set(key, Promise.reject(reason));
-            this.data.set(key, { status: State.Rejected });
-        }
-
-        this.setTimeout(key);
-
-        return !hasEntry;
+        return this.settle({
+            key,
+            onExisting: (data) => this.rejectExisting({ key, data, reason }),
+            onNew: () => this.rejectNew(reason),
+        });
     }
 
     /**
@@ -197,16 +135,18 @@ export class PromiseMap<K, V> {
      * @returns The number of rejected `Promise`s.
      */
     public rejectAll(reason?: any): number {
-        const keys = Array.from(this.data.entries())
-            .filter(([_, data]) => data.status === State.Pending
-                                   && !isNullOrUndefined(data.functions))
-            .map(([key, _]) => key);
+        let numRejected = 0;
 
-        for (const key of keys) {
+        for (const [key, data] of this.data.entries()) {
+            if (data.status !== State.Pending || isUndefined(data.functions)) {
+                continue;
+            }
+
             this.reject(key, reason);
+            ++numRejected;
         }
 
-        return keys.length;
+        return numRejected;
     }
 
     /**
@@ -215,16 +155,16 @@ export class PromiseMap<K, V> {
      * @param key The key of the `Promise` to get.
      * @returns The matching `Promise` to the key.
      */
-    public get(key: K): Promise<V> {
-        const maybePromiseData = this.getRaw(key);
+    public async get(key: K): Promise<V> {
+        const maybePromise = this.promises.get(key);
 
-        if (!isNullOrUndefined(maybePromiseData)) {
-            return maybePromiseData[0];
+        if (!isUndefined(maybePromise)) {
+            return maybePromise;
         }
 
         const promise = new Promise<V>((resolve, reject) => this.data.set(key, {
-            status: State.Pending,
             functions: { resolve, reject },
+            status: State.Pending,
         }));
 
         this.promises.set(key, promise);
@@ -237,91 +177,236 @@ export class PromiseMap<K, V> {
      * @returns True if `key` and the matching `Promise` were in the owned set.
      */
     public delete(key: K): boolean {
-        const maybePromiseData = this.getRaw(key);
-
-        if (isNullOrUndefined(maybePromiseData)) {
-            return false;
-        }
-
-        const data = maybePromiseData[1];
-
-        if (!isNullOrUndefined(data.functions)) {
-            data.functions.reject(new Error("deleted"));
-        }
-
-        if (!isNullOrUndefined(data.timer)) {
-            clearTimeout(data.timer);
-        }
-
-        this.promises.delete(key);
-        this.data.delete(key);
-
-        return true;
+        return this.doDelete(key, new Error("deleted"));
     }
 
     /**
      * @returns The number of `Promise`s that were deleted.
      */
     public clear(): number {
-        const keys = Array.from(this.promises.keys());
+        const error = new Error("cleared");
 
-        for (const key of keys) {
-            this.delete(key);
+        for (const controlBlock of this.data.values()) {
+            if (isUndefined(controlBlock.functions)) {
+                continue;
+            }
+
+            controlBlock.functions.reject(error);
         }
 
-        return keys.length;
+        const numDeleted = this.promises.size;
+        this.promises.clear();
+        this.data.clear();
+
+        return numDeleted;
     }
 
+    /**
+     * @param key The key of the `Promise` to settle.
+     * @param onExisting The function to call if `key` exists.
+     * @param onNew The function to call if `key` doesn't exist.
+     * @returns True if `key` didn't exist and `onNew` was called.
+     */
+    private settle({ key, onExisting, onNew }: {
+        key: K;
+        onExisting(data: MapData<V>): MapData<V>;
+        onNew(): [Promise<V>, MapData<V>];
+    }): boolean {
+        const maybeData = this.data.get(key);
+        const hasKey = !isUndefined(maybeData);
+
+        if (hasKey) {
+            const data = maybeData!;
+            const newData = onExisting(data);
+
+            this.data.set(key, newData);
+        } else {
+            const [promise, data] = onNew();
+
+            this.promises.set(key, promise);
+            this.data.set(key, data);
+        }
+
+        this.setTimeout(key);
+
+        return !hasKey;
+    }
+
+    /**
+     * @param key The key to resolve.
+     * @param data The data pertaining to this existing key.
+     * @param value The value to resolve with.
+     */
+    private resolveExisting({ key, data, value }: {
+        key: K;
+        data: MapData<V>;
+        value: V | PromiseLike<V>;
+    }): MapData<V> {
+        if (!isUndefined(data.functions)) {
+            data.functions.resolve(this.doResolve(key, value));
+        } else {
+            this.promises.set(key, this.doResolve(key, value));
+        }
+
+        return {
+            ...removeFunctions(data),
+            status: State.Pending,
+        };
+    }
+
+    /**
+     * @param key The key to create.
+     * @param value The value to resolve with.
+     *
+     * @returns The newly created `Promise` and its control data.
+     */
+    private resolveNew(
+        key: K,
+        value: V | PromiseLike<V>
+    ): [Promise<V>, MapData<V>] {
+        return [this.doResolve(key, value), { status: State.Pending }];
+    }
+
+    /**
+     * @param key The key to reject.
+     * @param data The data of the key to reject.
+     * @param reason The (optional) reason to reject with.
+     */
+    private rejectExisting({ key, data, reason }: {
+        key: K;
+        data: MapData<V>;
+        reason?: any;
+    }): MapData<V> {
+        if (!isUndefined(data.functions)) {
+            data.functions.reject(reason);
+        } else {
+            this.promises.set(key, Promise.reject(reason));
+        }
+
+        return {
+            ...removeFunctions(data),
+            status: State.Rejected,
+        };
+    }
+
+    /**
+     * @param reason The (optional) reason to reject with.
+     * @returns The newly rejected `Promise` and its control data.
+     */
+    private rejectNew(reason?: any): [Promise<V>, MapData<V>] {
+        return [Promise.reject(reason), { status: State.Rejected }];
+    }
+
+    private async doResolve(key: K, value: V | PromiseLike<V>): Promise<V> {
+        try {
+            const resolved = await value;
+            this.setStatus(key, State.Fulfilled);
+
+            return resolved;
+        } catch (error) {
+            this.setStatus(key, State.Rejected);
+
+            throw error;
+        }
+    }
+
+    /**
+     * @param key The key to set the status of.
+     */
+    private setStatus(key: K, status: State): void {
+        const maybeExisting = this.data.get(key);
+
+        const toSet = (() => {
+            if (typeof maybeExisting === "undefined") {
+                return { status };
+            }
+
+            return {
+                ...maybeExisting,
+                status,
+            };
+        })();
+
+        this.data.set(key, toSet);
+    }
+
+    /**
+     * Sets a timeout for a key. After at least `this.timeout` milliseconds,
+     * will call `PromiseMap#delete` on the specified key.
+     *
+     * @param key The key to set a timeout on.
+     * @returns True if a timeout was set.
+     */
     private setTimeout(key: K): boolean {
         const maybeData = this.data.get(key);
 
-        if (isNullOrUndefined(maybeData) || isNullOrUndefined(this.timeout)) {
+        if (isUndefined(maybeData) || isUndefined(this.timeout)) {
             return false;
         }
 
-        const data = maybeData;
-
-        if (!isNullOrUndefined(data.timer)) {
-            clearTimeout(data.timer);
+        if (!isUndefined(maybeData.timer)) {
+            clearTimeout(maybeData.timer);
         }
 
-        this.data.set(key, {
-            ...data,
-            timer: setTimeout(() => this.delete(key), this.timeout),
-        });
+        const doDelete = () => this.doDelete(key, new Error("timed out"));
+        const withTimer = {
+            ...maybeData,
+            timer: setTimeout(doDelete, this.timeout),
+        };
+        this.data.set(key, withTimer);
 
         return true;
     }
 
-    private getRaw(key: K): [Promise<V>, MapData<V>] | undefined {
-        const maybePromise = this.promises.get(key);
+    /**
+     * @param key The key of the `Promise` to delete.
+     * @param reason The reason to reject with if `key` is pending.
+     * @returns Whether `key` was deleted.
+     */
+    private doDelete(key: K, reason: Error): boolean {
         const maybeData = this.data.get(key);
 
-        if (isNullOrUndefined(maybePromise) && isNullOrUndefined(maybeData)) {
-            return undefined;
-        } else if (isNullOrUndefined(maybePromise)) {
-            throw new Error(`promise is undefined for "${key}"`);
-        } else if (isNullOrUndefined(maybeData)) {
-            throw new Error(`data is undefined for "${key}"`);
+        if (!isUndefined(maybeData)) {
+            if (!isUndefined(maybeData.functions)) {
+                maybeData.functions.reject(reason);
+            }
+
+            if (!isUndefined(maybeData.timer)) {
+                clearTimeout(maybeData.timer);
+            }
         }
 
-        return [maybePromise, maybeData];
+        this.data.delete(key);
+
+        return this.promises.delete(key);
     }
 }
 
+/**
+ * Potential states for a Promise to be in. `Fulfilled` and `Rejected` are both
+ * settled states.
+ */
 enum State {
     Pending,
     Fulfilled,
     Rejected,
 }
 
+/**
+ * Control block data for a `PromiseMap` entry.
+ */
 interface MapData<T> {
     readonly functions?: PromiseFunctions<T>;
     readonly status: State;
     readonly timer?: NodeJS.Timer;
 }
 
-interface PromiseFunctions<T> {
-    reject(reason?: any): void;
-    resolve(message?: T | PromiseLike<T>): void;
-}
+/**
+ * @param data The data that we want to ensure has no `functions` member.
+ * @returns A copy of `data` sans `functions`.
+ */
+const removeFunctions = <T>(data: MapData<T>): MapData<T> => {
+    const { functions: _, ...toReturn } = data;
+
+    return toReturn;
+};

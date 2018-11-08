@@ -35,13 +35,23 @@ import {
 } from "../basic_options";
 
 import { ParseError } from "../../errors";
-import { getScheme, parseUri, Queries, Scheme, Uri } from "../../uri";
+import { asScalar, QueryParser } from "../../query_parser";
+import { getScheme, parseUri, Scheme, Uri } from "../../uri";
 import { isNullOrUndefined } from "../../utility";
 
 /**
- * @param rawUri the URI to parse, should be of the format
- *               sentinel://host:port[;sentinel://host:port...]
- * @returns SentinelOptions parsed from `rawUri`.
+ * The URI should be formatted as follows:
+ * sentinel://host:port[;sentinel://host:port...]
+ * Any one of the URIs can have `name` or `role` specified in their query. The
+ * last query values will be used. `name` is the name of the master to connect
+ * to and must be specified. `role` determines the specific node from the
+ * Sentinel group that is connected to. Must be either `"master"` or `"slave"`.
+ *
+ * @param rawUri The URI to parse.
+ * @returns `Options` parsed from `rawUri`.
+ *
+ * @throws ParseError If `rawUri` is not a valid semicolon-delimited list of
+ *                    Sentinel URIs.
  */
 export const parseSentinelUri = (rawUris: string): Options => {
     const split = rawUris.split(";");
@@ -65,16 +75,30 @@ export const parseSentinelUri = (rawUris: string): Options => {
     };
 };
 
+/**
+ * Weak Sentinel queries - not guaranteed to contain necessary queries for a
+ * Sentinel client.
+ */
 interface SentinelQueries {
     name?: string;
     role?: "master" | "slave";
 }
 
+/**
+ * Strong Sentinel queries - guaranteed to contain necessary queries for the
+ * construction of a Sentinel client.
+ */
 interface StrongSentinelQueries {
     name: string;
     role?: "master" | "slave";
 }
 
+/**
+ * @param rawUri A single Sentinel URI to parse.
+ * @returns The authority and queries of a Sentinel URI.
+ *
+ * @throws ParseError if the URI is not a valid Sentinel URI.
+ */
 const parseIndividual = (
     rawUri: string
 ): [Authority, SentinelQueries] => {
@@ -86,6 +110,13 @@ const parseIndividual = (
     return [authority, queries];
 };
 
+/**
+ * @param uri The object representation of a URI to verify.
+ * @returns The flattened and verified authority of `uri`.
+ *
+ * @throws ParseError If `uri` is not a Sentinel URI or it is lacking a
+ *                    hostname and port number.
+ */
 const parseAuthority = (uri: Uri): Authority => {
     const scheme = getScheme(uri.raw);
 
@@ -103,6 +134,12 @@ const parseAuthority = (uri: Uri): Authority => {
     };
 };
 
+/**
+ * @param uri The object representation of a URI to extract queries from.
+ * @returns The parsed queries from `uri`.
+ *
+ * @throws ParseError If `uri` contains an invalid `role` query.
+ */
 const parseQueries = (uri: Uri): SentinelQueries => {
     if (isNullOrUndefined(uri.query)) {
         return { };
@@ -110,59 +147,33 @@ const parseQueries = (uri: Uri): SentinelQueries => {
 
     const rawQuery = uri.query;
 
-    return [appendName, appendRole].reduce(
-        (appending, f) => f(appending, rawQuery),
-        { },
-    );
+    const parser = new QueryParser<SentinelQueries>([
+        { source: "name" },
+        { parser: (x) => parseRole(asScalar(x)), source: "role" },
+    ]);
+
+    return parser.parse(rawQuery, { });
 };
 
+/**
+ * Valid schemes are `sentinel` and `sentinels` (secure).
+ *
+ * @param scheme A `Scheme` to validate.
+ * @returns True if `scheme` is a Sentinel or Sentinel Secure scheme.
+ */
 const isSentinelScheme = (scheme: Scheme): boolean =>
     scheme === Scheme.RedisSentinel || scheme === Scheme.RedisSentinelSecure;
 
-const appendName = (
-    appending: SentinelQueries,
-    queries: Queries
-): SentinelQueries => {
-    const maybeName = queries.name;
-
-    if (isNullOrUndefined(maybeName)) {
-        return appending;
-    }
-
-    const name = collapseArray(maybeName);
-
-    return {
-        ...queries,
-        name,
-    };
-};
-
-const appendRole = (
-    appending: SentinelQueries,
-    queries: Queries
-): SentinelQueries => {
-    const maybeRole = queries.role;
-
-    if (isNullOrUndefined(maybeRole)) {
-        return appending;
-    }
-
-    const role = collapseArray(maybeRole);
-
+/**
+ * @param role A string that should be `"master" | "slave"`.
+ * @returns `role`.
+ *
+ * @throws ParseError If `role` is not `master` or `slave`.
+ */
+const parseRole = (role: string): "master" | "slave" => {
     if (role !== "master" && role !== "slave") {
         throw new ParseError(`role "${role}" is not "master" or "slave"`);
     }
 
-    return {
-        ...queries,
-        role,
-    };
-};
-
-const collapseArray = <T>(maybeArray: T | Array<T>): T => {
-    if (maybeArray instanceof Array) {
-        return maybeArray[maybeArray.length - 1];
-    }
-
-    return maybeArray;
+    return role;
 };

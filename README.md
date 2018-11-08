@@ -1,6 +1,9 @@
 # Status
 
-[![Build Status](https://travis-ci.org/IBM/node-celery-ts.svg?branch=master)](https://travis-ci.org/IBM/node-celery-ts)
+[![Build Status](https://travis-ci.com/IBM/node-celery-ts.svg?branch=develop)](https://travis-ci.com/IBM/node-celery-ts)
+[![NPM](https://img.shields.io/npm/v/celery-ts.svg)](https://www.npmjs.com/package/celery-ts)
+[![Maintainability](https://api.codeclimate.com/v1/badges/2c1e8fb845a904141619/maintainability)](https://codeclimate.com/github/IBM/node-celery-ts/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/2c1e8fb845a904141619/test_coverage)](https://codeclimate.com/github/IBM/node-celery-ts/test_coverage)
 
 # Description
 
@@ -17,9 +20,6 @@ respectively. `node-celery-ts` does not support Amazon SQS or Zookeeper message
 brokers, nor does it support SQLAlchemy, Memcached, Cassandra, Elasticsearch,
 IronCache, Couchbase, CouchDB, filesystem, or Consul result backends.
 
-# License
-
-`node-celery-ts` is licensed under the BSD-3-Clause license.
 
 # Usage
 ## Basic
@@ -179,3 +179,7 @@ const cluster: RedisOptions = new Celery.RedisClusterOptions({
 `node-celery-ts` was inspired by
 [`node-celery`](https://github.com/mher/node-celery). Special thanks to
 [Cameron Will](https://github.com/cwill747) for his guidance.
+
+# License
+
+`node-celery-ts` is licensed under the BSD-3-Clause license.

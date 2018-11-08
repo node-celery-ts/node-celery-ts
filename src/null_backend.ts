@@ -32,34 +32,54 @@
 import { ResultMessage } from "./messages";
 import { ResultBackend } from "./result_backend";
 
+/**
+ * A dummy backend. All operations will either throw or return a rejected
+ * `Promise`, whichever is appropriate. To be used when ignoring results.
+ */
 export class NullBackend implements ResultBackend {
+    /**
+     * @returns A `NullBackend` ready to fail at the earliest convenience.
+     */
     public constructor() { }
 
-    public put(): Promise<string> {
-        return Promise.reject(
-            new Error("cannot put results onto a null backend")
-        );
+    /**
+     * @returns A rejected `Promise`.
+     */
+    public async put(): Promise<string> {
+        throw new Error("cannot put results onto a null backend");
     }
 
-    public get<T>(): Promise<ResultMessage<T>> {
-        return Promise.reject(
-            new Error("cannot get results from a null backend")
-        );
+    /**
+     * @returns A rejected `Promise`.
+     */
+    public async get<T>(): Promise<ResultMessage<T>> {
+        throw new Error("cannot get results from a null backend");
     }
 
+    /**
+     * @returns A rejected `Promise`.
+     */
     public delete(): Promise<string> {
-        return Promise.reject(
-            new Error("cannot delete results from a null backend")
-        );
+        throw new Error("cannot delete results from a null backend");
     }
 
-    public disconnect(): Promise<void> {
-        return Promise.reject(
-            new Error("cannot disconnect from a null backend")
-        );
+    /**
+     * @returns A resolved `Promise`.
+     */
+    public async disconnect(): Promise<void> {
+        await this.end();
     }
 
-    public uri(): string {
+    /**
+     * @returns A resolved `Promise`.
+     */
+    public async end(): Promise<void> { }
+
+    /**
+     * @returns Nothing; will never return.
+     * @throws Error If invoked.
+     */
+    public uri(): never {
         throw new Error("cannot query the URI of a null backend");
     }
 }

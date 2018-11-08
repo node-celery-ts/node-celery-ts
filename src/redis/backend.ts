@@ -69,25 +69,26 @@ export class RedisBackend implements ResultBackend {
         })();
 
         this.pool = new ResourcePool<IoRedis.Redis>(
-            () => this.options.createClient(),
-            (connection) => connection.quit()
-                .then((response) => {
-                    connection.disconnect();
+            () => this.options.createClient({ keyPrefix: "celery-task-meta-" }),
+            async (connection) => {
+                const response = await connection.quit();
+                connection.disconnect();
 
-                    return response;
-                }),
+                return response;
+            },
             2,
         );
 
-        this.subscriber = this.pool.get();
-
-        this.subscriber.then((subscriber) =>
-            subscriber.psubscribe("celery-task-meta-*")
-                .then(() => subscriber.on(
+        this.subscriber = this.pool.get()
+            .then(async (subscriber) => {
+                await subscriber.psubscribe("celery-task-meta-*");
+                subscriber.on(
                     "pmessage",
-                    (_, channel, message) => this.onMessage(channel, message))
-                )
-        );
+                    (_, channel, message) => this.onMessage(channel, message)
+                );
+
+                return subscriber;
+            });
     }
 
     /**
@@ -98,20 +99,15 @@ export class RedisBackend implements ResultBackend {
      * @returns A Promise that resolves to the response of the Redis server
      *          after the message has been set and published.
      */
-    public put<T>(message: ResultMessage<T>): Promise<string> {
-        const key = RedisBackend.getKey(message.task_id);
+    public async put<T>(message: ResultMessage<T>): Promise<string> {
+        const key = message.task_id;
         const toPut = JSON.stringify(message);
 
-        return this.pool.get().then((client) => {
-            const response = Promise.resolve<string>(
-                client.multi()
-                    .setex(key, RedisBackend.TIMEOUT / 1000, toPut)
-                    .publish(key, toPut)
-                    .exec()
-            );
-
-            return this.pool.returnAfter(response, client);
-        });
+        return this.pool.use(async (client): Promise<string> => client.multi()
+            .setex(key, RedisBackend.TIMEOUT / 1000, toPut)
+            .publish(key, toPut)
+            .exec()
+        );
     }
 
     /**
@@ -126,36 +122,38 @@ export class RedisBackend implements ResultBackend {
      *                undefined, no timeout will be set.
      * @returns A Promise that resolves to the result received from Redis.
      */
-    public get<T>({ taskId, timeout }: GetOptions): Promise<ResultMessage<T>> {
-        const listen = () => this.results
-            .get(taskId)
-            .then((unparsed: string): ResultMessage<T> =>
-                JSON.parse(unparsed)
-            );
+    public async get<T>({
+        taskId,
+        timeout
+    }: GetOptions): Promise<ResultMessage<T>> {
+        const listen = async (): Promise<ResultMessage<T>> => {
+            const raw = await this.results.get(taskId);
+
+            return JSON.parse(raw);
+        };
 
         if (this.results.has(taskId)) {
             return listen();
         }
 
-        return this.pool.get().then((client) => {
-            const response = client.get(`celery-task-meta-${taskId}`)
-                .then((raw) => {
-                    if (isNullOrUndefined(raw)) {
-                        return listen();
-                    }
+        return this.pool.use(async (client) => {
+            const response = (async () => {
+                const raw = await client.get(taskId);
 
-                    const parsed: ResultMessage<T> = JSON.parse(raw);
+                if (isNullOrUndefined(raw)) {
+                    return listen();
+                }
 
-                    if (parsed.status !== Status.Success) {
-                        return listen();
-                    }
+                const parsed: ResultMessage<T> = JSON.parse(raw);
 
-                    return parsed;
-                });
+                if (parsed.status !== Status.Success) {
+                    return listen();
+                }
 
-            const withTimeout = createTimeoutPromise(response, timeout);
+                return parsed;
+            })();
 
-            return this.pool.returnAfter(withTimeout, client);
+            return createTimeoutPromise(response, timeout);
         });
     }
 
@@ -168,19 +166,23 @@ export class RedisBackend implements ResultBackend {
      *               Redis.
      * @returns A Promise that resolves to the DELETE response.
      */
-    public delete(taskId: string): Promise<string> {
-        const key = RedisBackend.getKey(taskId);
+    public async delete(taskId: string): Promise<string> {
+        return this.pool.use(async (client): Promise<string> => {
+            this.results.delete(taskId);
 
-        return this.pool.get().then((client) => {
-            const delResponse = client.del(key)
-                .then((response: string) => {
-                    this.pool.return(client);
-
-                    return response;
-                });
-
-            return this.pool.returnAfter(delResponse, client);
+            return client.del(taskId);
         });
+    }
+
+    /**
+     * Gently terminates the connection with Redis using QUIT. Same as #end.
+     *
+     * @returns A Promise that resolves to the QUIT response from Redis.
+     *
+     * @see #end
+     */
+    public async disconnect(): Promise<void> {
+        await this.end();
     }
 
     /**
@@ -188,12 +190,12 @@ export class RedisBackend implements ResultBackend {
      *
      * @returns A Promise that resolves to the QUIT response from Redis.
      */
-    public disconnect(): Promise<void> {
-        return this.subscriber.then((subscriber) => {
-            this.pool.return(subscriber);
+    public async end(): Promise<void> {
+        const subscriber = await this.subscriber;
+        await subscriber.punsubscribe("celery-task-meta-*");
+        this.pool.return(subscriber);
 
-            return this.pool.destroyAll().then(() => { });
-        });
+        await this.pool.destroyAll();
     }
 
     /**
@@ -203,10 +205,13 @@ export class RedisBackend implements ResultBackend {
         return this.options.createUri();
     }
 
-    private static getKey(taskId: string): string {
-        return `celery-task-meta-${taskId}`;
-    }
-
+    /**
+     * @param channel The channel that this message was published to.
+     * @param message The payload  of the PUBLISH command.
+     *
+     * @throws Error If a message is received by the subscription that isn't
+     *               a prefixed UUID.
+     */
     private onMessage(channel: string, message: string): void {
         const maybeId = channel.match(RedisBackend.UUID_REGEX);
 

@@ -39,20 +39,20 @@ import { isNullOrUndefined, promisifyEvent } from "../utility";
 import * as AmqpLib from "amqplib";
 
 /**
- * AmqpBroker implements MessageBroker using the RabbitMQ message broker.
- * Messages are durable and will survive a broker restart.
+ * `AmqpBroker` implements `MessageBroker` using the `RabbitMQ` message broker.
+ * Messages are, by default, durable, and will survive a broker restart.
  */
 export class AmqpBroker implements MessageBroker {
     private channels: ResourcePool<AmqpLib.Channel>;
-    private connection: Promise<AmqpLib.Connection>;
+    private readonly connection: Promise<AmqpLib.Connection>;
     private readonly options: AmqpOptions;
 
     /**
-     * Constructs an AmqpBroker with the given options.
+     * Constructs an `AmqpBroker` with the given options.
      *
      * @param options The configuration of the connection to make. If
-     *                `undefined`, will connect to RabbitMQ at localhost.
-     * @returns An AmqpBroker connected using the specified configuration.
+     *                `undefined`, will connect to RabbitMQ at localhost:6379.
+     * @returns An `AmqpBroker` connected using the specified configuration.
      */
     public constructor(options?: AmqpOptions) {
         this.options = (() => {
@@ -66,73 +66,82 @@ export class AmqpBroker implements MessageBroker {
         this.connection = Promise.resolve(AmqpLib.connect(this.options));
 
         this.channels = new ResourcePool(
-            () => this.connection.then((connection) =>
-                connection.createChannel()
-            ),
-            (channel) => channel.close().then(() => "closed"),
+            async () => {
+                const connection = await this.connection;
+
+                return connection.createChannel();
+            },
+            async (channel) => {
+                await channel.close();
+
+                return "closed";
+            },
             2,
         );
     }
 
     /**
-     * Disconnects from the RabbitMQ server. Only call once.
+     * Disconnects from the RabbitMQ node. Only call once.
      * Alias for #end().
      *
-     * @returns.A Promise that resolves when all in flight operations are
-     *          complete and the connection is closed.
+     * @returns A `Promise` that resolves once the connection is closed.
+     *
+     * @see #end
      */
-    public disconnect(): Promise<void> {
-        return this.end();
+    public async disconnect(): Promise<void> {
+        await this.end();
     }
 
     /**
-     * Disconnects from the RabbitMQ server. Only call once.
+     * Disconnects from the RabbitMQ node. Only call once.
      *
-     * @returns.A Promise that resolves when all in flight operations are
-     *          complete and the connection is closed.
+     * @returns A `Promise` that resolves once the connection is closed.
      */
-    public end(): Promise<void> {
-        return this.channels.destroyAll().then(() => this.connection)
-            .then((connection) => connection.close());
+    public async end(): Promise<void> {
+        await this.channels.destroyAll();
+
+        const connection = await this.connection;
+        await connection.close();
     }
 
     /**
      * Queues a message onto the requested exchange.
-     * Uses a direct exchange to a durable queue.
      *
      * @param message The message to be published. Used to determine the
-     *                exchange, routing key, and body encoding to use.
-     * @returns A Promise that resolves to `"flushed to write buffer"` after the
-     *          message is flushed to the amqp.node write buffer.
+     *                publishing options.
+     * @returns A `Promise` that resolves to `"flushed to write buffer"`.
      */
-    public publish(message: TaskMessage): Promise<string> {
+    public async publish(message: TaskMessage): Promise<string> {
         const exchange = message.properties.delivery_info.exchange;
         const routingKey = message.properties.delivery_info.routing_key;
 
         const body = AmqpBroker.getBody(message);
         const options = AmqpBroker.getPublishOptions(message);
 
-        return this.channels.get().then((channel) => {
-            const response = AmqpBroker.assert({
-                channel,
-                exchange,
-                routingKey
-            }).then(() => AmqpBroker.doPublish({
+        return this.channels.use(async (channel) => {
+            await AmqpBroker.assert({ channel, exchange, routingKey });
+
+            return AmqpBroker.doPublish({
                 body,
                 channel,
                 exchange,
                 options,
-                routingKey,
-            }));
-
-            return this.channels.returnAfter(response, channel);
+                routingKey
+            });
         });
     }
 
+    /**
+     * Converts a task message's body into a `Buffer`.
+     */
     private static getBody(message: TaskMessage): Buffer {
         return Buffer.from(message.body, message.properties.body_encoding);
     }
 
+    /**
+     * @param message The message to extract options from.
+     * @returns The options that the message should be published with.
+     */
     private static getPublishOptions(
         message: TaskMessage
     ): AmqpLib.Options.Publish {
@@ -147,36 +156,69 @@ export class AmqpBroker implements MessageBroker {
         };
     }
 
-    private static assert({ channel, exchange, routingKey }: {
+    /**
+     * Uses `AmqpLib.Channel#assertQueue`.
+     *
+     * @param channel The channel to make assertions with.
+     * @param exchange The exchange to assert.
+     * @param routingKey The queue to assert.
+     * @returns A `Promise` that resolves when the assertions are complete.
+     */
+    private static async assert({ channel, exchange, routingKey }: {
         channel: AmqpLib.Channel;
         exchange: string;
         routingKey: string;
     }): Promise<void> {
-        const queue = channel.assertQueue(routingKey);
+        const assertion = channel.assertQueue(routingKey);
 
+        // cannot assert default exchange
         if (exchange === "") {
-            return Promise.resolve(queue).then(() => { });
+            await assertion;
+        } else {
+            await Promise.all([
+                assertion,
+                channel.assertExchange(exchange, "direct"),
+            ]);
         }
-
-        return Promise.all([
-            channel.assertExchange(exchange, "direct"),
-            queue,
-        ]).then(() => { });
     }
 
-    private static doPublish({ body, channel, exchange, options, routingKey }: {
+    /**
+     * Uses `AmqpLib.Channel#publish`. If the write buffer is full, recursively
+     * calls itself after a `"drain"` event is emitted until the write is
+     * performed.
+     *
+     * @param body The body of the message to publish.
+     * @param channel The channel to publish with.
+     * @param exchange The exchange to publish to.
+     * @param options The options to forward to `amqplib`.
+     * @param routingKey The key to route by. If using a direct exchange, this
+     *                   is the queue to route to.
+     * @returns The response from the RabbitMQ node.
+     */
+    private static async doPublish({
+        body,
+        channel,
+        exchange,
+        options,
+        routingKey
+    }: {
         body: Buffer;
         channel: AmqpLib.Channel;
         exchange: string;
         options: AmqpLib.Options.Publish;
         routingKey: string;
     }): Promise<string> {
-        if (!channel.publish(exchange, routingKey, body, options)) {
-            return promisifyEvent(channel, "drain").then(() =>
-                this.doPublish({ body, channel, exchange, options, routingKey })
-            );
+        const publish = () => channel.publish(
+            exchange,
+            routingKey,
+            body,
+            options
+        );
+
+        while (!publish()) {
+            await promisifyEvent<void>(channel, "drain");
         }
 
-        return Promise.resolve("flushed to write buffer");
+        return "flushed to write buffer";
     }
 }

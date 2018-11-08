@@ -42,18 +42,9 @@ export class Packer {
     private serializer: Serializer.Serializer;
 
     public constructor({ serializer, compressor, encoder }: Options) {
-        this.compressor = defaultIfUndefined(
-            compressor,
-            Compressor.createIdentityCompressor()
-        );
-        this.encoder = defaultIfUndefined(
-            encoder,
-            Encoder.createBase64Encoder()
-        );
-        this.serializer = defaultIfUndefined(
-            serializer,
-            Serializer.createJsonSerializer()
-        );
+        this.compressor = compressor;
+        this.encoder = encoder;
+        this.serializer = serializer;
     }
 
     /**
@@ -86,16 +77,7 @@ export class Packer {
  * bundles the component objects of a Packer
  */
 export interface Options {
-    compressor?: Compressor.Compressor;
-    encoder?: Encoder.Encoder;
-    serializer?: Serializer.Serializer;
+    compressor: Compressor.Compressor;
+    encoder: Encoder.Encoder;
+    serializer: Serializer.Serializer;
 }
-
-/** @ignore */
-const defaultIfUndefined = <T>(maybeUndefined: T | undefined, backup: T): T => {
-    if (typeof maybeUndefined === "undefined") {
-        return backup;
-    }
-
-    return maybeUndefined;
-};

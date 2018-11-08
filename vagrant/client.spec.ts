@@ -29,7 +29,24 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-export { List } from "./list";
-export { PromiseMap } from "./promise_map";
-export { PromiseQueue } from "./promise_queue";
-export { ResourcePool } from "./resource_pool";
+import * as Celery from "../src";
+
+import * as Chai from "chai";
+import * as Mocha from "mocha";
+
+Mocha.describe("Celery.Client", () => {
+    Mocha.it("should work", async () => {
+        const client = Celery.createClient({
+            brokerUrl: "amqp://localhost",
+            resultBackend: "redis://localhost",
+        });
+
+        const task = client.createTask("tasks.add");
+        const applied = task.applyAsync({ args: [10, 15], kwargs: { } });
+        const result = await applied.get();
+
+        await client.end();
+
+        Chai.expect(result).to.deep.equal(25);
+    });
+});

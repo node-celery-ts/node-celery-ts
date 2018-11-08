@@ -29,7 +29,33 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-export { List } from "./list";
-export { PromiseMap } from "./promise_map";
-export { PromiseQueue } from "./promise_queue";
-export { ResourcePool } from "./resource_pool";
+import { createBooleanQueryDescriptor, QueryParser } from "../../query_parser";
+import { Uri } from "../../uri";
+import { isNullOrUndefined } from "../../utility";
+
+/**
+ * Redis options common to several connection types.
+ */
+export interface RedisQueryOptions {
+    noDelay?: boolean;
+    password?: string;
+}
+
+/**
+ * @param uri The object representation of a Redis URI.
+ * @returns A `RedisQueryOptions` object with options present in `uri` mapped.
+ *
+ * @throws ParseError If the query could not be parsed.
+ */
+export const parseRedisQuery = (uri: Uri): RedisQueryOptions => {
+    if (isNullOrUndefined(uri.query)) {
+        return { };
+    }
+
+    const parser = new QueryParser<RedisQueryOptions>([
+        { source: "password" },
+        createBooleanQueryDescriptor("noDelay"),
+    ]);
+
+    return parser.parse(uri.query, { });
+};

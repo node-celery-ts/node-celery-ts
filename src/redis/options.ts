@@ -32,6 +32,7 @@
 import { UnimplementedError } from "../errors";
 import {
     BasicRedisClusterOptions,
+    BasicRedisOptions,
     BasicRedisSentinelOptions,
     BasicRedisSocketOptions,
     BasicRedisTcpOptions,
@@ -40,31 +41,67 @@ import {
 import * as IoRedis from "ioredis";
 
 /**
- * Options polymorphically wraps the logic of client and URI creation
+ * `RedisOptions` objects encapsulate the logic of Redis client creation.
  *
  * @see createOptions
  */
 export interface RedisOptions {
     /**
-     * @returns a Client according to the type of the Options object
+     * @param override Options to be written over existing options before
+     *                 creating the client
+     * @returns A Redis client configured according to the class type.
      */
-    createClient(): IoRedis.Redis;
+    createClient(override?: object): IoRedis.Redis;
 
     /**
-     * @returns a URI that can be used to lossily reconstruct an Options object
+     * @returns A URI that lossily encodes a `RedisOptions` object.
      */
     createUri(): string;
 }
 
+/**
+ * @param options The options to copy from.
+ * @returns A new options object with old options copied from `options` and
+ *          certain options forced to a value.
+ */
+const appendDefaultOptions = <T extends BasicRedisOptions>(options: T): T => {
+    const appended = {
+        ...options as object,
+        dropBufferSupport: true,
+        keyPrefix: "celery-task-meta-",
+        stringNumbers: true,
+    };
+
+    return appended as T;
+};
+
+/**
+ */
+const maybeOverride = <T extends BasicRedisOptions>(
+    options: T,
+    override?: object
+): T => {
+    if (typeof override === "undefined") {
+        return options;
+    }
+
+    // tslint:disable:no-object-literal-type-assertion
+    return { ...options as object, ...override } as T;
+};
+
+/**
+ * `RedisTcpOptions` creates Redis clients that connect to a single database
+ * over TCP.
+ */
 export class RedisTcpOptions implements RedisOptions {
     public readonly options: BasicRedisTcpOptions;
 
     public constructor(options: BasicRedisTcpOptions) {
-        this.options = options;
+        this.options = appendDefaultOptions(options);
     }
 
-    public createClient(): IoRedis.Redis {
-        return new IoRedis(this.options);
+    public createClient(override?: object): IoRedis.Redis {
+        return new IoRedis(maybeOverride(this.options, override));
     }
 
     public createUri(): string {
@@ -101,15 +138,19 @@ export class RedisTcpOptions implements RedisOptions {
     }
 }
 
+/**
+ * `RedisSocketOptions` creates Redis clients that connect to a single database
+ * over Unix Socket.
+ */
 export class RedisSocketOptions implements RedisOptions {
     public readonly options: BasicRedisSocketOptions;
 
     public constructor(options: BasicRedisSocketOptions) {
-        this.options = options;
+        this.options = appendDefaultOptions(options);
     }
 
-    public createClient(): IoRedis.Redis {
-        return new IoRedis(this.options);
+    public createClient(override?: object): IoRedis.Redis {
+        return new IoRedis(maybeOverride(this.options, override));
     }
 
     public createUri(): string {
@@ -129,15 +170,19 @@ export class RedisSocketOptions implements RedisOptions {
     }
 }
 
+/**
+ * `RedisSentinelOptions` creates Redis clients that connect to a group of Redis
+ * Sentinel nodes, automatically discovering slave nodes in the network.
+ */
 export class RedisSentinelOptions implements RedisOptions {
     public readonly options: BasicRedisSentinelOptions;
 
     public constructor(options: BasicRedisSentinelOptions) {
-        this.options = options;
+        this.options = appendDefaultOptions(options);
     }
 
-    public createClient(): IoRedis.Redis {
-        return new IoRedis(this.options);
+    public createClient(override?: object): IoRedis.Redis {
+        return new IoRedis(maybeOverride(this.options, override));
     }
 
     public createUri(): string {
@@ -145,11 +190,24 @@ export class RedisSentinelOptions implements RedisOptions {
     }
 }
 
+/**
+ * `RedisClusterOptions` creates Redis clients that connect to a Redis
+ * Cluster network.
+ */
 export class RedisClusterOptions implements RedisOptions {
     public readonly options: BasicRedisClusterOptions;
 
     public constructor(options: BasicRedisClusterOptions) {
-        this.options = options;
+        this.options = (() => {
+            if (typeof options.redisOptions === "undefined") {
+                return options;
+            }
+
+            return {
+                ...options,
+                redisOptions: appendDefaultOptions(options.redisOptions),
+            };
+        })();
     }
 
     public createClient(): IoRedis.Redis {
@@ -165,6 +223,10 @@ export const DEFAULT_REDIS_OPTIONS: RedisTcpOptions = new RedisTcpOptions({
     protocol: "redis"
 });
 
+/**
+ * @param options Options that might be used to construct ioredis clients.
+ * @returns A transformed `NativeOptions` object.
+ */
 export const createOptions = (options: NativeOptions): RedisOptions => {
     if (isCluster(options)) {
         return new RedisClusterOptions(options);

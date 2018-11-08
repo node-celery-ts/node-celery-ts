@@ -29,12 +29,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-import { ResultMessage } from "./messages";
 import { ResultBackend } from "./result_backend";
-import { createTimeoutPromise, isNullOrUndefined } from "./utility";
+import { createTimeoutPromise } from "./utility";
 
 /**
- * The result of a task computation, asynchronously fetched.
+ * The result of a task invocation. Asynchronously fetched.
  */
 export class Result<T> {
     private readonly backend: ResultBackend;
@@ -42,9 +41,11 @@ export class Result<T> {
     private readonly result: Promise<T>;
 
     /**
+     * Will immediately begin waiting for the result to be fetched.
+     *
      * @param taskId UUID of the task whose result we are requesting.
      * @param backend The backend to receive the result on.
-     * @returns A Result that will fetch from `backend` when possible.
+     * @returns A `Result` that will fetch from `backend` when possible.
      */
     public constructor(taskId: string, backend: ResultBackend) {
         this.taskId = taskId;
@@ -58,15 +59,11 @@ export class Result<T> {
      * the constructor.
      *
      * @param timeout The duration to wait, in milliseconds, before rejecting
-     *                the promise. If undefined, will not set a timeout.
-     * @returns A Promise that will resolve to the result of the task after
+     *                the `Promise`. If undefined, will not set a timeout.
+     * @returns A `Promise` that will resolve to the result of the task after
      *          it is fetched from the backend.
      */
-    public get(timeout?: number): Promise<T> {
-        if (isNullOrUndefined(timeout)) {
-            return this.result;
-        }
-
+    public async get(timeout?: number): Promise<T> {
         return createTimeoutPromise(this.result, timeout);
     }
 
@@ -74,15 +71,19 @@ export class Result<T> {
      * Deletes the result from the backend. If the result has not been received
      * yet, will immediately discard it.
      *
-     * @returns A Promise that resolves to the response of the result backend.
+     * @returns A `Promise` that resolves to the response of the result backend.
      */
-    public delete(): Promise<string> {
+    public async delete(): Promise<string> {
         return this.backend.delete(this.taskId);
     }
 
-    private getResult(): Promise<T> {
-        return this.backend
-            .get<T>({ taskId: this.taskId })
-            .then((message: ResultMessage<T>): T => message.result);
+    /**
+     * @returns A `Promise` that resolves to the result fetched from the
+     *          result backend.
+     */
+    private async getResult(): Promise<T> {
+        const message = await this.backend.get<T>({ taskId: this.taskId });
+
+        return message.result;
     }
 }
