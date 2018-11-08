@@ -15,3 +15,5 @@ celery-ts-*.tgz
 tsconfig.json
 tslint.json
 Vagrantfile
+.idea
+docker
