@@ -54,6 +54,15 @@ export class Result<T> {
     }
 
     /**
+     * Return this task results id
+     * 
+     * @returns The results internal task id
+     */
+    public getId(): string {
+        return this.taskId
+    }
+
+    /**
      * Fetches the result from the backend. May resolve immediately if the
      * result was already fetched after the transaction was queued up in
      * the constructor.
