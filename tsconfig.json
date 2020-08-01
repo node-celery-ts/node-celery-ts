@@ -16,7 +16,7 @@
 		"sourceMap": true,
 		"strict": true,
 		"strictNullChecks": true,
-		"target": "ES2016",
+		"target": "ES2016"
 	},
 	"include": ["./src/**/*.ts"],
 	"typedocOptions": {
@@ -29,6 +29,6 @@
 		"readme": "./readme.md",
 		"stripInternal": true,
 		"theme": "minimal",
-		"tsconfig": "./tsconfig.json",
+		"tsconfig": "./tsconfig.json"
 	}
 }
