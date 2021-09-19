@@ -1,9 +1,7 @@
 # Status
 
-[![Build Status](https://travis-ci.com/IBM/node-celery-ts.svg?branch=develop)](https://travis-ci.com/IBM/node-celery-ts)
 [![NPM](https://img.shields.io/npm/v/celery-ts.svg)](https://www.npmjs.com/package/celery-ts)
-[![Maintainability](https://api.codeclimate.com/v1/badges/2c1e8fb845a904141619/maintainability)](https://codeclimate.com/github/IBM/node-celery-ts/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/2c1e8fb845a904141619/test_coverage)](https://codeclimate.com/github/IBM/node-celery-ts/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/841b29c65d87bcdcdc85/maintainability)](https://codeclimate.com/github/node-celery-ts/node-celery-ts/maintainability)[![Test Coverage](https://api.codeclimate.com/v1/badges/841b29c65d87bcdcdc85/test_coverage)](https://codeclimate.com/github/node-celery-ts/node-celery-ts/test_coverage)
 
 # Description
 
