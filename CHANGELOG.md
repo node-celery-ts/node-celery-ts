@@ -1,5 +1,5 @@
-<a name="1.1.0"></a>
-# [1.1.0](https://github.com/IBM/node-celery-ts/compare/v1.0.0...v1.1.0) (2018-08-29)
+BM<a name="1.1.0"></a>
+# [1.1.0](https://github.com/node-celery-ts/node-celery-ts/compare/v1.0.0...v1.1.0) (2018-08-29)
 
 ## Bug Fixes
 
