@@ -97,8 +97,7 @@ export class RedisBroker implements MessageBroker {
      */
     public async publish(message: TaskMessage): Promise<string> {
         const toPublish = JSON.stringify(message);
-        const queue = "celery";
-
+        const queue = message.properties.queue;
         return this.connection.lpush(queue, toPublish);
     }
 }
