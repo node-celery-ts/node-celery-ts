@@ -113,7 +113,8 @@ export interface TaskProperties {
     delivery_tag: string;
     /** May be ignored if unsupported by the queue. */
     priority: number;
-
+    /** Used by redis to select queue. Typically `"celery"` */
+    queue: string;
     /** Queue name to send replies to. Used for RPC result backend. */
     reply_to?: string;
 }

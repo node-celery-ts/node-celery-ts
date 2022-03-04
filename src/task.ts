@@ -396,6 +396,7 @@ export class Task<T> {
             },
             delivery_mode: deliveryMode,
             delivery_tag: "celery",
+            queue: queue,
             priority,
             reply_to: this.appId,
         };
