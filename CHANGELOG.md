@@ -1,17 +1,24 @@
-BM<a name="1.1.0"></a>
-# [1.1.0](https://github.com/node-celery-ts/node-celery-ts/compare/v1.0.0...v1.1.0) (2018-08-29)
+# Changelog
 
-## Bug Fixes
+## [1.1.1](https://github.com/node-celery-ts/node-celery-ts/compare/v1.1.0...v1.1.1) (2022-03-11)
+
+### Features
+
+* Allow for queue selection in task properties (#73)
+
+## [1.1.0](https://github.com/node-celery-ts/node-celery-ts/compare/v1.0.0...v1.1.0) (2018-08-29)
+
+### Bug Fixes
 
 * `RedisBackend` and `RpcBackend` will no longer throw upon UUID collision
 * `RedisBackend` now returns `Promise<string>` instead of `Promise<string | number>`
 * `AmqpBroker` now returns amqplib `Channel`s to its resource pool if `#publish` fails
 
-## Features
+### Features
 
 * Add multiple message broker URI parsing to `createClient`
 
-## Other Changes
+### Other Changes
 
 * Complete documentation, including internal modules and functions
 * Add `Client` and `RedisBackend` integration tests
