@@ -182,7 +182,7 @@ Mocha.describe("Celery.Containers.PromiseMap", () => {
         try {
             await bar;
             Chai.assert(false);
-        } catch (error) {
+        } catch (error: any) {
             Chai.expect(error.message).to.equal("cleared");
         }
     });

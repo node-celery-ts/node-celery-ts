@@ -35,6 +35,7 @@ import { isNullOrUndefined, toCamelCase } from "./utility";
 import * as _ from "underscore";
 import * as UriJs from "urijs";
 
+
 /**
  * Object representation of a URI.
  */
@@ -117,7 +118,6 @@ export const parseUri = (toParse: string): Uri => {
         raw: toParse,
         scheme: parsed.protocol.toLowerCase(),
     };
-
     const withAuthority = addHostUserPassAndPort(parsed, withRequired);
     const withQuery = addQuery(parsed, withAuthority);
 
@@ -152,26 +152,12 @@ export const getScheme = (rawUri: string): Scheme => {
 };
 
 /**
- * A URI as parsed by `urijs`.
- */
-interface RawUri {
-    readonly fragment?: string;
-    readonly hostname?: string;
-    readonly password?: string;
-    readonly path: string;
-    readonly port?: string;
-    readonly protocol: string;
-    readonly query?: string;
-    readonly username?: string;
-}
-
-/**
  * @param uri The output of `require("urijs").parse`.
  * @param parsing The object to add a hostname to.
  * @returns A copy of `parsing` with `authority.host` added if `uri.hostname` is
  *          defined.
  */
-const addHost = (uri: RawUri, parsing: Uri): Uri => {
+const addHost = (uri: UriJs.Parts, parsing: Uri): Uri => {
     if (isNullOrUndefined(uri.hostname)) {
         return parsing;
     }
@@ -189,7 +175,7 @@ const addHost = (uri: RawUri, parsing: Uri): Uri => {
  * @param parsing The object to add a hostname and username to.
  * @returns A copy of `parsing` with the fields added.
  */
-const addHostAndUser = (uri: RawUri, parsing: Uri): Uri => {
+const addHostAndUser = (uri: UriJs.Parts, parsing: Uri): Uri => {
     const withHost = addHost(uri, parsing);
 
     if (isNullOrUndefined(withHost.authority)
@@ -213,7 +199,7 @@ const addHostAndUser = (uri: RawUri, parsing: Uri): Uri => {
  * @param parsing The object to add a hostname, username, and password to.
  * @returns A copy of `parsing` with the fields added.
  */
-const addHostUserAndPass = (uri: RawUri, parsing: Uri): Uri => {
+const addHostUserAndPass = (uri: UriJs.Parts, parsing: Uri): Uri => {
     const withUser = addHostAndUser(uri, parsing);
 
     if (isNullOrUndefined(withUser.authority)) {
@@ -256,7 +242,7 @@ const addHostUserAndPass = (uri: RawUri, parsing: Uri): Uri => {
  * @param parsing The object to add a hostname, username, password, and port to.
  * @returns A copy of `parsing` with the fields added.
  */
-const addHostUserPassAndPort = (uri: RawUri, parsing: Uri): Uri => {
+const addHostUserPassAndPort = (uri: UriJs.Parts, parsing: Uri): Uri => {
     const withPass = addHostUserAndPass(uri, parsing);
 
     if (isNullOrUndefined(withPass.authority)
@@ -278,7 +264,7 @@ const addHostUserPassAndPort = (uri: RawUri, parsing: Uri): Uri => {
  * @param parsing The object to append queries to.
  * @returns A copy of `parsing` with the parsed query appended.
  */
-const addQuery = (uri: RawUri, parsing: Uri): Uri => {
+const addQuery = (uri: UriJs.Parts, parsing: Uri): Uri => {
     const REGEX: RegExp = // tslint:disable:max-line-length
         /^[A-Za-z\d*-._+%]+=[A-Za-z\d*-._+%]*(?:&[A-Za-z\d*-._+%]+=[A-Za-z\d*-._+%+]*)*$/;
 
