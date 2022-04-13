@@ -149,9 +149,6 @@ Mocha.describe("Celery.Redis.Uri.Tcp.parse", () => {
         expectParseToThrow("redis://", Errors.ParseError);
 
         expectParseToThrow("redis://host?foo bar=baz qux", Errors.ParseError);
-        expectParseToThrow("redis://host?foo\rbar=baz\rqux", Errors.ParseError);
-        expectParseToThrow("redis://host?foo\nbar=baz\nqux", Errors.ParseError);
-        expectParseToThrow("redis://host?foo\tbar=baz\tqux", Errors.ParseError);
     });
 
     const expectParseToEqual = (uri: string,

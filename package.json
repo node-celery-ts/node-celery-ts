@@ -42,35 +42,34 @@
         "@types/mocha": "^5.2.5",
         "@types/node": "^10.7.0",
         "@types/underscore": "^1.8.8",
-        "@types/urijs": "^1.15.38",
+        "@types/urijs": "^1.19.19",
         "@types/uuid": "^3.4.3",
+        "@typescript-eslint/eslint-plugin": "^5.19.0",
+        "@typescript-eslint/parser": "^5.19.0",
         "chai": "^4.1.2",
+        "eslint": "^8.13.0",
         "mocha": "^5.2.0",
         "nyc": "^12.0.2",
         "source-map-support": "^0.5.8",
         "ts-mockito": "^2.3.0",
-        "ts-node": "^7.0.1",
-        "tslint": "^5.11.0",
-        "tslint-clean-code": "^0.2.7",
-        "tslint-eslint-rules": "^5.4.0",
-        "tslint-sonarts": "^1.7.0",
-        "typedoc": "TypeStrong/typedoc#master",
-        "typescript": "^3.0.1"
+        "ts-node": "10.7.0",
+        "typedoc": "0.22.14",
+        "typescript": "^4.6.3"
     },
     "engines": {
-        "node": ">=8.11.3"
+        "node": ">=14.9.0"
     },
     "dependencies": {
-        "amqplib": "^0.5.2",
+        "amqplib": "^0.8.0",
         "ioredis": "^4.0.0",
         "js-yaml": "^3.13.1",
         "underscore": "^1.9.1",
-        "urijs": "^1.19.1",
+        "urijs": "^1.19.11",
         "uuid": "^3.3.2"
     },
     "scripts": {
         "prepare": "./node_modules/typescript/bin/tsc",
-        "lint": "./node_modules/tslint/bin/tslint --project ./",
+        "lint": "eslint --ext .js,.jsx,.ts,.tsx",
         "test": "nyc mocha",
         "test-integration": "nyc mocha --opts ./vagrant/mocha.opts",
         "typedoc": "./node_modules/typedoc/bin/typedoc ./src/"

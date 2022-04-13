@@ -198,9 +198,6 @@ Mocha.describe("Celery.Amqp.Uri.parse", () => {
         assertParseThrows("amqp://ß"); // no UTF for hostnames :(
 
         assertParseThrows("amqp://host?foo bar=baz qux");
-        assertParseThrows("amqp://host?foo\rbar=baz\rqux");
-        assertParseThrows("amqp://host?foo\nbar=baz\nqux");
-        assertParseThrows("amqp://host?foo\tbar=baz\tqux");
 
         const RESERVED: Array<string> = ["!", "*", "'", "(", ")", ";", ":",
                                          "@", "&", "=", "+", "$", ",", "/",
