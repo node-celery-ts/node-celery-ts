@@ -38,7 +38,7 @@ const result: Celery.Result<number> = task.applyAsync({
 const promise: Promise<number> = result.get();
 
 promise.then(console.log)
-	.catch(console.error);
+       .catch(console.error);
 ```
 
 ## Advanced
