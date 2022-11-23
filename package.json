@@ -71,7 +71,7 @@
         "prepare": "./node_modules/typescript/bin/tsc",
         "lint": "eslint --ext .js,.jsx,.ts,.tsx",
         "test": "nyc mocha",
-        "test-integration": "nyc mocha --opts ./vagrant/mocha.opts",
+        "test-integration": "nyc mocha --config ./vagrant/.mocharc.json",
         "typedoc": "./node_modules/typedoc/bin/typedoc ./src/"
     },
     "nyc": {
