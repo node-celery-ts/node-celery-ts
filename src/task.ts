@@ -159,7 +159,7 @@ export class Task<T> {
 
         const publishOptions = {
             body,
-            "content-encoding": encoding,
+            "content-encoding": ContentEncodingMime.Utf8,
             "content-type": Task.getContentTypeMime(serializer),
             headers: this.createHeaders({
                 args,
