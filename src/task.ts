@@ -138,6 +138,7 @@ export class Task<T> {
         priority = 0,
         queue = this.queue,
         serializer = Packer.Serializer.Json,
+        encoding = ContentEncodingMime.Base64,
     }: TaskApplyOptions): Result<T> {
         const backend = (() => {
             if (ignoreResult) {
@@ -150,7 +151,7 @@ export class Task<T> {
         const id = Uuid.v4();
         const result = new Result<T>(id, backend);
 
-        const [packer, encoding] = Task.createPacker(serializer, compression);
+        const [packer] = Task.createPacker(serializer, compression);
         const body = Task.packBody({ args, kwargs, packer });
 
         const etaStr = Task.dateOrNull(eta);
@@ -158,7 +159,7 @@ export class Task<T> {
 
         const publishOptions = {
             body,
-            "content-encoding": ContentEncodingMime.Utf8,
+            "content-encoding": encoding,
             "content-type": Task.getContentTypeMime(serializer),
             headers: this.createHeaders({
                 args,
@@ -382,13 +383,13 @@ export class Task<T> {
         queue,
     }: {
         deliveryMode: 1 | 2;
-        encoding: Packer.Encoder;
+        encoding: ContentEncodingMime;
         id: string;
         priority: Priority;
         queue: string;
     }): TaskProperties {
         return {
-            body_encoding: Task.getEncodingMime(encoding),
+            body_encoding: encoding,
             correlation_id: id,
             delivery_info: {
                 exchange: "",
@@ -414,20 +415,7 @@ export class Task<T> {
         }
 
         return Packer.Encoder.Base64;
-    }
-
-    /**
-     * @param encoding The encoding type to be converted into a MIME type.
-     * @returns Base64 if base-64, UTF-8 if plaintext.
-     */
-    private static getEncodingMime(
-        encoding: Packer.Encoder
-    ): ContentEncodingMime {
-        switch (encoding) {
-            case Packer.Encoder.Base64: return ContentEncodingMime.Base64;
-            case Packer.Encoder.Plaintext: return ContentEncodingMime.Utf8;
-        }
-    }
+}
 }
 
 /**
@@ -458,6 +446,7 @@ export interface TaskApplyOptions {
     priority?: Priority;
     queue?: string;
     serializer?: Packer.Serializer;
+    encoding?: ContentEncodingMime;
 }
 
 export type Args = Array<any>;
