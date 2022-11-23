@@ -106,5 +106,18 @@
                 95
             ]
         }
+    },
+    "mocha": {
+        "require": [
+            "ts-node/register",
+            "source-map-support/register"
+        ],
+        "recursive": true,
+        "extension": [
+            "ts",
+            "js",
+            "tsx"
+        ],
+        "spec": ["test/**/*.spec.ts"]
     }
 }
