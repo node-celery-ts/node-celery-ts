@@ -45,7 +45,7 @@ Mocha.describe("Celery.RedisBackend", () => {
 
     const createRedisBackend = () => new Celery.RedisBackend();
 
-    Mocha.it("should receive messages via SET/GET", async (done) => {
+    Mocha.it("should receive messages via SET/GET", async () => {
         const id = Uuid.v4();
         const message = {
             children: [],
@@ -67,10 +67,9 @@ Mocha.describe("Celery.RedisBackend", () => {
         await redis.flushall();
         await redis.quit();
         redis.disconnect();
-        done();
     });
 
-    Mocha.it("should receive messages via PUBLISH/SUBSCRIBE", async (done) => {
+    Mocha.it("should receive messages via PUBLISH/SUBSCRIBE", async () => {
         const id = Uuid.v4();
         const message = {
             children: [],
@@ -94,10 +93,9 @@ Mocha.describe("Celery.RedisBackend", () => {
         await redis.flushall();
         await redis.quit();
         redis.disconnect();
-        done();
     });
 
-    Mocha.it("should set with expected timeout", async (done) => {
+    Mocha.it("should set with expected timeout", async () => {
         const id = Uuid.v4();
         const message = {
             children: [],
@@ -122,10 +120,9 @@ Mocha.describe("Celery.RedisBackend", () => {
         await redis.flushall();
         await redis.quit();
         redis.disconnect();
-        done();
     });
 
-    Mocha.it("should DELETE from Redis when #delete is invoked", async (done) => {
+    Mocha.it("should DELETE from Redis when #delete is invoked", async () => {
         const id = Uuid.v4();
         const message = {
             children: [],
@@ -147,10 +144,9 @@ Mocha.describe("Celery.RedisBackend", () => {
         await redis.flushall();
         await redis.quit();
         redis.disconnect();
-        done();
     });
 
-    Mocha.it("should receive messages published before #get", async (done) => {
+    Mocha.it("should receive messages published before #get", async () => {
         const id = Uuid.v4();
         const message = {
             children: [],
@@ -174,6 +170,5 @@ Mocha.describe("Celery.RedisBackend", () => {
         await redis.flushall();
         await redis.quit();
         redis.disconnect();
-        done();
     });
 });
