@@ -47,6 +47,6 @@ Mocha.describe("Celery.Client", () => {
 
         await client.end();
 
-        Chai.expect(result).to.deep.equal(25);
+        return Chai.expect(result).to.deep.equal(25);
     });
 });
