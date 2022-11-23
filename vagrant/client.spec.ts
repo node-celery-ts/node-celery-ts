@@ -33,6 +33,7 @@ import * as Celery from "../src";
 
 import * as Chai from "chai";
 import * as Mocha from "mocha";
+import { ContentEncodingMime } from "../src";
 
 Mocha.describe("Celery.Client", () => {
     Mocha.it("should work", async () => {
@@ -47,6 +48,21 @@ Mocha.describe("Celery.Client", () => {
 
         await client.end();
 
-        Chai.expect(result).to.deep.equal(25);
+        return Chai.expect(result).to.deep.equal(25);
+    });
+
+    Mocha.it("should work with other encoding", async () => {
+        const client = Celery.createClient({
+            brokerUrl: "amqp://localhost",
+            resultBackend: "redis://localhost",
+        });
+
+        const task = client.createTask("tasks.add");
+        const applied = task.applyAsync({ args: [10, 15], kwargs: { }, encoding: ContentEncodingMime.Utf8 });
+        const result = await applied.get();
+
+        await client.end();
+
+        return Chai.expect(result).to.deep.equal(25);
     });
 });

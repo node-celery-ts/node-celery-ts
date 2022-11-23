@@ -27,5 +27,8 @@ jobs:
       run: docker-compose up -d
       working-directory: docker
 
-    - name: Run integration test
+    - name: Run unit test
       run: npm run test
+
+    - name: Run integration test
+      run: npm run test-integration
