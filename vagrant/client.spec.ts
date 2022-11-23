@@ -48,7 +48,7 @@ Mocha.describe("Celery.Client", () => {
 
         await client.end();
 
-        Chai.expect(result).to.deep.equal(25);
+        return Chai.expect(result).to.deep.equal(25);
     });
 
     Mocha.it("should work with other encoding", async () => {
@@ -63,6 +63,6 @@ Mocha.describe("Celery.Client", () => {
 
         await client.end();
 
-        Chai.expect(result).to.deep.equal(25);
+        return Chai.expect(result).to.deep.equal(25);
     });
 });
