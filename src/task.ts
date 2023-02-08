@@ -123,6 +123,8 @@ export class Task<T> {
      *                 priority. For Redis message brokers, 0 is the highest
      *                 priority. Other message brokers do not support priority.
      * @param queue The name of the direct exchange to send this task to.
+     * @param assertQueue Flag whether to call assertQueue or checkQueue on the provided queue.
+     *                    The default is true.
      * @param serializer The serializer to transform the task body into
      *                   a UTF-8 encoded string.
      * @returns A `Result` object. If `ignoreResult` is true or the client was
@@ -137,6 +139,7 @@ export class Task<T> {
         kwargs,
         priority = 0,
         queue = this.queue,
+        assertQueue = true,
         serializer = Packer.Serializer.Json,
     }: TaskApplyOptions): Result<T> {
         const backend = (() => {
@@ -161,12 +164,10 @@ export class Task<T> {
             "content-encoding": ContentEncodingMime.Utf8,
             "content-type": Task.getContentTypeMime(serializer),
             headers: this.createHeaders({
-                args,
                 compression,
                 eta: etaStr,
                 expires: expiresStr,
                 id,
-                kwargs,
             }),
             properties: this.createProperties({
                 deliveryMode: this.getDeliveryMode(),
@@ -174,6 +175,7 @@ export class Task<T> {
                 id,
                 priority,
                 queue,
+                assertQueue
             }),
         };
 
@@ -372,6 +374,8 @@ export class Task<T> {
      * @param queue The queue to send this message to. Only direct exchanges
      *              are supported, so this is also the routing key of the
      *              exchange.
+     * @param assertQueue Flag whether to call assertQueue or checkQueue on the provided queue.
+     *                    The default is true.
      * @returns The properties of a task message.
      */
     private createProperties({
@@ -380,12 +384,14 @@ export class Task<T> {
         id,
         priority,
         queue,
+        assertQueue,
     }: {
         deliveryMode: 1 | 2;
         encoding: Packer.Encoder;
         id: string;
         priority: Priority;
         queue: string;
+        assertQueue: boolean
     }): TaskProperties {
         return {
             body_encoding: Task.getEncodingMime(encoding),
@@ -397,6 +403,7 @@ export class Task<T> {
             delivery_mode: deliveryMode,
             delivery_tag: "celery",
             queue: queue,
+            assertQueue,
             priority,
             reply_to: this.appId,
         };
@@ -457,6 +464,7 @@ export interface TaskApplyOptions {
     kwargs: KeywordArgs;
     priority?: Priority;
     queue?: string;
+    assertQueue?: boolean;
     serializer?: Packer.Serializer;
 }
 
