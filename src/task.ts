@@ -319,31 +319,25 @@ export class Task<T> {
      * If `compression` is `"identity"`, there will not be a corresponding
      * field in the headers returned.
      *
-     * @param args The positional arguments to pack into the headers.
      * @param compression The compression type to indicate.
      * @param eta The earliest time this task should be executed as an ISO 8601
      *            date string.
      * @param expires The latest time this task should be executed as an ISO
      *                8601 date string.
-     * @param kwargs The keyword arguments to pack into the headers.
      * @param id The UUID of this task.
      * @returns The headers of a task message to be queued.
      */
-    private createHeaders({ args, compression, eta, expires, kwargs, id }: {
-        args: Args;
+    private createHeaders({ compression, eta, expires, id }: {
         compression: Packer.Compressor;
         eta: string | null;
         expires: string | null;
         id: string;
-        kwargs: KeywordArgs;
     }): TaskHeaders {
         const base: TaskHeaders = {
-            argsrepr: JSON.stringify(args),
             eta,
             expires,
             group: null,
             id,
-            kwargsrepr: JSON.stringify(kwargs),
             lang: "py",
             origin: Task.getOrigin(),
             parent_id: null,
