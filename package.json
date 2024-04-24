@@ -68,7 +68,7 @@
         "uuid": "^9.0.1"
     },
     "scripts": {
-        "prepare": "./node_modules/typescript/bin/tsc",
+        "prepare": "tsc",
         "lint": "eslint --ext .js,.jsx,.ts,.tsx",
         "test": "nyc mocha",
         "test-integration": "nyc mocha --opts ./vagrant/mocha.opts",
@@ -106,5 +106,17 @@
                 95
             ]
         }
+    },
+    "mocha": {
+      "require": [
+        "ts-node/register",
+        "source-map-support/register"
+      ],
+      "recursive": true,
+      "extension": [
+        "ts",
+        "js",
+        "tsx"
+      ]
     }
 }
