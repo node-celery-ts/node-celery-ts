@@ -36,7 +36,7 @@
         "@types/amqplib": "^0.5.8",
         "@types/bluebird": "^3.5.23",
         "@types/chai": "^4.1.4",
-        "@types/events": "^1.2.0",
+        "@types/events": "^3.0.3",
         "@types/ioredis": "^3.2.14",
         "@types/js-yaml": "^3.11.2",
         "@types/mocha": "^5.2.5",
