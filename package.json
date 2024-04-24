@@ -36,20 +36,20 @@
         "@types/amqplib": "^0.5.8",
         "@types/bluebird": "^3.5.23",
         "@types/chai": "^4.1.4",
-        "@types/events": "^1.2.0",
+        "@types/events": "^3.0.3",
         "@types/ioredis": "^3.2.14",
         "@types/js-yaml": "^3.11.2",
         "@types/mocha": "^5.2.5",
         "@types/node": "^10.7.0",
         "@types/underscore": "^1.8.8",
         "@types/urijs": "^1.19.19",
-        "@types/uuid": "^3.4.3",
+        "@types/uuid": "^9.0.8",
         "@typescript-eslint/eslint-plugin": "^5.19.0",
         "@typescript-eslint/parser": "^5.19.0",
         "chai": "^4.1.2",
         "eslint": "^8.13.0",
-        "mocha": "^5.2.0",
-        "nyc": "^12.0.2",
+        "mocha": "^10.4.0",
+        "nyc": "^15.1.0",
         "source-map-support": "^0.5.8",
         "ts-mockito": "^2.3.0",
         "ts-node": "10.7.0",
@@ -65,10 +65,10 @@
         "js-yaml": "^3.13.1",
         "underscore": "^1.9.1",
         "urijs": "^1.19.11",
-        "uuid": "^3.3.2"
+        "uuid": "^9.0.1"
     },
     "scripts": {
-        "prepare": "./node_modules/typescript/bin/tsc",
+        "prepare": "tsc",
         "lint": "eslint --ext .js,.jsx,.ts,.tsx",
         "test": "nyc mocha",
         "test-integration": "nyc mocha --opts ./vagrant/mocha.opts",
@@ -106,5 +106,17 @@
                 95
             ]
         }
+    },
+    "mocha": {
+      "require": [
+        "ts-node/register",
+        "source-map-support/register"
+      ],
+      "recursive": true,
+      "extension": [
+        "ts",
+        "js",
+        "tsx"
+      ]
     }
 }
