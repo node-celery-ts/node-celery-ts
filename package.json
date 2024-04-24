@@ -48,7 +48,7 @@
         "@typescript-eslint/parser": "^5.19.0",
         "chai": "^4.1.2",
         "eslint": "^8.13.0",
-        "mocha": "^5.2.0",
+        "mocha": "^10.4.0",
         "nyc": "^15.1.0",
         "source-map-support": "^0.5.8",
         "ts-mockito": "^2.3.0",
@@ -68,7 +68,7 @@
         "uuid": "^9.0.1"
     },
     "scripts": {
-        "prepare": "./node_modules/typescript/bin/tsc",
+        "prepare": "tsc",
         "lint": "eslint --ext .js,.jsx,.ts,.tsx",
         "test": "nyc mocha",
         "test-integration": "nyc mocha --opts ./vagrant/mocha.opts",
@@ -106,5 +106,17 @@
                 95
             ]
         }
+    },
+    "mocha": {
+      "require": [
+        "ts-node/register",
+        "source-map-support/register"
+      ],
+      "recursive": true,
+      "extension": [
+        "ts",
+        "js",
+        "tsx"
+      ]
     }
 }
