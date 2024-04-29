@@ -38,7 +38,7 @@
         "@types/chai": "^4.1.4",
         "@types/events": "^3.0.3",
         "@types/ioredis": "^3.2.14",
-        "@types/js-yaml": "^3.11.2",
+        "@types/js-yaml": "^4.0.9",
         "@types/mocha": "^5.2.5",
         "@types/node": "^10.7.0",
         "@types/underscore": "^1.8.8",
@@ -62,7 +62,7 @@
     "dependencies": {
         "amqplib": "^0.10.4",
         "ioredis": "^4.0.0",
-        "js-yaml": "^3.13.1",
+        "js-yaml": "^4.1.0",
         "underscore": "^1.9.1",
         "urijs": "^1.19.11",
         "uuid": "^9.0.1"
