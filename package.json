@@ -52,7 +52,7 @@
         "nyc": "^15.1.0",
         "source-map-support": "^0.5.8",
         "ts-mockito": "^2.3.0",
-        "ts-node": "10.7.0",
+        "ts-node": "10.9.2",
         "typedoc": "0.22.14",
         "typescript": "^4.6.3"
     },
