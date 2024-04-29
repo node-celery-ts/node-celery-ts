@@ -60,7 +60,7 @@
         "node": ">=14.9.0"
     },
     "dependencies": {
-        "amqplib": "^0.8.0",
+        "amqplib": "^0.10.4",
         "ioredis": "^4.0.0",
         "js-yaml": "^3.13.1",
         "underscore": "^1.9.1",
