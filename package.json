@@ -33,7 +33,7 @@
         "url": "https://github.com/node-celery-ts/node-celery-ts"
     },
     "devDependencies": {
-        "@types/amqplib": "^0.5.8",
+        "@types/amqplib": "^0.10.5",
         "@types/bluebird": "^3.5.23",
         "@types/chai": "^4.1.4",
         "@types/events": "^3.0.3",
