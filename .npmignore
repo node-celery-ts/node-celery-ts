@@ -1,6 +1,5 @@
 .nyc_output/
 .vagrant/
-containers/
 coverage/
 docs/
 scripts/
