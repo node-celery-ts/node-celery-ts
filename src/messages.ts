@@ -115,6 +115,8 @@ export interface TaskProperties {
     priority: number;
     /** Used by redis to select queue. Typically `"celery"` */
     queue: string;
+    /** Flag whether to call assertQueue (true) or checkQueue (false). Default is true. */
+    assertQueue: boolean;
     /** Queue name to send replies to. Used for RPC result backend. */
     reply_to?: string;
 }

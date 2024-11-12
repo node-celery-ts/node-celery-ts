@@ -119,7 +119,11 @@ export class AmqpBroker implements MessageBroker {
         const options = AmqpBroker.getPublishOptions(message);
 
         return this.channels.use(async (channel) => {
-            await AmqpBroker.assert({ channel, exchange, routingKey });
+            if (message.properties.assertQueue) {
+                await AmqpBroker.assert({ channel, exchange, routingKey });
+            } else {
+                await channel.checkQueue(routingKey)
+            }
 
             return AmqpBroker.doPublish({
                 body,
